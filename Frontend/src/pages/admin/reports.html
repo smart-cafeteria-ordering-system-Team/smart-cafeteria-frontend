@@ -1,0 +1,1741 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports | Smart Cafeteria</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    />
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <link rel="stylesheet" href="../../css/style.css" />
+    <link rel="stylesheet" href="../../css/admin.css" />
+    <link rel="stylesheet" href="../../css/components.css" />
+    <link rel="stylesheet" href="../../css/responsive.css" />
+
+    <style>
+        /* =========================================================
+           REPORTS PAGE - PREMIUM MODERN UI
+           Existing paths / imports / JS logic are preserved.
+           ========================================================= */
+
+        :root {
+            --reports-blue: #2563eb;
+            --reports-blue-dark: #1d4ed8;
+            --reports-indigo: #4f46e5;
+            --reports-purple: #7c3aed;
+            --reports-green: #16a34a;
+            --reports-orange: #f59e0b;
+            --reports-red: #dc2626;
+            --reports-cyan: #0891b2;
+            --reports-white: #ffffff;
+            --reports-border: rgba(148, 163, 184, 0.20);
+            --reports-shadow:
+                0 10px 30px rgba(15, 23, 42, 0.07);
+            --reports-shadow-hover:
+                0 18px 45px rgba(37, 99, 235, 0.13);
+        }
+
+        /* =========================
+           MAIN CONTENT
+           ========================= */
+
+        .admin-page .main-content {
+            margin-left: 260px;
+            padding: 30px 28px 60px;
+            min-height: 100vh;
+            transition:
+                margin-left 0.25s ease,
+                padding 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-page .main-content::before {
+            content: "";
+            position: absolute;
+            top: -160px;
+            right: -160px;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(37, 99, 235, 0.09) 0%,
+                    rgba(124, 58, 237, 0.05) 42%,
+                    transparent 72%
+                );
+            pointer-events: none;
+        }
+
+        .admin-page .main-content::after {
+            content: "";
+            position: absolute;
+            left: -180px;
+            bottom: -180px;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(14, 165, 233, 0.07) 0%,
+                    transparent 70%
+                );
+            pointer-events: none;
+        }
+
+        .admin-page .main-content > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* =========================
+           PAGE HEADER
+           ========================= */
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 26px;
+            padding: 24px 26px;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.98),
+                    rgba(248, 250, 252, 0.96)
+                );
+            box-shadow: var(--reports-shadow);
+            overflow: hidden;
+        }
+
+        .page-header::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            right: -45px;
+            top: -65px;
+            border-radius: 50%;
+            background: linear-gradient(
+                135deg,
+                rgba(37, 99, 235, 0.14),
+                rgba(124, 58, 237, 0.07)
+            );
+            pointer-events: none;
+        }
+
+        .page-header h1 {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: clamp(22px, 3vw, 30px);
+            line-height: 1.25;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--gray-900);
+            margin: 0;
+        }
+
+        .page-header h1 i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 15px;
+            color: #ffffff !important;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--reports-blue),
+                    var(--reports-indigo)
+                );
+            box-shadow:
+                0 8px 20px rgba(37, 99, 235, 0.25);
+            font-size: 20px;
+        }
+
+        .page-header h1 small {
+            width: 100%;
+            margin-left: 58px;
+            margin-top: -4px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.1px;
+            color: var(--gray-500);
+        }
+
+        /* =========================
+           REPORT TABS
+           ========================= */
+
+        .report-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            padding: 10px;
+            border-radius: 18px;
+            border: 1px solid var(--reports-border);
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: var(--reports-shadow);
+            backdrop-filter: blur(12px);
+        }
+
+        .report-tabs .tab-btn {
+            position: relative;
+            min-height: 44px;
+            padding: 10px 18px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            background: transparent;
+            font-family: "Poppins", sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition:
+                transform 0.2s ease,
+                color 0.2s ease,
+                background 0.2s ease,
+                box-shadow 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .report-tabs .tab-btn i {
+            margin-right: 6px;
+        }
+
+        .report-tabs .tab-btn:hover {
+            color: var(--reports-blue);
+            background: #eff6ff;
+            transform: translateY(-1px);
+        }
+
+        .report-tabs .tab-btn.active {
+            color: #ffffff;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--reports-blue),
+                    var(--reports-indigo)
+                );
+            border-color: transparent;
+            box-shadow:
+                0 8px 20px rgba(37, 99, 235, 0.22);
+        }
+
+        .report-tabs .tab-btn.active:hover {
+            color: #ffffff;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--reports-blue-dark),
+                    var(--reports-purple)
+                );
+            transform: translateY(-1px);
+        }
+
+        /* =========================
+           FILTER BAR
+           ========================= */
+
+        .report-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid var(--reports-border);
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.98),
+                    rgba(248, 250, 252, 0.95)
+                );
+            box-shadow: var(--reports-shadow);
+            align-items: center;
+        }
+
+        .report-filters label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .report-filters label::before {
+            content: "";
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--reports-blue);
+        }
+
+        .report-filters input {
+            min-height: 42px;
+            padding: 9px 13px;
+            border: 1.5px solid #dbe3ef;
+            border-radius: 11px;
+            background: #ffffff;
+            color: var(--gray-700);
+            font-family: "Poppins", sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            outline: none;
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .report-filters input:hover {
+            border-color: #b8c7dd;
+        }
+
+        .report-filters input:focus {
+            border-color: var(--reports-blue);
+            box-shadow:
+                0 0 0 4px rgba(37, 99, 235, 0.10);
+            transform: translateY(-1px);
+        }
+
+        .report-filters .btn-generate {
+            min-height: 42px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 11px;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--reports-blue),
+                    var(--reports-indigo)
+                );
+            color: #ffffff;
+            font-family: "Poppins", sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                filter 0.2s ease;
+            box-shadow:
+                0 7px 18px rgba(37, 99, 235, 0.18);
+        }
+
+        .report-filters .btn-generate:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.04);
+            box-shadow:
+                0 11px 24px rgba(37, 99, 235, 0.25);
+        }
+
+        .report-filters .btn-generate:active {
+            transform: translateY(0);
+        }
+
+        #exportBtn {
+            background:
+                linear-gradient(
+                    135deg,
+                    #16a34a,
+                    #059669
+                ) !important;
+            box-shadow:
+                0 7px 18px rgba(22, 163, 74, 0.18);
+        }
+
+        #exportBtn:hover {
+            box-shadow:
+                0 11px 24px rgba(22, 163, 74, 0.25);
+        }
+
+        .report-filters .btn-generate i {
+            margin-right: 6px;
+        }
+
+        /* =========================
+           REPORT RESULT
+           ========================= */
+
+        .report-result {
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.99),
+                    rgba(248, 250, 252, 0.97)
+                );
+            border-radius: 22px;
+            border: 1px solid var(--reports-border);
+            padding: 24px;
+            box-shadow: var(--reports-shadow);
+            min-height: 250px;
+            overflow: hidden;
+            transition:
+                box-shadow 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        .report-result:hover {
+            box-shadow: var(--reports-shadow-hover);
+        }
+
+        .report-result h3 {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--gray-900);
+            font-size: 18px;
+            font-weight: 750;
+            margin-bottom: 4px;
+        }
+
+        .report-result h3::before {
+            content: "";
+            width: 5px;
+            height: 22px;
+            border-radius: 10px;
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--reports-blue),
+                    var(--reports-purple)
+                );
+        }
+
+        .report-result > p {
+            margin-top: 4px;
+            margin-bottom: 18px;
+        }
+
+        /* =========================
+           EMPTY STATE
+           ========================= */
+
+        .report-result .empty {
+            min-height: 210px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 45px 20px;
+            color: var(--gray-400);
+        }
+
+        .report-result .empty i {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 78px;
+            height: 78px;
+            margin-bottom: 16px;
+            border-radius: 22px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #eff6ff,
+                    #eef2ff
+                );
+            color: var(--reports-blue);
+            font-size: 30px;
+            box-shadow:
+                inset 0 0 0 1px rgba(37, 99, 235, 0.08);
+        }
+
+        .report-result .empty p {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-500);
+        }
+
+        /* =========================
+           REPORT TABLE
+           ========================= */
+
+        .report-result table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+            overflow: hidden;
+            border: 1px solid #e5eaf1;
+            border-radius: 14px;
+            background: #ffffff;
+        }
+
+        .report-result table th {
+            text-align: left;
+            padding: 13px 14px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #eff6ff,
+                    #eef2ff
+                );
+            font-weight: 700;
+            color: #334155;
+            border-bottom: 1px solid #dbe3ef;
+            white-space: nowrap;
+        }
+
+        .report-result table th:first-child {
+            border-top-left-radius: 14px;
+        }
+
+        .report-result table th:last-child {
+            border-top-right-radius: 14px;
+        }
+
+        .report-result table td {
+            padding: 13px 14px;
+            color: var(--gray-600);
+            border-bottom: 1px solid #edf1f5;
+            vertical-align: middle;
+        }
+
+        .report-result table tbody tr {
+            transition:
+                background 0.18s ease,
+                transform 0.18s ease;
+        }
+
+        .report-result table tbody tr:hover {
+            background: #f8fbff;
+        }
+
+        .report-result table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .report-result .total-row {
+            font-weight: 700;
+            border-top: 2px solid #dbe3ef;
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8fafc,
+                    #eff6ff
+                );
+        }
+
+        .report-result .total-row td {
+            color: var(--gray-900);
+        }
+
+        /* =========================
+           SCROLLING FOR TABLES
+           ========================= */
+
+        .report-result {
+            overflow-x: auto;
+        }
+
+        .report-result table {
+            min-width: 560px;
+        }
+
+        /* =========================
+           MOBILE / TABLET
+           ========================= */
+
+        @media (max-width: 1024px) {
+            .admin-page .main-content {
+                margin-left: 0;
+                padding: 22px 18px 50px;
+            }
+
+            .page-header {
+                padding: 20px;
+            }
+
+            .report-tabs {
+                padding: 9px;
+            }
+
+            .report-filters {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .admin-page .main-content {
+                padding: 16px 12px 40px;
+            }
+
+            .page-header {
+                padding: 18px;
+                border-radius: 18px;
+                margin-bottom: 18px;
+            }
+
+            .page-header h1 {
+                font-size: 21px;
+                gap: 8px;
+            }
+
+            .page-header h1 i {
+                width: 42px;
+                height: 42px;
+                border-radius: 13px;
+                font-size: 17px;
+            }
+
+            .page-header h1 small {
+                margin-left: 50px;
+                font-size: 11px;
+            }
+
+            .report-tabs {
+                gap: 7px;
+                border-radius: 16px;
+            }
+
+            .report-tabs .tab-btn {
+                flex: 1 1 calc(50% - 7px);
+                padding: 10px 8px;
+                min-height: 42px;
+                font-size: 11px;
+            }
+
+            .report-filters {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 9px;
+                border-radius: 16px;
+            }
+
+            .report-filters label {
+                margin-top: 2px;
+            }
+
+            .report-filters input,
+            .report-filters .btn-generate {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .report-result {
+                padding: 16px;
+                border-radius: 18px;
+            }
+
+            .report-result h3 {
+                font-size: 16px;
+            }
+
+            .report-result table {
+                min-width: 620px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .page-header h1 {
+                font-size: 19px;
+            }
+
+            .report-tabs .tab-btn {
+                flex-basis: 100%;
+            }
+
+            .report-result {
+                padding: 13px;
+            }
+
+            .report-result table {
+                font-size: 12px;
+            }
+
+            .report-result table th,
+            .report-result table td {
+                padding: 11px 10px;
+            }
+        }
+
+        /* =========================
+           REDUCED MOTION
+           ========================= */
+
+        @media (prefers-reduced-motion: reduce) {
+            .report-tabs .tab-btn,
+            .report-filters input,
+            .report-filters .btn-generate,
+            .report-result,
+            .report-result table tbody tr {
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-page">
+
+        <!-- Sidebar injected -->
+
+        <div class="main-content">
+
+            <!-- =========================
+                 PAGE HEADER
+                 ========================= -->
+
+            <div class="page-header">
+                <div>
+                    <h1>
+                        <i class="fas fa-file-alt"></i>
+                        Reports
+                        <small>Generate and view reports</small>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- =========================
+                 REPORT TABS
+                 ========================= -->
+
+            <div class="report-tabs" id="reportTabs">
+
+                <button class="tab-btn active" data-report="daily-orders">
+                    <i class="fas fa-calendar-day"></i>
+                    Daily Orders
+                </button>
+
+                <button class="tab-btn" data-report="sales">
+                    <i class="fas fa-chart-line"></i>
+                    Sales
+                </button>
+
+                <button class="tab-btn" data-report="popular-items">
+                    <i class="fas fa-star"></i>
+                    Popular Items
+                </button>
+
+                <button class="tab-btn" data-report="payments">
+                    <i class="fas fa-credit-card"></i>
+                    Payments
+                </button>
+
+            </div>
+
+            <!-- =========================
+                 FILTERS
+                 ========================= -->
+
+            <div class="report-filters" id="reportFilters">
+
+                <label>From:</label>
+                <input type="date" id="startDate" />
+
+                <label>To:</label>
+                <input type="date" id="endDate" />
+
+                <button class="btn-generate" id="generateBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    Generate
+                </button>
+
+                <button
+                    class="btn-generate"
+                    style="background:#16a34a;"
+                    id="exportBtn"
+                >
+                    <i class="fas fa-download"></i>
+                    Export CSV
+                </button>
+
+            </div>
+
+            <!-- =========================
+                 REPORT RESULT
+                 ========================= -->
+
+            <div class="report-result" id="reportResult">
+
+                <div class="empty">
+                    <i class="fas fa-file-alt"></i>
+                    <p>Select a report type and click Generate</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =========================================================
+         SCRIPT
+         ========================================================= -->
+
+    <script type="module">
+
+        import { createSidebar } from '../../components/sidebar.js';
+        import { createFooter } from '../../components/footer.js';
+        import { isLoggedIn, getCurrentUser } from '../../js/auth.js';
+        import { generateReport } from '../../js/admin.js';
+        import { showToast } from '../../js/main.js';
+
+        // =========================================================
+        // CHECK ADMIN
+        // =========================================================
+
+        const user = getCurrentUser();
+        const isLoggedInUser = isLoggedIn();
+
+        if (!isLoggedInUser || user?.role !== 'admin') {
+
+            showToast(
+                'Access denied. Admin only.',
+                'error'
+            );
+
+            setTimeout(() => {
+                window.location.href = '../common/login.html';
+            }, 1500);
+        }
+
+        // =========================================================
+        // SIDEBAR
+        // =========================================================
+
+        const sidebarContainer =
+            document.createElement('div');
+
+        sidebarContainer.id = 'sidebarContainer';
+
+        document.body.prepend(sidebarContainer);
+
+        let sidebarOpen =
+            window.innerWidth > 1024;
+
+        function toggleSidebar() {
+
+            sidebarOpen = !sidebarOpen;
+
+            const sidebar =
+                document.querySelector('.admin-sidebar');
+
+            const overlay =
+                document.querySelector('.sidebar-overlay');
+
+            if (sidebar) {
+                sidebar.classList.toggle(
+                    'open',
+                    sidebarOpen
+                );
+            }
+
+            if (overlay) {
+                overlay.style.display =
+                    sidebarOpen &&
+                    window.innerWidth <= 1024
+                        ? 'block'
+                        : 'none';
+            }
+        }
+
+        sidebarContainer.innerHTML =
+            createSidebar({
+
+                brandText: 'SmartCafeteria',
+
+                brandIcon: 'fa-utensils',
+
+                userRole: 'admin',
+
+                userName: user?.name || 'Admin',
+
+                isOpen: sidebarOpen,
+
+                onToggle: toggleSidebar,
+
+                navItems: [
+
+                    {
+                        label: 'Dashboard',
+                        icon: 'fa-chart-pie',
+                        href: 'dashboard.html'
+                    },
+
+                    {
+                        label: 'Users',
+                        icon: 'fa-users',
+                        href: 'users.html'
+                    },
+
+                    {
+                        label: 'Menu',
+                        icon: 'fa-utensils',
+                        href: 'menu.html'
+                    },
+
+                    {
+                        label: 'Categories',
+                        icon: 'fa-tags',
+                        href: 'categories.html'
+                    },
+
+                    {
+                        label: 'Orders',
+                        icon: 'fa-shopping-bag',
+                        href: 'orders.html'
+                    },
+
+                    {
+                        label: 'Payments',
+                        icon: 'fa-credit-card',
+                        href: 'payments.html'
+                    },
+
+                    {
+                        label: 'Feedback',
+                        icon: 'fa-star',
+                        href: 'feedback.html'
+                    },
+
+                    {
+                        label: 'Cancellations',
+                        icon: 'fa-times-circle',
+                        href: 'cancellations.html'
+                    },
+
+                    {
+                        label: 'Reports',
+                        icon: 'fa-file-alt',
+                        href: 'reports.html',
+                        active: true
+                    },
+
+                    {
+                        label: 'Settings',
+                        icon: 'fa-cog',
+                        href: 'settings.html'
+                    }
+
+                ]
+
+            });
+
+        // =========================================================
+        // FOOTER
+        // =========================================================
+
+        document.body.insertAdjacentHTML(
+            'beforeend',
+            createFooter({
+
+                quickLinks: [
+
+                    {
+                        label: 'Home',
+                        href: '../../index.html'
+                    },
+
+                    {
+                        label: 'Menu',
+                        href: '../customer/menu.html'
+                    },
+
+                    {
+                        label: 'Login',
+                        href: '../common/login.html'
+                    },
+
+                    {
+                        label: 'Register',
+                        href: '../common/register.html'
+                    }
+
+                ],
+
+                roleLinks: [
+
+                    {
+                        label: 'Customer',
+                        href: '../customer/menu.html'
+                    },
+
+                    {
+                        label: 'Kitchen',
+                        href: '../kitchen/dashboard.html'
+                    },
+
+                    {
+                        label: 'Admin',
+                        href: 'dashboard.html'
+                    }
+
+                ]
+
+            })
+        );
+
+        // =========================================================
+        // DOM
+        // =========================================================
+
+        const resultContainer =
+            document.getElementById('reportResult');
+
+        const tabs =
+            document.querySelectorAll('.tab-btn');
+
+        const startDate =
+            document.getElementById('startDate');
+
+        const endDate =
+            document.getElementById('endDate');
+
+        const generateBtn =
+            document.getElementById('generateBtn');
+
+        const exportBtn =
+            document.getElementById('exportBtn');
+
+        let currentReportType =
+            'daily-orders';
+
+        // =========================================================
+        // DEFAULT DATES
+        // =========================================================
+
+        const now = new Date();
+
+        const thirtyDaysAgo =
+            new Date(now);
+
+        thirtyDaysAgo.setDate(
+            thirtyDaysAgo.getDate() - 30
+        );
+
+        startDate.value =
+            thirtyDaysAgo
+                .toISOString()
+                .split('T')[0];
+
+        endDate.value =
+            now
+                .toISOString()
+                .split('T')[0];
+
+        // =========================================================
+        // TAB SWITCHING
+        // =========================================================
+
+        tabs.forEach(tab => {
+
+            tab.addEventListener(
+                'click',
+                function () {
+
+                    tabs.forEach(t =>
+                        t.classList.remove('active')
+                    );
+
+                    this.classList.add('active');
+
+                    currentReportType =
+                        this.dataset.report;
+
+                    generateReportData();
+                }
+            );
+
+        });
+
+        // =========================================================
+        // GENERATE REPORT
+        // =========================================================
+
+        function generateReportData() {
+
+            const filters = {
+
+                startDate:
+                    startDate.value ||
+                    undefined,
+
+                endDate:
+                    endDate.value ||
+                    undefined
+
+            };
+
+            const result =
+                generateReport(
+                    currentReportType,
+                    filters
+                );
+
+            if (!result.success) {
+
+                resultContainer.innerHTML = `
+                    <div class="empty">
+                        <i
+                            class="fas fa-exclamation-circle"
+                            style="color:#dc2626;"
+                        ></i>
+
+                        <p style="color:#dc2626;">
+                            ${result.error ||
+                            'Failed to generate report'}
+                        </p>
+                    </div>
+                `;
+
+                return;
+            }
+
+            renderReport(
+                currentReportType,
+                result
+            );
+        }
+
+        // =========================================================
+        // RENDER REPORT
+        // =========================================================
+
+        function renderReport(type, data) {
+
+            const {
+                totalOrders,
+                totalRevenue,
+                dailyData,
+                items,
+                topItems
+            } = data;
+
+            switch (type) {
+
+                // =================================================
+                // DAILY ORDERS
+                // =================================================
+
+                case 'daily-orders': {
+
+                    const dailyRows =
+                        dailyData
+                            ? Object.entries(dailyData)
+                            : [];
+
+                    if (dailyRows.length === 0) {
+
+                        resultContainer.innerHTML = `
+                            <div class="empty">
+                                <i class="fas fa-chart-bar"></i>
+                                <p>No data for this period</p>
+                            </div>
+                        `;
+
+                        return;
+                    }
+
+                    resultContainer.innerHTML = `
+
+                        <h3>
+                            Daily Orders Report
+                        </h3>
+
+                        <p
+                            style="
+                                color:var(--gray-500);
+                                font-size:13px;
+                            "
+                        >
+                            ${data.startDate}
+                            —
+                            ${data.endDate}
+                        </p>
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Orders</th>
+                                    <th>Items</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                ${dailyRows.map(
+                                    ([date, stats]) => `
+
+                                    <tr>
+
+                                        <td>
+                                            ${date}
+                                        </td>
+
+                                        <td>
+                                            ${stats.orders}
+                                        </td>
+
+                                        <td>
+                                            ${stats.items}
+                                        </td>
+
+                                        <td>
+                                            <strong>
+                                                ${stats.revenue} ብር
+                                            </strong>
+                                        </td>
+
+                                    </tr>
+
+                                `).join('')}
+
+                                <tr class="total-row">
+
+                                    <td>
+                                        <strong>Total</strong>
+                                    </td>
+
+                                    <td>
+                                        ${totalOrders || 0}
+                                    </td>
+
+                                    <td>—</td>
+
+                                    <td>
+                                        <strong>
+                                            ${totalRevenue || 0} ብር
+                                        </strong>
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+                    `;
+
+                    break;
+                }
+
+                // =================================================
+                // SALES
+                // =================================================
+
+                case 'sales': {
+
+                    const salesItems =
+                        data.itemSales || [];
+
+                    if (salesItems.length === 0) {
+
+                        resultContainer.innerHTML = `
+                            <div class="empty">
+                                <i class="fas fa-chart-bar"></i>
+                                <p>
+                                    No sales data for this period
+                                </p>
+                            </div>
+                        `;
+
+                        return;
+                    }
+
+                    resultContainer.innerHTML = `
+
+                        <h3>
+                            Sales Report
+                        </h3>
+
+                        <p
+                            style="
+                                color:var(--gray-500);
+                                font-size:13px;
+                            "
+                        >
+                            ${data.startDate}
+                            —
+                            ${data.endDate}
+                            |
+                            Total:
+                            ${totalRevenue || 0} ብር
+                        </p>
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                ${salesItems
+                                    .slice(0, 20)
+                                    .map(item => `
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                ${item.name}
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            ${item.quantity}
+                                        </td>
+
+                                        <td>
+                                            <strong>
+                                                ${item.revenue} ብር
+                                            </strong>
+                                        </td>
+
+                                    </tr>
+
+                                `).join('')}
+
+                            </tbody>
+
+                        </table>
+                    `;
+
+                    break;
+                }
+
+                // =================================================
+                // POPULAR ITEMS
+                // =================================================
+
+                case 'popular-items': {
+
+                    const popularItems =
+                        data.items || [];
+
+                    if (popularItems.length === 0) {
+
+                        resultContainer.innerHTML = `
+                            <div class="empty">
+                                <i class="fas fa-star"></i>
+                                <p>No items data</p>
+                            </div>
+                        `;
+
+                        return;
+                    }
+
+                    resultContainer.innerHTML = `
+
+                        <h3>
+                            Popular Items
+                        </h3>
+
+                        <p
+                            style="
+                                color:var(--gray-500);
+                                font-size:13px;
+                            "
+                        >
+                            ${data.startDate}
+                            —
+                            ${data.endDate}
+                            |
+                            Total Items:
+                            ${data.totalItems || 0}
+                        </p>
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Item</th>
+                                    <th>Count</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                ${popularItems
+                                    .slice(0, 15)
+                                    .map(
+                                        (item, i) => `
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                ${i + 1}
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            <strong>
+                                                ${item.name}
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            ${item.count}
+                                        </td>
+
+                                        <td>
+                                            <strong>
+                                                ${item.revenue} ብር
+                                            </strong>
+                                        </td>
+
+                                    </tr>
+
+                                `
+                                    )
+                                    .join('')}
+
+                            </tbody>
+
+                        </table>
+                    `;
+
+                    break;
+                }
+
+                // =================================================
+                // PAYMENTS
+                // =================================================
+
+                case 'payments': {
+
+                    const methodCounts =
+                        data.methodCounts || {};
+
+                    const methods =
+                        Object.entries(methodCounts);
+
+                    if (methods.length === 0) {
+
+                        resultContainer.innerHTML = `
+                            <div class="empty">
+                                <i class="fas fa-credit-card"></i>
+                                <p>No payment data</p>
+                            </div>
+                        `;
+
+                        return;
+                    }
+
+                    const methodLabels = {
+                        cbe_birr: 'CBE Birr',
+                        telebirr: 'TeleBirr'
+                    };
+
+                    resultContainer.innerHTML = `
+
+                        <h3>
+                            Payments Report
+                        </h3>
+
+                        <p
+                            style="
+                                color:var(--gray-500);
+                                font-size:13px;
+                            "
+                        >
+                            ${data.startDate}
+                            —
+                            ${data.endDate}
+                        </p>
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                ${methods.map(
+                                    ([key, count]) => `
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                ${methodLabels[key] || key}
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            ${count}
+                                        </td>
+
+                                    </tr>
+
+                                `).join('')}
+
+                                <tr class="total-row">
+
+                                    <td>
+                                        <strong>Total</strong>
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            ${data.totalPayments || 0}
+                                        </strong>
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                        <div
+                            style="
+                                margin-top:16px;
+                                padding:14px 16px;
+                                border-radius:12px;
+                                background:linear-gradient(
+                                    135deg,
+                                    #eff6ff,
+                                    #eef2ff
+                                );
+                                color:var(--gray-800);
+                                font-weight:700;
+                                border:1px solid #dbeafe;
+                            "
+                        >
+                            <i
+                                class="fas fa-coins"
+                                style="
+                                    color:#2563eb;
+                                    margin-right:7px;
+                                "
+                            ></i>
+
+                            Total Amount:
+                            ${data.totalAmount || 0} ብር
+                        </div>
+                    `;
+
+                    break;
+                }
+
+                // =================================================
+                // DEFAULT
+                // =================================================
+
+                default:
+
+                    resultContainer.innerHTML = `
+                        <div class="empty">
+
+                            <i class="fas fa-file-alt"></i>
+
+                            <p>
+                                Report type not supported
+                            </p>
+
+                        </div>
+                    `;
+            }
+        }
+
+        // =========================================================
+        // EXPORT CSV
+        // =========================================================
+
+        function exportCSV() {
+
+            const table =
+                resultContainer.querySelector('table');
+
+            if (!table) {
+
+                showToast(
+                    'No data to export',
+                    'warning'
+                );
+
+                return;
+            }
+
+            let csv = '';
+
+            const rows =
+                table.querySelectorAll('tr');
+
+            rows.forEach(row => {
+
+                const cells =
+                    row.querySelectorAll('th, td');
+
+                const rowData =
+                    Array.from(cells).map(cell => {
+
+                        let text =
+                            cell.textContent.trim();
+
+                        if (
+                            text.includes(',') ||
+                            text.includes('"')
+                        ) {
+                            text =
+                                `"${text.replace(
+                                    /"/g,
+                                    '""'
+                                )}"`;
+                        }
+
+                        return text;
+                    });
+
+                csv +=
+                    rowData.join(',') +
+                    '\n';
+            });
+
+            const blob =
+                new Blob(
+                    [csv],
+                    {
+                        type:
+                            'text/csv;charset=utf-8;'
+                    }
+                );
+
+            const link =
+                document.createElement('a');
+
+            link.href =
+                URL.createObjectURL(blob);
+
+            link.download =
+                `${currentReportType}_report_${new Date()
+                    .toISOString()
+                    .split('T')[0]
+                }.csv`;
+
+            link.click();
+
+            URL.revokeObjectURL(link.href);
+
+            showToast(
+                'Report exported successfully!',
+                'success'
+            );
+        }
+
+        // =========================================================
+        // EVENT LISTENERS
+        // =========================================================
+
+        generateBtn.addEventListener(
+            'click',
+            generateReportData
+        );
+
+        exportBtn.addEventListener(
+            'click',
+            exportCSV
+        );
+
+        // =========================================================
+        // INIT
+        // =========================================================
+
+        setTimeout(
+            generateReportData,
+            100
+        );
+
+        // =========================================================
+        // RESPONSIVE SIDEBAR
+        // =========================================================
+
+        window.addEventListener(
+            'resize',
+            () => {
+
+                if (window.innerWidth > 1024) {
+
+                    sidebarOpen = true;
+
+                    const sidebar =
+                        document.querySelector(
+                            '.admin-sidebar'
+                        );
+
+                    const overlay =
+                        document.querySelector(
+                            '.sidebar-overlay'
+                        );
+
+                    if (sidebar) {
+                        sidebar.classList.add(
+                            'open'
+                        );
+                    }
+
+                    if (overlay) {
+                        overlay.style.display =
+                            'none';
+                    }
+
+                } else {
+
+                    const overlay =
+                        document.querySelector(
+                            '.sidebar-overlay'
+                        );
+
+                    if (overlay) {
+
+                        overlay.style.display =
+                            sidebarOpen
+                                ? 'block'
+                                : 'none';
+                    }
+                }
+            }
+        );
+
+        console.log(
+            '📊 Admin Reports page loaded successfully!'
+        );
+
+    </script>
+
+</body>
+</html>

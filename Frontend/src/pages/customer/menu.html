@@ -1,0 +1,3152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu | Smart Cafeteria</title>
+
+    <!-- Local fonts (no external dependencies) -->
+    <style>
+        /* =========================================================
+           RESET & VARIABLES
+        ========================================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d9;
+            --secondary: #764ba2;
+
+            --bg-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+
+            --white: #ffffff;
+
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.10);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --shadow-glow: 0 8px 30px rgba(102, 126, 234, 0.35);
+
+            --transition-base: 0.3s ease;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 22px;
+            --radius-full: 9999px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                Roboto, Helvetica, Arial, sans-serif;
+
+            background:
+                radial-gradient(circle at top left,
+                    rgba(102, 126, 234, 0.08),
+                    transparent 30%),
+                radial-gradient(circle at bottom right,
+                    rgba(118, 75, 162, 0.08),
+                    transparent 30%),
+                var(--gray-50);
+
+            color: var(--gray-800);
+            min-height: 100vh;
+            padding: 28px;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* =========================================================
+           MAIN CONTAINER
+        ========================================================= */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 28px;
+
+            padding: 28px;
+
+            box-shadow:
+                0 25px 80px rgba(15, 23, 42, 0.10),
+                0 5px 20px rgba(15, 23, 42, 0.05);
+
+            backdrop-filter: blur(10px);
+        }
+
+        /* =========================================================
+           DEBUG INFO
+        ========================================================= */
+        .debug-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            background: linear-gradient(
+                135deg,
+                #fffbeb,
+                #fef3c7
+            );
+
+            border: 1px solid #fcd34d;
+
+            padding: 11px 16px;
+            border-radius: var(--radius-md);
+
+            margin-bottom: 22px;
+
+            font-size: 13px;
+            color: #92400e;
+
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.08);
+        }
+
+        .debug-info .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+            flex-shrink: 0;
+        }
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+        .menu-header {
+            position: relative;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            flex-wrap: wrap;
+            gap: 20px;
+
+            margin-bottom: 24px;
+            padding: 28px;
+
+            background:
+                radial-gradient(
+                    circle at 90% 20%,
+                    rgba(118, 75, 162, 0.16),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 10% 90%,
+                    rgba(102, 126, 234, 0.12),
+                    transparent 30%
+                ),
+                #f8fafc;
+
+            border: 1px solid var(--gray-100);
+            border-radius: var(--radius-xl);
+
+            overflow: hidden;
+        }
+
+        .menu-header::before {
+            content: "";
+            position: absolute;
+
+            width: 180px;
+            height: 180px;
+
+            border-radius: 50%;
+
+            background: var(--bg-gradient-1);
+
+            opacity: 0.05;
+
+            right: -70px;
+            top: -90px;
+        }
+
+        .menu-header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .menu-header h1 {
+            font-size: clamp(28px, 3vw, 40px);
+            line-height: 1.1;
+
+            font-weight: 850;
+
+            background: var(--bg-gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+
+            letter-spacing: -1px;
+        }
+
+        .menu-header h1 small {
+            font-size: 14px;
+            font-weight: 500;
+
+            color: var(--gray-500);
+
+            display: block;
+
+            margin-top: 8px;
+
+            letter-spacing: 0;
+
+            -webkit-text-fill-color: var(--gray-500);
+        }
+
+        .header-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            margin-bottom: 10px;
+
+            padding: 6px 12px;
+
+            border-radius: var(--radius-full);
+
+            background: rgba(102, 126, 234, 0.10);
+            color: var(--primary);
+
+            font-size: 11px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* =========================================================
+           CART BADGE
+        ========================================================= */
+        .cart-badge {
+            position: relative;
+            z-index: 3;
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            min-width: 150px;
+            justify-content: center;
+
+            background: var(--bg-gradient-1);
+
+            padding: 13px 22px;
+
+            border-radius: var(--radius-full);
+
+            color: white;
+
+            font-weight: 700;
+            font-size: 14px;
+
+            cursor: pointer;
+
+            border: none;
+
+            box-shadow: var(--shadow-glow);
+
+            transition:
+                transform var(--transition-base),
+                box-shadow var(--transition-base);
+        }
+
+        .cart-badge:hover {
+            transform: translateY(-4px) scale(1.02);
+
+            box-shadow:
+                0 12px 40px rgba(102, 126, 234, 0.45);
+        }
+
+        .cart-badge:active {
+            transform: scale(0.98);
+        }
+
+        .cart-icon {
+            font-size: 19px;
+        }
+
+        .cart-badge .count {
+            background: rgba(255, 255, 255, 0.20);
+
+            border: 1px solid rgba(255, 255, 255, 0.25);
+
+            border-radius: 50%;
+
+            min-width: 28px;
+            height: 28px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* =========================================================
+           FILTERS
+        ========================================================= */
+        .filters-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+
+            margin-bottom: 28px;
+            padding: 16px;
+
+            background: #ffffff;
+
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+
+            align-items: center;
+
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+
+            flex: 2;
+            min-width: 350px;
+        }
+
+        .filter-btn {
+            padding: 9px 16px;
+
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-full);
+
+            background: white;
+
+            font-size: 12px;
+            font-weight: 650;
+
+            color: var(--gray-600);
+
+            cursor: pointer;
+
+            transition: all 0.25s ease;
+
+            font-family: inherit;
+
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+
+            transform: translateY(-1px);
+
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.10);
+        }
+
+        .filter-btn.active {
+            background: var(--bg-gradient-1);
+            border-color: transparent;
+
+            color: white;
+
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* =========================================================
+           SEARCH
+        ========================================================= */
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            background: white;
+
+            padding: 3px 15px;
+
+            border-radius: var(--radius-full);
+
+            border: 1px solid var(--gray-200);
+
+            min-width: 220px;
+
+            flex: 1;
+
+            transition: all 0.25s ease;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+
+            box-shadow:
+                0 0 0 4px rgba(102, 126, 234, 0.10);
+
+            transform: translateY(-1px);
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+
+            padding: 11px 0;
+
+            font-size: 13px;
+
+            outline: none;
+
+            flex: 1;
+
+            font-family: inherit;
+
+            color: var(--gray-800);
+        }
+
+        .search-box input::placeholder {
+            color: var(--gray-400);
+        }
+
+        .search-box .icon {
+            color: var(--gray-400);
+            font-size: 16px;
+        }
+
+        /* =========================================================
+           SORT
+        ========================================================= */
+        .sort-select {
+            padding: 11px 15px;
+
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-full);
+
+            font-size: 12px;
+
+            background: white;
+            color: var(--gray-700);
+
+            outline: none;
+
+            cursor: pointer;
+
+            font-family: inherit;
+
+            min-width: 180px;
+        }
+
+        .sort-select:focus {
+            border-color: var(--primary);
+
+            box-shadow:
+                0 0 0 4px rgba(102, 126, 234, 0.10);
+        }
+
+        /* =========================================================
+           MENU GRID
+        ========================================================= */
+        .menu-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fill, minmax(275px, 1fr));
+
+            gap: 22px;
+        }
+
+        /* =========================================================
+           MENU CARD
+        ========================================================= */
+        .menu-item-card {
+            position: relative;
+
+            background: white;
+
+            border-radius: var(--radius-xl);
+
+            overflow: hidden;
+
+            border: 1px solid var(--gray-200);
+
+            transition:
+                transform 0.35s ease,
+                box-shadow 0.35s ease,
+                border-color 0.35s ease;
+
+            box-shadow: var(--shadow-sm);
+
+            cursor: pointer;
+
+            isolation: isolate;
+        }
+
+        .menu-item-card:hover {
+            transform: translateY(-9px);
+
+            border-color: rgba(102, 126, 234, 0.25);
+
+            box-shadow:
+                0 25px 60px rgba(15, 23, 42, 0.14),
+                0 5px 20px rgba(102, 126, 234, 0.08);
+        }
+
+        .menu-item-card::after {
+            content: "";
+
+            position: absolute;
+
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            height: 3px;
+
+            background: var(--bg-gradient-1);
+
+            transform: scaleX(0);
+
+            transform-origin: left;
+
+            transition: transform 0.35s ease;
+        }
+
+        .menu-item-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        /* =========================================================
+           ITEM IMAGE / ICON AREA
+        ========================================================= */
+        .menu-item-card .item-image {
+            position: relative;
+
+            height: 180px;
+
+            background:
+                radial-gradient(
+                    circle at 30% 30%,
+                    rgba(255, 255, 255, 0.8),
+                    transparent 25%
+                ),
+                linear-gradient(
+                    135deg,
+                    #e0e7ff,
+                    #dbeafe 50%,
+                    #ede9fe
+                );
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 70px;
+
+            overflow: hidden;
+
+            transition: transform 0.4s ease;
+        }
+
+        .menu-item-card:hover .item-image {
+            background:
+                radial-gradient(
+                    circle at 30% 30%,
+                    rgba(255, 255, 255, 0.9),
+                    transparent 25%
+                ),
+                linear-gradient(
+                    135deg,
+                    #dbeafe,
+                    #c7d2fe 50%,
+                    #ddd6fe
+                );
+        }
+
+        .item-image::before {
+            content: "";
+
+            position: absolute;
+
+            width: 120px;
+            height: 120px;
+
+            border-radius: 50%;
+
+            background: rgba(255, 255, 255, 0.35);
+
+            top: -40px;
+            right: -30px;
+        }
+
+        .item-image::after {
+            content: "";
+
+            position: absolute;
+
+            width: 90px;
+            height: 90px;
+
+            border-radius: 50%;
+
+            border: 1px solid rgba(255, 255, 255, 0.45);
+
+            bottom: -35px;
+            left: -20px;
+        }
+
+        .item-image > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* =========================================================
+           CARD BODY
+        ========================================================= */
+        .menu-item-card .item-body {
+            padding: 18px 19px 19px;
+        }
+
+        .menu-item-card .item-category {
+            font-size: 10px;
+
+            font-weight: 750;
+
+            text-transform: uppercase;
+
+            color: var(--primary);
+
+            background: rgba(102, 126, 234, 0.09);
+
+            padding: 5px 10px;
+
+            border-radius: var(--radius-full);
+
+            display: inline-block;
+
+            letter-spacing: 0.5px;
+        }
+
+        .menu-item-card .item-name {
+            font-size: 18px;
+
+            font-weight: 750;
+
+            color: var(--gray-900);
+
+            margin: 9px 0 2px;
+
+            line-height: 1.25;
+        }
+
+        .menu-item-card .item-name-am {
+            font-size: 13px;
+
+            color: var(--gray-500);
+
+            margin-bottom: 9px;
+        }
+
+        .menu-item-card .item-desc {
+            font-size: 12.5px;
+
+            line-height: 1.55;
+
+            color: var(--gray-500);
+
+            display: -webkit-box;
+
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+
+            overflow: hidden;
+
+            min-height: 39px;
+
+            margin-bottom: 15px;
+        }
+
+        .menu-item-card .item-footer {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            border-top: 1px solid var(--gray-100);
+
+            padding-top: 15px;
+
+            gap: 10px;
+        }
+
+        .menu-item-card .item-price {
+            font-size: 22px;
+
+            font-weight: 800;
+
+            background: var(--bg-gradient-1);
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+
+            white-space: nowrap;
+        }
+
+        .menu-item-card .item-price small {
+            font-size: 12px;
+
+            font-weight: 600;
+
+            color: var(--gray-500);
+
+            -webkit-text-fill-color: var(--gray-500);
+        }
+
+        /* =========================================================
+           ADD BUTTON
+        ========================================================= */
+        .btn-add {
+            padding: 10px 17px;
+
+            background: var(--bg-gradient-1);
+
+            color: white;
+
+            border: none;
+
+            border-radius: var(--radius-full);
+
+            font-weight: 700;
+
+            font-size: 12px;
+
+            cursor: pointer;
+
+            transition: all 0.25s ease;
+
+            box-shadow: 0 7px 20px rgba(102, 126, 234, 0.25);
+
+            font-family: inherit;
+
+            white-space: nowrap;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px) scale(1.04);
+
+            box-shadow:
+                0 10px 28px rgba(102, 126, 234, 0.38);
+        }
+
+        .btn-add:active {
+            transform: scale(0.96);
+        }
+
+        .btn-add:disabled {
+            background: var(--gray-300);
+
+            cursor: not-allowed;
+
+            transform: none;
+
+            box-shadow: none;
+        }
+
+        .btn-add.in-cart {
+            background: var(--bg-gradient-4);
+
+            box-shadow:
+                0 8px 25px rgba(67, 233, 123, 0.28);
+        }
+
+        /* =========================================================
+           EMPTY STATE
+        ========================================================= */
+        .empty-state {
+            text-align: center;
+
+            padding: 80px 20px;
+
+            color: var(--gray-500);
+
+            grid-column: 1 / -1;
+        }
+
+        .empty-state .icon {
+            font-size: 65px;
+
+            display: block;
+
+            margin-bottom: 18px;
+
+            opacity: 0.8;
+        }
+
+        .empty-state h3 {
+            color: var(--gray-800);
+
+            font-size: 20px;
+
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+        }
+
+        /* =========================================================
+           MODAL
+        ========================================================= */
+        .modal-overlay {
+            position: fixed;
+
+            inset: 0;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background: rgba(15, 23, 42, 0.62);
+
+            backdrop-filter: blur(7px);
+
+            z-index: 5000;
+
+            opacity: 0;
+            visibility: hidden;
+
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 560px;
+
+            max-height: 90vh;
+
+            background: white;
+
+            border-radius: 24px;
+
+            box-shadow:
+                0 35px 100px rgba(0, 0, 0, 0.25);
+
+            overflow: hidden;
+
+            transform: translateY(30px) scale(0.96);
+
+            transition: all 0.35s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 20px 22px;
+
+            border-bottom: 1px solid var(--gray-100);
+
+            background: var(--gray-50);
+        }
+
+        .modal-header h2 {
+            font-size: 19px;
+
+            color: var(--gray-900);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background: white;
+
+            color: var(--gray-500);
+
+            cursor: pointer;
+
+            font-size: 20px;
+
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #fee2e2;
+
+            color: var(--danger);
+
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 22px;
+
+            overflow-y: auto;
+
+            max-height: calc(90vh - 150px);
+        }
+
+        /* =========================================================
+           CART ITEMS
+        ========================================================= */
+        .cart-item {
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            padding: 13px 0;
+
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-icon {
+            width: 55px;
+            height: 55px;
+
+            flex-shrink: 0;
+
+            border-radius: 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 28px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #e0e7ff,
+                    #ede9fe
+                );
+        }
+
+        .cart-item-info {
+            flex: 1;
+
+            min-width: 0;
+        }
+
+        .cart-item-info h4 {
+            font-size: 14px;
+
+            color: var(--gray-900);
+
+            margin-bottom: 3px;
+        }
+
+        .cart-item-info p {
+            font-size: 12px;
+
+            color: var(--gray-500);
+        }
+
+        .quantity-controls {
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+        }
+
+        .quantity-btn {
+            width: 28px;
+            height: 28px;
+
+            border: 1px solid var(--gray-200);
+
+            border-radius: 8px;
+
+            background: white;
+
+            color: var(--gray-700);
+
+            cursor: pointer;
+
+            font-weight: 800;
+
+            transition: all 0.2s ease;
+        }
+
+        .quantity-btn:hover {
+            border-color: var(--primary);
+
+            color: var(--primary);
+
+            background: rgba(102, 126, 234, 0.06);
+        }
+
+        .quantity-number {
+            min-width: 22px;
+
+            text-align: center;
+
+            font-size: 13px;
+
+            font-weight: 700;
+        }
+
+        .remove-btn {
+            width: 30px;
+            height: 30px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #fef2f2;
+
+            color: var(--danger);
+
+            cursor: pointer;
+
+            transition: all 0.2s ease;
+        }
+
+        .remove-btn:hover {
+            background: #fee2e2;
+
+            transform: scale(1.05);
+        }
+
+        .cart-total {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-top: 18px;
+
+            padding: 17px;
+
+            border-radius: 15px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(102, 126, 234, 0.08),
+                    rgba(118, 75, 162, 0.08)
+                );
+
+            border: 1px solid rgba(102, 126, 234, 0.10);
+        }
+
+        .cart-total span:first-child {
+            color: var(--gray-600);
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+        .cart-total strong {
+            font-size: 23px;
+
+            background: var(--bg-gradient-1);
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .empty-cart {
+            text-align: center;
+
+            padding: 45px 20px;
+        }
+
+        .empty-cart-icon {
+            font-size: 55px;
+
+            margin-bottom: 12px;
+
+            opacity: 0.75;
+        }
+
+        .empty-cart h3 {
+            color: var(--gray-800);
+
+            margin-bottom: 6px;
+        }
+
+        .empty-cart p {
+            color: var(--gray-500);
+
+            font-size: 13px;
+        }
+
+        /* =========================================================
+           DETAIL MODAL
+        ========================================================= */
+        .detail-icon {
+            height: 190px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 85px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #e0e7ff,
+                    #dbeafe,
+                    #ede9fe
+                );
+        }
+
+        .detail-content {
+            padding: 24px;
+        }
+
+        .detail-category {
+            display: inline-block;
+
+            padding: 5px 11px;
+
+            border-radius: var(--radius-full);
+
+            background: rgba(102, 126, 234, 0.10);
+
+            color: var(--primary);
+
+            font-size: 10px;
+
+            font-weight: 750;
+
+            text-transform: uppercase;
+        }
+
+        .detail-content h2 {
+            font-size: 25px;
+
+            color: var(--gray-900);
+
+            margin: 10px 0 3px;
+        }
+
+        .detail-am {
+            color: var(--gray-500);
+
+            font-size: 14px;
+
+            margin-bottom: 15px;
+        }
+
+        .detail-description {
+            color: var(--gray-600);
+
+            font-size: 13px;
+
+            line-height: 1.7;
+
+            margin-bottom: 20px;
+        }
+
+        .detail-bottom {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            padding-top: 17px;
+
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .detail-price {
+            font-size: 27px;
+
+            font-weight: 850;
+
+            background: var(--bg-gradient-1);
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* =========================================================
+           TOAST
+        ========================================================= */
+        .toast {
+            position: fixed;
+
+            bottom: 30px;
+            right: 30px;
+
+            max-width: 360px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1e293b,
+                    #334155
+                );
+
+            color: white;
+
+            padding: 14px 20px;
+
+            border-radius: 14px;
+
+            box-shadow:
+                0 20px 50px rgba(15, 23, 42, 0.25);
+
+            transform: translateY(120px);
+
+            opacity: 0;
+
+            transition:
+                all 0.4s cubic-bezier(
+                    0.68,
+                    -0.55,
+                    0.265,
+                    1.55
+                );
+
+            z-index: 10000;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+
+            opacity: 1;
+        }
+
+        /* =========================================================
+           SCROLLBAR
+        ========================================================= */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+
+            border-radius: 20px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+        @media (max-width: 1100px) {
+            .menu-grid {
+                grid-template-columns:
+                    repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .filter-group {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 14px;
+
+                border-radius: 20px;
+            }
+
+            .menu-header {
+                flex-direction: column;
+
+                align-items: stretch;
+
+                padding: 22px;
+            }
+
+            .cart-badge {
+                width: 100%;
+            }
+
+            .filters-bar {
+                flex-direction: column;
+
+                align-items: stretch;
+
+                padding: 12px;
+            }
+
+            .filter-group {
+                min-width: unset;
+
+                justify-content: center;
+            }
+
+            .search-box {
+                min-width: unset;
+
+                width: 100%;
+            }
+
+            .sort-select {
+                width: 100%;
+            }
+
+            .menu-grid {
+                grid-template-columns:
+                    repeat(auto-fill, minmax(210px, 1fr));
+
+                gap: 15px;
+            }
+
+            .toast {
+                left: 15px;
+                right: 15px;
+
+                bottom: 15px;
+
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .menu-grid {
+                grid-template-columns: 1fr 1fr;
+
+                gap: 10px;
+            }
+
+            .menu-item-card .item-image {
+                height: 120px;
+
+                font-size: 45px;
+            }
+
+            .menu-item-card .item-body {
+                padding: 12px;
+            }
+
+            .menu-item-card .item-name {
+                font-size: 14px;
+            }
+
+            .menu-item-card .item-name-am {
+                font-size: 11px;
+            }
+
+            .menu-item-card .item-desc {
+                font-size: 11px;
+
+                min-height: 32px;
+            }
+
+            .menu-item-card .item-price {
+                font-size: 17px;
+            }
+
+            .btn-add {
+                padding: 7px 10px;
+
+                font-size: 10px;
+            }
+
+            .filter-btn {
+                font-size: 10px;
+
+                padding: 6px 10px;
+            }
+
+            .menu-header h1 {
+                font-size: 24px;
+            }
+
+            .modal {
+                border-radius: 18px;
+            }
+
+            .cart-item {
+                flex-wrap: wrap;
+            }
+
+            .quantity-controls {
+                margin-left: auto;
+            }
+        }
+
+        @media (max-width: 360px) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                padding: 9px;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr 1fr;
+
+                gap: 7px;
+            }
+
+            .menu-item-card .item-image {
+                height: 90px;
+
+                font-size: 32px;
+            }
+
+            .menu-item-card .item-body {
+                padding: 8px;
+            }
+
+            .menu-item-card .item-name {
+                font-size: 12px;
+            }
+
+            .menu-item-card .item-price {
+                font-size: 15px;
+            }
+
+            .btn-add {
+                font-size: 9px;
+
+                padding: 5px 7px;
+            }
+
+            .item-footer {
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Debug Info -->
+        <div class="debug-info" id="debugInfo">
+            <span class="status-dot"></span>
+
+            <strong>Status:</strong>
+            <span>Loading menu items...</span>
+
+            <span id="itemCount">0</span>
+            <span>items found</span>
+        </div>
+
+        <!-- Header -->
+        <div class="menu-header">
+
+            <div class="menu-header-content">
+
+                <div class="header-label">
+                    🍴 Smart Cafeteria
+                </div>
+
+                <h1>
+                    🍽 Our Menu
+
+                    <small id="menuSubtitle">
+                        Browse and order your favorite meals
+                    </small>
+                </h1>
+
+            </div>
+
+            <button
+                class="cart-badge"
+                id="cartBadge"
+                type="button"
+            >
+                <span class="cart-icon">🛒</span>
+
+                <span>Cart</span>
+
+                <span
+                    class="count"
+                    id="cartCount"
+                >
+                    0
+                </span>
+            </button>
+
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+
+            <div
+                class="filter-group"
+                id="categoryFilters"
+            >
+                <button
+                    class="filter-btn active"
+                    data-category="all"
+                    type="button"
+                >
+                    ✨ All
+                </button>
+            </div>
+
+            <div class="search-box">
+
+                <span class="icon">🔍</span>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search food..."
+                    autocomplete="off"
+                />
+
+            </div>
+
+            <select
+                class="sort-select"
+                id="sortSelect"
+            >
+                <option value="name">
+                    📋 Sort by Name
+                </option>
+
+                <option value="price-low">
+                    💰 Price: Low to High
+                </option>
+
+                <option value="price-high">
+                    💰 Price: High to Low
+                </option>
+            </select>
+
+        </div>
+
+        <!-- Menu Grid -->
+        <div
+            id="menuGrid"
+            class="menu-grid"
+        ></div>
+
+        <!-- Empty State -->
+        <div
+            id="emptyState"
+            class="empty-state"
+            style="display:none;"
+        >
+            <span class="icon">🍽️</span>
+
+            <h3>No items found</h3>
+
+            <p>
+                Try adjusting your search or filter criteria
+            </p>
+        </div>
+
+    </div>
+
+    <!-- =========================================================
+         CART MODAL
+    ========================================================= -->
+    <div
+        class="modal-overlay"
+        id="cartModal"
+    >
+
+        <div
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cartModalTitle"
+        >
+
+            <div class="modal-header">
+
+                <h2 id="cartModalTitle">
+                    🛒 Your Cart
+                </h2>
+
+                <button
+                    class="modal-close"
+                    id="closeCartModal"
+                    type="button"
+                    aria-label="Close cart"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <div
+                class="modal-body"
+                id="cartModalBody"
+            ></div>
+
+        </div>
+
+    </div>
+
+    <!-- =========================================================
+         FOOD DETAILS MODAL
+    ========================================================= -->
+    <div
+        class="modal-overlay"
+        id="detailModal"
+    >
+
+        <div
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="detailTitle"
+        >
+
+            <div id="detailModalContent"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Toast -->
+    <div
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+    ></div>
+
+    <script>
+
+        // =========================================================
+        // ALL 24 MENU ITEMS
+        // =========================================================
+
+        const MENU_ITEMS = [
+
+            // Breakfast - 6
+
+            {
+                id: 1,
+                name: {
+                    en: 'Pasta with Bread',
+                    am: 'ፓስታ በዳቦ'
+                },
+                category: 'breakfast',
+                price: 75,
+                icon: '🍝',
+                image: '../../../public/assets/images/food/breakfast/pasta-with-bread.jpg',
+                description: {
+                    en: 'Delicious pasta served with fresh bread',
+                    am: 'ጣፋጭ ፓስታ ከትኩስ ዳቦ ጋር'
+                },
+                availability: true
+            },
+
+            {
+                id: 2,
+                name: {
+                    en: 'Pasta with Injera',
+                    am: 'ፓስታ በእንጀራ'
+                },
+                category: 'breakfast',
+                price: 80,
+                icon: '🍝',
+                image: '../../../public/assets/images/food/breakfast/pasta-with-injera.jpg',
+                description: {
+                    en: 'Pasta served with traditional injera',
+                    am: 'ፓስታ ከባህላዊ እንጀራ ጋር'
+                },
+                availability: true
+            },
+
+            {
+                id: 3,
+                name: {
+                    en: 'Firfir',
+                    am: 'ፍርፍር'
+                },
+                category: 'breakfast',
+                price: 70,
+                icon: '🍛',
+                image: '../../../public/assets/images/food/breakfast/firfir.jpeg',
+                description: {
+                    en: 'Spiced torn injera with berbere sauce',
+                    am: 'በርበሬ ወጥ የተጣለ እንጀራ'
+                },
+                availability: true
+            },
+
+            {
+                id: 4,
+                name: {
+                    en: 'Egg',
+                    am: 'እንቁላል'
+                },
+                category: 'breakfast',
+                price: 80,
+                icon: '🍳',
+                image: '../../../public/assets/images/food/breakfast/scrambled-egg.jpeg',
+                description: {
+                    en: 'Fried or boiled egg served with bread',
+                    am: 'የተጠበሰ ወይም የተቀቀለ እንቁላል ከዳቦ ጋር'
+                },
+                availability: true
+            },
+
+            {
+                id: 5,
+                name: {
+                    en: 'Scrambled Egg',
+                    am: 'እንቁላል ፍርፍር'
+                },
+                category: 'breakfast',
+                price: 90,
+                icon: '🍳',
+                image: '../../../public/assets/images/food/breakfast/scrambled-egg.jpeg',
+                description: {
+                    en: 'Fluffy scrambled eggs with butter',
+                    am: 'ለስላሳ የተፈጨ እንቁላል በቅቤ'
+                },
+                availability: true
+            },
+
+            {
+                id: 6,
+                name: {
+                    en: 'Omelette',
+                    am: 'እንቁላል ስልስ'
+                },
+                category: 'breakfast',
+                price: 90,
+                icon: '🍳',
+                image: '../../../public/assets/images/food/breakfast/omelett(Enkulal sils).jpeg',
+                description: {
+                    en: 'Omelette with vegetables and cheese',
+                    am: 'እንቁላል ስልስ በአትክልት እና አይብ'
+                },
+                availability: true
+            },
+
+            // Main Meals - 9
+
+            {
+                id: 7,
+                name: {
+                    en: 'Pasta with Vegetables',
+                    am: 'ፓስታ በአትክልት'
+                },
+                category: 'main-meals',
+                price: 75,
+                icon: '🍝',
+                image: '../../../public/assets/images/food/main-meals/pasta-with-vegetables.jpeg',
+                description: {
+                    en: 'Pasta with fresh mixed vegetables',
+                    am: 'ፓስታ ከትኩስ አትክልት ጋር'
+                },
+                availability: true
+            },
+
+            {
+                id: 8,
+                name: {
+                    en: 'Shiro Feses',
+                    am: 'ሽሮ ፈሰስ'
+                },
+                category: 'main-meals',
+                price: 75,
+                icon: '🍲',
+                image: '../../../public/assets/images/food/main-meals/shiro-feses.jpg',
+                description: {
+                    en: 'Traditional chickpea stew with spices',
+                    am: 'ባህላዊ ሽሮ በቅመማ ቅመም'
+                },
+                availability: true
+            },
+
+            {
+                id: 9,
+                name: {
+                    en: 'Tomato Sauce',
+                    am: 'ቲማቲም ስልስ'
+                },
+                category: 'main-meals',
+                price: 70,
+                icon: '🍅',
+                image: '../../../public/assets/images/food/main-meals/tomato-sauce.jpeg',
+                description: {
+                    en: 'Rich tomato sauce with spices',
+                    am: 'የበለጸገ ቲማቲም ስልስ በቅመማ ቅመም'
+                },
+                availability: true
+            },
+
+            {
+                id: 10,
+                name: {
+                    en: 'Cheese with Butter',
+                    am: 'አይብ በቅቤ'
+                },
+                category: 'main-meals',
+                price: 100,
+                icon: '🧀',
+                image: '../../../public/assets/images/food/main-meals/cheese-with-butter.jpeg',
+                description: {
+                    en: 'Fresh cheese served with butter and bread',
+                    am: 'ትኩስ አይብ ከቅቤ እና ዳቦ ጋር'
+                },
+                availability: true
+            },
+
+            {
+                id: 11,
+                name: {
+                    en: 'Red Stew',
+                    am: 'ቀይ ወጥ'
+                },
+                category: 'main-meals',
+                price: 180,
+                icon: '🥘',
+                image: '../../../public/assets/images/food/main-meals/red-stew.jpeg',
+                description: {
+                    en: 'Spicy beef stew with berbere sauce',
+                    am: 'ቅመማ ቅመም የበርበሬ ወጥ'
+                },
+                availability: true
+            },
+
+            {
+                id: 12,
+                name: {
+                    en: 'Grilled Meat',
+                    am: 'የስጋ ጥብስ'
+                },
+                category: 'main-meals',
+                price: 250,
+                icon: '🥩',
+                image: '../../../public/assets/images/food/main-meals/grilled-meat.jpeg',
+                description: {
+                    en: 'Grilled meat served with vegetables',
+                    am: 'የተጠበሰ ስጋ ከአትክልት ጋር'
+                },
+                availability: true
+            },
+
+            {
+                id: 13,
+                name: {
+                    en: 'Egg with Meat',
+                    am: 'እንቁላል በስጋ'
+                },
+                category: 'main-meals',
+                price: 180,
+                icon: '🍳',
+                image: '../../../public/assets/images/food/main-meals/egg-with-meat.jpg',
+                description: {
+                    en: 'Egg served with meat stew',
+                    am: 'እንቁላል ከስጋ ወጥ ጋር'
+                },
+                availability: true
+            },
+
+            {
+                id: 14,
+                name: {
+                    en: 'Cabbage with Meat',
+                    am: 'ጎመን በስጋ'
+                },
+                category: 'main-meals',
+                price: 160,
+                icon: '🥬',
+                image: '../../../public/assets/images/food/main-meals/cabbage-with-meat.jpeg',
+                description: {
+                    en: 'Cabbage cooked with meat and spices',
+                    am: 'ጎመን ከስጋ እና ቅመም ጋር'
+                },
+                availability: true
+            },
+
+            {
+                id: 15,
+                name: {
+                    en: 'Vegetables with Meat',
+                    am: 'አትክልት በስጋ'
+                },
+                category: 'main-meals',
+                price: 160,
+                icon: '🥗',
+                image: '../../../public/assets/images/food/main-meals/vegetables-with-meat.jpeg',
+                description: {
+                    en: 'Mixed vegetables cooked with meat',
+                    am: 'የተቀላቀለ አትክልት ከስጋ ጋር'
+                },
+                availability: true
+            },
+
+            // Fasting - 4
+
+            {
+                id: 16,
+                name: {
+                    en: 'Lentil Stew',
+                    am: 'ምስር ኖርማል'
+                },
+                category: 'fasting',
+                price: 80,
+                icon: '🍲',
+                image: '../../../public/assets/images/food/fasting/lentil-stew.jpeg',
+                description: {
+                    en: 'Traditional lentil stew with spices',
+                    am: 'ባህላዊ ምስር ወጥ በቅመማ ቅመም'
+                },
+                availability: true
+            },
+
+            {
+                id: 17,
+                name: {
+                    en: 'Ful with Bread',
+                    am: 'ፉል የጾም በዳቦ'
+                },
+                category: 'fasting',
+                price: 80,
+                icon: '🫘',
+                image: '../../../public/assets/images/food/fasting/ful with Bread (Fasting).jpg',
+                description: {
+                    en: 'Fasting ful served with bread',
+                    am: 'የጾም ፉል ከዳቦ ጋር'
+                },
+                availability: true
+            },
+
+            {
+                id: 18,
+                name: {
+                    en: 'Fasting Sandwich',
+                    am: 'የጾም ሳንዱች'
+                },
+                category: 'fasting',
+                price: 50,
+                icon: '🥪',
+                image: '../../../public/assets/images/food/fasting/ful-with-bread.jpg',
+                description: {
+                    en: 'Vegetarian sandwich with vegetables',
+                    am: 'የአትክልት ሳንዱች'
+                },
+                availability: true
+            },
+
+            {
+                id: 19,
+                name: {
+                    en: 'Mixed Fasting',
+                    am: 'በየዓይነት'
+                },
+                category: 'fasting',
+                price: 80,
+                icon: '🥗',
+                image: '../../../public/assets/images/food/fasting/mixed-fasting(yetsom Beyaynet).jpeg',
+                description: {
+                    en: 'Mixed fasting meal with 5 items',
+                    am: 'የተለያዩ 5 የጾም ምግቦች'
+                },
+                availability: true
+            },
+
+            // Beverages - 3
+
+            {
+                id: 20,
+                name: {
+                    en: 'Juice',
+                    am: 'ጁስ'
+                },
+                category: 'beverages',
+                price: 55,
+                icon: '🧃',
+                image: '../../../public/assets/images/food/beverages/juice.jpeg',
+                description: {
+                    en: 'Fresh fruit juice',
+                    am: 'ትኩስ የፍራፍሬ ጭማቂ'
+                },
+                availability: true
+            },
+
+            {
+                id: 21,
+                name: {
+                    en: 'Water',
+                    am: 'ውሃ'
+                },
+                category: 'beverages',
+                price: 30,
+                icon: '💧',
+                image: '../../../public/assets/images/food/beverages/water.jpeg',
+                description: {
+                    en: 'Bottled water',
+                    am: 'የታሸገ ውሃ'
+                },
+                availability: true
+            },
+
+            {
+                id: 22,
+                name: {
+                    en: 'Soft Drink',
+                    am: 'ለስላሳ'
+                },
+                category: 'beverages',
+                price: 70,
+                icon: '🥤',
+                image: '../../../public/assets/images/food/beverages/soft-drink.jpeg',
+                description: {
+                    en: 'Carbonated soft drink',
+                    am: 'የካርቦን ለስላሳ መጠጥ'
+                },
+                availability: true
+            },
+
+            // Snacks - 2
+
+            {
+                id: 23,
+                name: {
+                    en: 'Avocado with Injera',
+                    am: 'አቮካዶ በእንጀራ'
+                },
+                category: 'snacks',
+                price: 85,
+                icon: '🥑',
+                image: '../../../public/assets/images/food/snacks/avocado-with-injera.jpeg',
+                description: {
+                    en: 'Fresh avocado served with injera',
+                    am: 'ትኩስ አቮካዶ ከእንጀራ ጋር'
+                },
+                availability: true
+            },
+
+            {
+                id: 24,
+                name: {
+                    en: 'Meat Sandwich',
+                    am: 'የስጋ ሳንዱች'
+                },
+                category: 'snacks',
+                price: 100,
+                icon: '🥪',
+                image: '../../../public/assets/images/food/snacks/meat-sandwich.jpg',
+                description: {
+                    en: 'Sandwich with grilled meat and vegetables',
+                    am: 'ሳንዱች ከተጠበሰ ስጋ እና አትክልት ጋር'
+                },
+                availability: true
+            }
+        ];
+
+        // =========================================================
+        // CATEGORIES
+        // =========================================================
+
+        const CATEGORIES = [
+            {
+                id: 'breakfast',
+                name: 'Breakfast',
+                icon: '🌅'
+            },
+
+            {
+                id: 'main-meals',
+                name: 'Main Meals',
+                icon: '🍛'
+            },
+
+            {
+                id: 'fasting',
+                name: 'Fasting Meals',
+                icon: '🥗'
+            },
+
+            {
+                id: 'beverages',
+                name: 'Beverages',
+                icon: '🥤'
+            },
+
+            {
+                id: 'snacks',
+                name: 'Snacks',
+                icon: '🍿'
+            }
+        ];
+
+        // =========================================================
+        // STATE
+        // =========================================================
+
+        let cart = [];
+
+        let currentCategory = 'all';
+
+        let currentSearch = '';
+
+        let currentSort = 'name';
+
+        // =========================================================
+        // DOM REFERENCES
+        // =========================================================
+
+        const menuGrid =
+            document.getElementById('menuGrid');
+
+        const emptyState =
+            document.getElementById('emptyState');
+
+        const categoryFilters =
+            document.getElementById('categoryFilters');
+
+        const searchInput =
+            document.getElementById('searchInput');
+
+        const sortSelect =
+            document.getElementById('sortSelect');
+
+        const cartCountEl =
+            document.getElementById('cartCount');
+
+        const menuSubtitle =
+            document.getElementById('menuSubtitle');
+
+        const debugInfo =
+            document.getElementById('debugInfo');
+
+        const itemCountSpan =
+            document.getElementById('itemCount');
+
+        const toastEl =
+            document.getElementById('toast');
+
+        const cartModal =
+            document.getElementById('cartModal');
+
+        const cartModalBody =
+            document.getElementById('cartModalBody');
+
+        const detailModal =
+            document.getElementById('detailModal');
+
+        const detailModalContent =
+            document.getElementById('detailModalContent');
+
+        // =========================================================
+        // HELPER FUNCTIONS
+        // =========================================================
+
+        function getCategoryName(catId) {
+
+            const found =
+                CATEGORIES.find(
+                    c => c.id === catId
+                );
+
+            return found
+                ? found.name
+                : catId;
+        }
+
+        function getCartCount() {
+
+            return cart.reduce(
+                (total, item) =>
+                    total + item.quantity,
+                0
+            );
+        }
+
+        function getCartTotal() {
+
+            return cart.reduce(
+                (total, item) =>
+                    total + (item.price * item.quantity),
+                0
+            );
+        }
+
+        function isInCart(itemId) {
+
+            return cart.some(
+                item => item.id === itemId
+            );
+        }
+
+        function showToast(message) {
+
+            toastEl.textContent = message;
+
+            toastEl.classList.add('show');
+
+            clearTimeout(
+                showToast.timer
+            );
+
+            showToast.timer =
+                setTimeout(() => {
+
+                    toastEl.classList.remove('show');
+
+                }, 2500);
+        }
+
+        // =========================================================
+        // CATEGORY RENDER
+        // =========================================================
+
+        function renderCategories() {
+
+            categoryFilters.innerHTML =
+                '<button class="filter-btn active" data-category="all" type="button">✨ All</button>';
+
+            CATEGORIES.forEach(cat => {
+
+                const btn =
+                    document.createElement('button');
+
+                btn.className =
+                    'filter-btn';
+
+                btn.dataset.category =
+                    cat.id;
+
+                btn.type =
+                    'button';
+
+                btn.textContent =
+                    `${cat.icon} ${cat.name}`;
+
+                categoryFilters.appendChild(btn);
+
+            });
+        }
+
+        // =========================================================
+        // MENU RENDER
+        // =========================================================
+
+        function renderMenuItems() {
+
+            let items =
+                [...MENU_ITEMS];
+
+            // Category filter
+            if (
+                currentCategory !== 'all'
+            ) {
+
+                items =
+                    items.filter(
+                        item =>
+                            item.category ===
+                            currentCategory
+                    );
+            }
+
+            // Search filter
+            if (
+                currentSearch.trim()
+            ) {
+
+                const q =
+                    currentSearch
+                        .toLowerCase()
+                        .trim();
+
+                items =
+                    items.filter(item =>
+
+                        item.name.en
+                            .toLowerCase()
+                            .includes(q)
+
+                        ||
+
+                        item.name.am
+                            .includes(q)
+
+                        ||
+
+                        (
+                            item.description &&
+                            item.description.en
+                                .toLowerCase()
+                                .includes(q)
+                        )
+                    );
+            }
+
+            // Sorting
+            if (
+                currentSort === 'price-low'
+            ) {
+
+                items.sort(
+                    (a, b) =>
+                        a.price - b.price
+                );
+
+            } else if (
+                currentSort === 'price-high'
+            ) {
+
+                items.sort(
+                    (a, b) =>
+                        b.price - a.price
+                );
+
+            } else {
+
+                items.sort(
+                    (a, b) =>
+                        a.name.en.localeCompare(
+                            b.name.en
+                        )
+                );
+            }
+
+            // Status
+            itemCountSpan.textContent =
+                items.length;
+
+            debugInfo.innerHTML = `
+                <span class="status-dot"></span>
+
+                <strong>Ready:</strong>
+
+                <span>
+                    Loaded ${MENU_ITEMS.length} total items,
+                    showing ${items.length} items
+                </span>
+
+                <span style="
+                    color:#0f62fe;
+                    margin-left:auto;
+                    font-size:12px;
+                    font-weight:600;
+                ">
+                    🔍 ${currentCategory} |
+                    ${currentSort}
+                </span>
+            `;
+
+            // Empty state
+            if (items.length === 0) {
+
+                menuGrid.innerHTML = '';
+
+                emptyState.style.display =
+                    'block';
+
+                menuSubtitle.textContent =
+                    'No items match your criteria';
+
+                return;
+            }
+
+            emptyState.style.display =
+                'none';
+
+            menuSubtitle.textContent =
+                `Showing ${items.length} of ${MENU_ITEMS.length} items`;
+
+            // Cards
+            menuGrid.innerHTML =
+                items.map(item => {
+
+                    const inCart =
+                        isInCart(item.id);
+
+                    const catName =
+                        getCategoryName(
+                            item.category
+                        );
+
+                    const desc =
+                        item.description?.en || '';
+
+                    return `
+                        <div
+                            class="menu-item-card"
+                            data-id="${item.id}"
+                        >
+
+                            <div class="item-image" style="padding: 0;">
+                                ${item.image 
+                                    ? `<img src="${item.image}" alt="${item.name.en}" style="width: 100%; height: 100%; object-fit: cover;" />` 
+                                    : `<span>${item.icon || '🍽️'}</span>`
+                                }
+                            </div>
+
+                            <div class="item-body">
+
+                                <div class="item-category">
+                                    ${catName}
+                                </div>
+
+                                <div class="item-name">
+                                    ${item.name.en}
+                                </div>
+
+                                <div class="item-name-am">
+                                    ${item.name.am}
+                                </div>
+
+                                <div class="item-desc">
+                                    ${desc}
+                                </div>
+
+                                <div class="item-footer">
+
+                                    <span class="item-price">
+                                        ${item.price}
+                                        <small>ብር</small>
+                                    </span>
+
+                                    <button
+                                        class="btn-add ${inCart ? 'in-cart' : ''}"
+                                        data-id="${item.id}"
+                                        type="button"
+                                        ${!item.availability ? 'disabled' : ''}
+                                    >
+                                        ${
+                                            inCart
+                                                ? '✅ Added'
+                                                : '➕ Add'
+                                        }
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    `;
+
+                }).join('');
+
+            // Add buttons
+            document
+                .querySelectorAll('.btn-add')
+                .forEach(btn => {
+
+                    btn.addEventListener(
+                        'click',
+                        function(e) {
+
+                            e.stopPropagation();
+
+                            const id =
+                                parseInt(
+                                    this.dataset.id
+                                );
+
+                            if (this.disabled)
+                                return;
+
+                            addToCart(id);
+
+                        }
+                    );
+
+                });
+
+            // Card click
+            document
+                .querySelectorAll('.menu-item-card')
+                .forEach(card => {
+
+                    card.addEventListener(
+                        'click',
+                        function(e) {
+
+                            if (
+                                e.target.closest(
+                                    '.btn-add'
+                                )
+                            ) {
+                                return;
+                            }
+
+                            const id =
+                                parseInt(
+                                    this.dataset.id
+                                );
+
+                            showFoodDetails(id);
+
+                        }
+                    );
+
+                });
+        }
+
+        // =========================================================
+        // ADD TO CART
+        // =========================================================
+
+        function addToCart(id) {
+
+            const item =
+                MENU_ITEMS.find(
+                    i => i.id === id
+                );
+
+            if (!item)
+                return;
+
+            const existing =
+                cart.find(
+                    i => i.id === id
+                );
+
+            if (existing) {
+
+                existing.quantity += 1;
+
+            } else {
+
+                cart.push({
+                    ...item,
+                    quantity: 1
+                });
+
+            }
+
+            updateCartCount();
+
+            renderMenuItems();
+
+            showToast(
+                `✅ ${item.name.en} added to cart!`
+            );
+        }
+
+        // =========================================================
+        // UPDATE CART COUNT
+        // =========================================================
+
+        function updateCartCount() {
+
+            cartCountEl.textContent =
+                getCartCount();
+        }
+
+        // =========================================================
+        // CART MODAL
+        // =========================================================
+
+        function openCartModal() {
+
+            renderCartModal();
+
+            cartModal.classList.add(
+                'show'
+            );
+
+            document.body.style.overflow =
+                'hidden';
+        }
+
+        function closeCartModal() {
+
+            cartModal.classList.remove(
+                'show'
+            );
+
+            if (
+                !detailModal.classList.contains(
+                    'show'
+                )
+            ) {
+                document.body.style.overflow =
+                    '';
+            }
+        }
+
+        function renderCartModal() {
+
+            if (cart.length === 0) {
+
+                cartModalBody.innerHTML = `
+                    <div class="empty-cart">
+
+                        <div class="empty-cart-icon">
+                            🛒
+                        </div>
+
+                        <h3>
+                            Your cart is empty
+                        </h3>
+
+                        <p>
+                            Add your favorite meals
+                            from the menu.
+                        </p>
+
+                    </div>
+                `;
+
+                return;
+            }
+
+            cartModalBody.innerHTML = `
+
+                <div>
+                    ${cart.map(item => `
+
+                        <div
+                            class="cart-item"
+                            data-cart-id="${item.id}"
+                        >
+
+                            <div class="cart-item-icon" style="padding: 0; overflow: hidden;">
+                                ${item.image
+                                    ? `<img src="${item.image}" alt="${item.name.en}" style="width: 100%; height: 100%; object-fit: cover;" />`
+                                    : `${item.icon}`
+                                }
+                            </div>
+
+                            <div class="cart-item-info">
+
+                                <h4>
+                                    ${item.name.en}
+                                </h4>
+
+                                <p>
+                                    ${item.price} ብር ×
+                                    ${item.quantity}
+                                    =
+                                    ${item.price * item.quantity}
+                                    ብር
+                                </p>
+
+                            </div>
+
+                            <div class="quantity-controls">
+
+                                <button
+                                    class="quantity-btn"
+                                    data-action="decrease"
+                                    data-id="${item.id}"
+                                    type="button"
+                                >
+                                    −
+                                </button>
+
+                                <span class="quantity-number">
+                                    ${item.quantity}
+                                </span>
+
+                                <button
+                                    class="quantity-btn"
+                                    data-action="increase"
+                                    data-id="${item.id}"
+                                    type="button"
+                                >
+                                    +
+                                </button>
+
+                            </div>
+
+                            <button
+                                class="remove-btn"
+                                data-action="remove"
+                                data-id="${item.id}"
+                                type="button"
+                                title="Remove"
+                            >
+                                🗑
+                            </button>
+
+                        </div>
+
+                    `).join('')}
+                </div>
+
+                <div class="cart-total">
+
+                    <span>
+                        Total Amount
+                    </span>
+
+                    <strong>
+                        ${getCartTotal()} ብር
+                    </strong>
+
+                </div>
+            `;
+        }
+
+        // =========================================================
+        // CART ACTIONS
+        // =========================================================
+
+        function changeQuantity(
+            id,
+            action
+        ) {
+
+            const item =
+                cart.find(
+                    i => i.id === id
+                );
+
+            if (!item)
+                return;
+
+            if (action === 'increase') {
+
+                item.quantity += 1;
+
+            } else if (
+                action === 'decrease'
+            ) {
+
+                item.quantity -= 1;
+
+                if (
+                    item.quantity <= 0
+                ) {
+
+                    cart =
+                        cart.filter(
+                            i => i.id !== id
+                        );
+                }
+
+            } else if (
+                action === 'remove'
+            ) {
+
+                cart =
+                    cart.filter(
+                        i => i.id !== id
+                    );
+            }
+
+            updateCartCount();
+
+            renderCartModal();
+
+            renderMenuItems();
+        }
+
+        // =========================================================
+        // FOOD DETAILS
+        // =========================================================
+
+        function showFoodDetails(id) {
+
+            const item =
+                MENU_ITEMS.find(
+                    i => i.id === id
+                );
+
+            if (!item)
+                return;
+
+            const inCart =
+                isInCart(item.id);
+
+            detailModalContent.innerHTML = `
+
+                <div class="detail-icon" style="padding: 0;">
+                    ${item.image
+                        ? `<img src="${item.image}" alt="${item.name.en}" style="width: 100%; height: 100%; object-fit: cover;" />`
+                        : `${item.icon}`
+                    }
+                </div>
+
+                <div class="detail-content">
+
+                    <button
+                        class="modal-close"
+                        id="closeDetailModal"
+                        type="button"
+                        aria-label="Close"
+                        style="
+                            position:absolute;
+                            right:20px;
+                            top:20px;
+                            z-index:5;
+                        "
+                    >
+                        ×
+                    </button>
+
+                    <div class="detail-category">
+                        ${getCategoryName(
+                            item.category
+                        )}
+                    </div>
+
+                    <h2 id="detailTitle">
+                        ${item.name.en}
+                    </h2>
+
+                    <div class="detail-am">
+                        ${item.name.am}
+                    </div>
+
+                    <p class="detail-description">
+                        ${
+                            item.description?.en ||
+                            'No description available.'
+                        }
+                    </p>
+
+                    <div class="detail-bottom">
+
+                        <div class="detail-price">
+                            ${item.price}
+                            <span style="
+                                font-size:13px;
+                                color:#64748b;
+                                -webkit-text-fill-color:#64748b;
+                            ">
+                                ብር
+                            </span>
+                        </div>
+
+                        <button
+                            class="btn-add ${inCart ? 'in-cart' : ''}"
+                            id="detailAddBtn"
+                            type="button"
+                        >
+                            ${
+                                inCart
+                                    ? '✅ Add More'
+                                    : '➕ Add to Cart'
+                            }
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+            detailModal.classList.add(
+                'show'
+            );
+
+            document.body.style.overflow =
+                'hidden';
+
+            document
+                .getElementById(
+                    'closeDetailModal'
+                )
+                .addEventListener(
+                    'click',
+                    closeDetailModal
+                );
+
+            document
+                .getElementById(
+                    'detailAddBtn'
+                )
+                .addEventListener(
+                    'click',
+                    () => {
+
+                        addToCart(item.id);
+
+                        closeDetailModal();
+
+                    }
+                );
+        }
+
+        function closeDetailModal() {
+
+            detailModal.classList.remove(
+                'show'
+            );
+
+            if (
+                !cartModal.classList.contains(
+                    'show'
+                )
+            ) {
+                document.body.style.overflow =
+                    '';
+            }
+        }
+
+        // =========================================================
+        // FILTER SETUP
+        // =========================================================
+
+        function setupFilters() {
+
+            categoryFilters.addEventListener(
+                'click',
+                function(e) {
+
+                    const btn =
+                        e.target.closest(
+                            '.filter-btn'
+                        );
+
+                    if (!btn)
+                        return;
+
+                    categoryFilters
+                        .querySelectorAll(
+                            '.filter-btn'
+                        )
+                        .forEach(
+                            b =>
+                                b.classList.remove(
+                                    'active'
+                                )
+                        );
+
+                    btn.classList.add(
+                        'active'
+                    );
+
+                    currentCategory =
+                        btn.dataset.category;
+
+                    renderMenuItems();
+                }
+            );
+
+            searchInput.addEventListener(
+                'input',
+                function() {
+
+                    currentSearch =
+                        this.value;
+
+                    renderMenuItems();
+
+                }
+            );
+
+            sortSelect.addEventListener(
+                'change',
+                function() {
+
+                    currentSort =
+                        this.value;
+
+                    renderMenuItems();
+
+                }
+            );
+        }
+
+        // =========================================================
+        // CART BUTTON
+        // =========================================================
+
+        document
+            .getElementById('cartBadge')
+            .addEventListener(
+                'click',
+                openCartModal
+            );
+
+        // =========================================================
+        // CART MODAL EVENTS
+        // =========================================================
+
+        document
+            .getElementById(
+                'closeCartModal'
+            )
+            .addEventListener(
+                'click',
+                closeCartModal
+            );
+
+        cartModal.addEventListener(
+            'click',
+            function(e) {
+
+                if (
+                    e.target === cartModal
+                ) {
+                    closeCartModal();
+                    return;
+                }
+
+                const button =
+                    e.target.closest(
+                        '[data-action]'
+                    );
+
+                if (!button)
+                    return;
+
+                const id =
+                    parseInt(
+                        button.dataset.id
+                    );
+
+                const action =
+                    button.dataset.action;
+
+                changeQuantity(
+                    id,
+                    action
+                );
+            }
+        );
+
+        // =========================================================
+        // DETAIL MODAL BACKDROP
+        // =========================================================
+
+        detailModal.addEventListener(
+            'click',
+            function(e) {
+
+                if (
+                    e.target === detailModal
+                ) {
+                    closeDetailModal();
+                }
+
+            }
+        );
+
+        // =========================================================
+        // ESC KEY
+        // =========================================================
+
+        document.addEventListener(
+            'keydown',
+            function(e) {
+
+                if (
+                    e.key === 'Escape'
+                ) {
+
+                    if (
+                        cartModal.classList.contains(
+                            'show'
+                        )
+                    ) {
+                        closeCartModal();
+                    }
+
+                    if (
+                        detailModal.classList.contains(
+                            'show'
+                        )
+                    ) {
+                        closeDetailModal();
+                    }
+
+                }
+
+            }
+        );
+
+        // =========================================================
+        // INIT
+        // =========================================================
+
+        renderCategories();
+
+        renderMenuItems();
+
+        setupFilters();
+
+        updateCartCount();
+
+        console.log(
+            '✅ Menu loaded with',
+            MENU_ITEMS.length,
+            'items'
+        );
+
+    </script>
+
+</body>
+</html>

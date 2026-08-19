@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome | Smart Cafeteria</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../css/style.css" />
+    <link rel="stylesheet" href="../../css/responsive.css" />
+
+    <style>
+        /* ===== CSS Variables (Direct Values) ===== */
+        :root {
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        /* ===== Reset ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* ===== Auth Page ===== */
+        .auth-page {
+            width: 100%;
+            max-width: 480px;
+            padding: 16px;
+        }
+
+        .auth-card {
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl);
+            padding: 40px 32px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid var(--gray-100);
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Brand ===== */
+        .auth-card .brand {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .auth-card .brand span {
+            color: var(--gray-900);
+        }
+        .auth-card .brand i {
+            margin-right: 8px;
+        }
+
+        .auth-card .subtitle {
+            color: var(--gray-500);
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        /* ===== Buttons ===== */
+        .auth-card .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .auth-card .btn-group .btn {
+            padding: 14px 20px;
+            font-size: 15px;
+            border-radius: 12px;
+            width: 100%;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            border: none;
+        }
+
+        .auth-card .btn-group .btn i {
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.30);
+        }
+ .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary) !important;
+        }
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.20);
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #15803d;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(22, 163, 74, 0.30);
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: #1e293b;
+        }
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.30);
+        }
+
+        /* ===== Divider ===== */
+        .auth-card .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+            color: var(--gray-400);
+            font-size: 13px;
+        }
+        .auth-card .divider::before,
+        .auth-card .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-200);
+        }
+
+        /* ===== Quick Access ===== */
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .quick-btn {
+            padding: 12px 6px;
+            font-size: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            display: block;
+            line-height: 1.4;
+        }
+        .quick-btn i {
+            font-size: 18px;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .quick-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .quick-btn.customer {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        .quick-btn.customer:hover {
+            background: #bfdbfe;
+        }
+        .quick-btn.kitchen {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .quick-btn.kitchen:hover {
+            background: #fde68a;
+        }
+        .quick-btn.admin {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .quick-btn.admin:hover {
+            background: #fecaca;
+        }
+
+        .demo-text {
+            font-size: 11px;
+            color: var(--gray-400);
+            margin-top: 10px;
+        }
+        .demo-text span {
+            color: var(--gray-300);
+        }
+
+        /* ===== Footer Text ===== */
+        .auth-card .footer-text {
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--gray-500);
+        }
+        .auth-card .footer-text a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-card .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== Role Badge ===== */
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-left: 8px;
+        }
+        .role-badge.customer {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        .role-badge.kitchen {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .role-badge.admin {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+ /* ============================================================ */
+        /* RESPONSIVE */
+        /* ============================================================ */
+
+        /* ===== Tablet (768px - 1024px) ===== */
+        @media (max-width: 1024px) {
+            .auth-card {
+                padding: 36px 28px;
+            }
+        }
+
+        /* ===== Mobile (481px - 767px) ===== */
+        @media (max-width: 767px) {
+            .auth-page {
+                padding: 12px;
+            }
+
+            .auth-card {
+                padding: 30px 20px;
+                border-radius: 20px;
+            }
+
+            .auth-card .brand {
+                font-size: 22px;
+            }
+
+            .auth-card .subtitle {
+                font-size: 13px;
+                margin-bottom: 20px;
+            }
+
+            .auth-card .btn-group .btn {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .auth-card .divider {
+                margin: 18px 0;
+                font-size: 12px;
+                gap: 12px;
+            }
+
+            .quick-grid {
+                gap: 6px;
+            }
+
+            .quick-btn {
+                padding: 10px 4px;
+                font-size: 11px;
+                border-radius: 8px;
+            }
+            .quick-btn i {
+                font-size: 16px;
+            }
+
+            .auth-card .footer-text {
+                font-size: 13px;
+            }
+        }
+
+        /* ===== Small Phone (up to 480px) ===== */
+        @media (max-width: 480px) {
+            .auth-page {
+                padding: 8px;
+            }
+
+            .auth-card {
+                padding: 24px 16px;
+                border-radius: 16px;
+            }
+
+            .auth-card .brand {
+                font-size: 20px;
+            }
+
+            .auth-card .subtitle {
+                font-size: 12px;
+                margin-bottom: 16px;
+            }
+
+            .auth-card .btn-group {
+                gap: 10px;
+            }
+
+            .auth-card .btn-group .btn {
+                padding: 12px 14px;
+                font-size: 13px;
+                border-radius: 10px;
+            }
+
+            .auth-card .btn-group .btn i {
+                margin-right: 6px;
+            }
+
+            .auth-card .divider {
+                margin: 14px 0;
+                font-size: 11px;
+                gap: 8px;
+            }
+
+            .quick-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 4px;
+            }
+
+            .quick-btn {
+                padding: 8px 4px;
+                font-size: 10px;
+                border-radius: 6px;
+            }
+            .quick-btn i {
+                font-size: 14px;
+            }
+
+            .demo-text {
+                font-size: 10px;
+                margin-top: 8px;
+            }
+
+            .auth-card .footer-text {
+                font-size: 12px;
+                margin-top: 16px;
+            }
+        }
+
+        /* ===== Extra Small (up to 360px) ===== */
+        @media (max-width: 360px) {
+            .auth-card {
+                padding: 18px 12px;
+            }
+
+            .auth-card .brand {
+                font-size: 18px;
+            }
+
+            .quick-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 4px;
+            }
+
+            .quick-btn {
+                font-size: 9px;
+                padding: 6px 2px;
+            }
+            .quick-btn i {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-page">
+        <div class="auth-card">
+
+            <!-- Brand -->
+            <div class="brand">
+                <i class="fas fa-utensils"></i> Smart<span>Cafeteria</span>
+            </div>
+            <p class="subtitle">ዘመናዊ የካፊቴሪያ አገልግሎት — Modern Cafeteria Service</p>
+ <!-- Action Buttons -->
+            <div class="btn-group">
+                <a href="login.html" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login / መግቢያ
+                </a>
+                <a href="register.html" class="btn btn-outline">
+                    <i class="fas fa-user-plus"></i> Register / ምዝገባ
+                </a>
+            </div>
+
+            <!-- Divider -->
+            <div class="divider">or / ወይም</div>
+
+            <!-- Quick Role Access -->
+            <div class="quick-grid">
+                <a href="../customer/menu.html" class="quick-btn customer">
+                    <i class="fas fa-user"></i> Customer
+                </a>
+                <a href="../kitchen/dashboard.html" class="quick-btn kitchen">
+                    <i class="fas fa-utensil-spoon"></i> Kitchen
+                </a>
+                <a href="../admin/dashboard.html" class="quick-btn admin">
+                    <i class="fas fa-shield-alt"></i> Admin
+                </a>
+            </div>
+            <p class="demo-text">Quick Access / ፈጣን መግቢያ <span>(Demo Only)</span></p>
+
+            <!-- Footer -->
+            <div class="footer-text">
+                Don't have an account? <a href="register.html">Register</a>
+                <br>
+                <span style="font-size:12px; color:var(--gray-400);">
+                    አካውንት የለህም? <a href="register.html" style="font-size:12px;">ምዝገባ</a>
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== Script ===== -->
+    <script type="module">
+        import { isLoggedIn, getCurrentUser } from '../../js/auth.js';
+
+        if (isLoggedIn()) {
+            const user = getCurrentUser();
+            const rolePaths = {
+                admin: '../admin/dashboard.html',
+                kitchen: '../kitchen/dashboard.html',
+                customer: '../customer/menu.html',
+            };
+            if (rolePaths[user.role]) {
+                window.location.href = rolePaths[user.role];
+            }
+        }
+
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+
+</body>
+</html>

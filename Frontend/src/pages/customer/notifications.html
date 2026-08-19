@@ -1,0 +1,1717 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Notifications | Smart Cafeteria</title>
+
+    <!-- =========================================================
+         Google Fonts
+    ========================================================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    />
+
+    <!-- =========================================================
+         Font Awesome
+    ========================================================== -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <!-- =========================================================
+         Existing Project CSS
+    ========================================================== -->
+    <link rel="stylesheet" href="../../css/style.css" />
+    <link rel="stylesheet" href="../../css/components.css" />
+    <link rel="stylesheet" href="../../css/responsive.css" />
+
+    <!-- =========================================================
+         Notification Page Styling
+    ========================================================== -->
+    <style>
+        /* =====================================================
+           ROOT FALLBACKS
+        ====================================================== */
+        :root {
+            --notif-primary: #2563eb;
+            --notif-primary-dark: #1d4ed8;
+            --notif-secondary: #7c3aed;
+            --notif-cyan: #06b6d4;
+            --notif-pink: #ec4899;
+            --notif-green: #10b981;
+            --notif-orange: #f59e0b;
+            --notif-red: #ef4444;
+
+            --notif-white: #ffffff;
+            --notif-text: #111827;
+            --notif-text-soft: #475569;
+            --notif-muted: #94a3b8;
+            --notif-border: rgba(148, 163, 184, 0.22);
+
+            --notif-shadow-sm:
+                0 8px 25px rgba(37, 99, 235, 0.07);
+
+            --notif-shadow-md:
+                0 18px 45px rgba(37, 99, 235, 0.12);
+
+            --notif-shadow-lg:
+                0 30px 80px rgba(37, 99, 235, 0.16);
+        }
+
+        /* =====================================================
+           PAGE BACKGROUND
+        ====================================================== */
+        .notif-page {
+            position: relative;
+            isolation: isolate;
+
+            min-height: 100vh;
+
+            padding: 38px 0 70px;
+
+            overflow: hidden;
+
+            background:
+                radial-gradient(
+                    circle at 8% 10%,
+                    rgba(59, 130, 246, 0.16),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 92% 12%,
+                    rgba(236, 72, 153, 0.12),
+                    transparent 26%
+                ),
+                radial-gradient(
+                    circle at 50% 100%,
+                    rgba(124, 58, 237, 0.10),
+                    transparent 32%
+                ),
+                linear-gradient(
+                    135deg,
+                    #ffffff 0%,
+                    #f8fbff 45%,
+                    #faf7ff 100%
+                );
+
+            font-family: "Poppins", sans-serif;
+        }
+
+        /* =====================================================
+           DECORATIVE GLOW
+        ====================================================== */
+        .notif-page::before,
+        .notif-page::after {
+            content: "";
+            position: absolute;
+            z-index: -1;
+
+            width: 260px;
+            height: 260px;
+
+            border-radius: 50%;
+
+            filter: blur(70px);
+
+            pointer-events: none;
+
+            opacity: 0.45;
+        }
+
+        .notif-page::before {
+            top: 100px;
+            left: -130px;
+            background: rgba(37, 99, 235, 0.25);
+        }
+
+        .notif-page::after {
+            right: -130px;
+            bottom: 100px;
+            background: rgba(236, 72, 153, 0.20);
+        }
+
+        /* =====================================================
+           CONTAINER
+        ====================================================== */
+        .notif-page .container {
+            width: min(100% - 32px, 900px);
+
+            margin: 0 auto;
+
+            padding: 0;
+        }
+
+        /* =====================================================
+           HEADER
+        ====================================================== */
+        .notif-header {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 26px;
+            padding: 24px 26px;
+
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.96),
+                    rgba(248, 251, 255, 0.90)
+                );
+
+            box-shadow:
+                0 20px 55px rgba(37, 99, 235, 0.09),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            overflow: hidden;
+        }
+
+        .notif-header::before {
+            content: "";
+
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+
+            height: 4px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--notif-primary),
+                    var(--notif-secondary),
+                    var(--notif-pink),
+                    var(--notif-cyan)
+                );
+        }
+
+        .notif-header h1 {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+
+            gap: 10px;
+
+            margin: 0;
+
+            color: var(--notif-text);
+
+            font-size: clamp(22px, 3vw, 30px);
+            line-height: 1.25;
+            font-weight: 800;
+
+            letter-spacing: -0.5px;
+        }
+
+        .notif-header h1::before {
+            content: "\f0f3";
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 44px;
+            height: 44px;
+
+            border-radius: 14px;
+
+            color: #ffffff;
+
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 18px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--notif-primary),
+                    var(--notif-secondary)
+                );
+
+            box-shadow:
+                0 10px 24px rgba(37, 99, 235, 0.25);
+        }
+
+        .notif-header h1 small {
+            display: inline-flex;
+            align-items: center;
+
+            min-height: 28px;
+
+            padding: 5px 11px;
+
+            border-radius: 999px;
+
+            color: var(--notif-primary-dark);
+
+            background: rgba(37, 99, 235, 0.09);
+
+            border: 1px solid rgba(37, 99, 235, 0.13);
+
+            font-size: 11px;
+            font-weight: 600;
+
+            letter-spacing: 0.2px;
+        }
+
+        /* =====================================================
+           HEADER ACTIONS
+        ====================================================== */
+        .notif-header .actions {
+            display: flex;
+            align-items: center;
+
+            gap: 9px;
+
+            flex-wrap: wrap;
+        }
+
+        .notif-header .actions button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 8px;
+
+            min-height: 42px;
+
+            padding: 9px 15px;
+
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 12px;
+
+            background: rgba(255, 255, 255, 0.88);
+
+            color: #475569;
+
+            font-family: "Poppins", sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 5px 18px rgba(15, 23, 42, 0.05);
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                color 0.25s ease,
+                border-color 0.25s ease,
+                background 0.25s ease;
+        }
+
+        .notif-header .actions button i {
+            font-size: 13px;
+        }
+
+        .notif-header .actions button:hover {
+            transform: translateY(-2px);
+
+            color: var(--notif-primary);
+
+            border-color: rgba(37, 99, 235, 0.28);
+
+            background: #ffffff;
+
+            box-shadow:
+                0 10px 25px rgba(37, 99, 235, 0.13);
+        }
+
+        .notif-header .actions button:active {
+            transform: translateY(0);
+        }
+
+        .notif-header .actions button.danger:hover {
+            color: var(--notif-red);
+
+            border-color: rgba(239, 68, 68, 0.28);
+
+            box-shadow:
+                0 10px 25px rgba(239, 68, 68, 0.11);
+        }
+
+        /* =====================================================
+           NOTIFICATION LIST
+        ====================================================== */
+        .notif-list {
+            display: flex;
+            flex-direction: column;
+
+            gap: 12px;
+        }
+
+        /* =====================================================
+           NOTIFICATION ITEM
+        ====================================================== */
+        .notif-item {
+            position: relative;
+
+            display: flex;
+            align-items: flex-start;
+
+            gap: 15px;
+
+            min-width: 0;
+
+            padding: 17px 18px;
+
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.98),
+                    rgba(250, 252, 255, 0.96)
+                );
+
+            box-shadow: var(--notif-shadow-sm);
+
+            cursor: pointer;
+
+            overflow: hidden;
+
+            transition:
+                transform 0.28s ease,
+                box-shadow 0.28s ease,
+                border-color 0.28s ease,
+                background 0.28s ease;
+        }
+
+        .notif-item::before {
+            content: "";
+
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+
+            width: 3px;
+
+            opacity: 0;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--notif-primary),
+                    var(--notif-secondary),
+                    var(--notif-pink)
+                );
+
+            transition: opacity 0.25s ease;
+        }
+
+        .notif-item:hover {
+            transform: translateY(-3px);
+
+            border-color: rgba(37, 99, 235, 0.18);
+
+            box-shadow: var(--notif-shadow-md);
+        }
+
+        .notif-item:hover::before {
+            opacity: 1;
+        }
+
+        /* =====================================================
+           UNREAD
+        ====================================================== */
+        .notif-item.unread {
+            border-color: rgba(59, 130, 246, 0.20);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(239, 246, 255, 0.98),
+                    rgba(248, 245, 255, 0.95)
+                );
+
+            box-shadow:
+                0 12px 30px rgba(37, 99, 235, 0.10);
+        }
+
+        .notif-item.unread::before {
+            opacity: 1;
+        }
+
+        /* =====================================================
+           ICON
+        ====================================================== */
+        .notif-item .icon {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex: 0 0 48px;
+
+            width: 48px;
+            height: 48px;
+
+            margin-top: 0;
+
+            border-radius: 15px;
+
+            color: #ffffff;
+
+            font-size: 18px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--notif-primary),
+                    var(--notif-secondary)
+                );
+
+            box-shadow:
+                0 9px 23px rgba(37, 99, 235, 0.22);
+
+            overflow: hidden;
+        }
+
+        .notif-item .icon::after {
+            content: "";
+
+            position: absolute;
+
+            width: 24px;
+            height: 80px;
+
+            top: -30px;
+            left: -40px;
+
+            background: rgba(255, 255, 255, 0.45);
+
+            transform: rotate(35deg);
+
+            transition: left 0.5s ease;
+        }
+
+        .notif-item:hover .icon::after {
+            left: 65px;
+        }
+
+        /* =====================================================
+           CONTENT
+        ====================================================== */
+        .notif-item .content {
+            flex: 1 1 auto;
+
+            min-width: 0;
+
+            padding-top: 1px;
+        }
+
+        .notif-item .content .title {
+            margin-bottom: 4px;
+
+            color: #172033;
+
+            font-size: 14px;
+            line-height: 1.45;
+            font-weight: 700;
+
+            word-break: break-word;
+        }
+
+        .notif-item .content .message {
+            margin: 0 0 7px;
+
+            color: #64748b;
+
+            font-size: 12.5px;
+            line-height: 1.6;
+
+            word-break: break-word;
+        }
+
+        .notif-item .content .time {
+            display: inline-flex;
+            align-items: center;
+
+            gap: 5px;
+
+            color: #94a3b8;
+
+            font-size: 10.5px;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        .notif-item .content .time::before {
+            content: "\f017";
+
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+
+            font-size: 9px;
+        }
+
+        /* =====================================================
+           ITEM ACTIONS
+        ====================================================== */
+        .notif-item .actions {
+            display: flex;
+            align-items: center;
+
+            gap: 3px;
+
+            flex: 0 0 auto;
+
+            margin-left: auto;
+        }
+
+        .notif-item .actions button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 34px;
+            height: 34px;
+
+            padding: 0;
+
+            border: 1px solid transparent;
+            border-radius: 10px;
+
+            background: transparent;
+
+            color: #94a3b8;
+
+            cursor: pointer;
+
+            transition:
+                color 0.2s ease,
+                background 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .notif-item .actions button:hover {
+            transform: translateY(-1px);
+
+            color: var(--notif-primary);
+
+            background: rgba(37, 99, 235, 0.08);
+
+            border-color: rgba(37, 99, 235, 0.10);
+        }
+
+        .notif-item .actions button.danger:hover {
+            color: var(--notif-red);
+
+            background: rgba(239, 68, 68, 0.08);
+
+            border-color: rgba(239, 68, 68, 0.10);
+        }
+
+        /* =====================================================
+           EMPTY STATE
+        ====================================================== */
+        .empty-state {
+            position: relative;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 330px;
+
+            padding: 55px 25px;
+
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.98),
+                    rgba(248, 250, 255, 0.95)
+                );
+
+            box-shadow: var(--notif-shadow-md);
+
+            text-align: center;
+
+            overflow: hidden;
+        }
+
+        .empty-state::before {
+            content: "";
+
+            position: absolute;
+
+            width: 180px;
+            height: 180px;
+
+            top: -90px;
+            right: -50px;
+
+            border-radius: 50%;
+
+            background: rgba(124, 58, 237, 0.08);
+
+            filter: blur(20px);
+        }
+
+        .empty-state::after {
+            content: "";
+
+            position: absolute;
+
+            width: 160px;
+            height: 160px;
+
+            bottom: -90px;
+            left: -50px;
+
+            border-radius: 50%;
+
+            background: rgba(37, 99, 235, 0.08);
+
+            filter: blur(20px);
+        }
+
+        .empty-state i {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 88px;
+            height: 88px;
+
+            margin-bottom: 20px;
+
+            border-radius: 50%;
+
+            color: var(--notif-primary);
+
+            font-size: 34px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(37, 99, 235, 0.10),
+                    rgba(124, 58, 237, 0.10)
+                );
+
+            box-shadow:
+                0 12px 35px rgba(37, 99, 235, 0.10);
+        }
+
+        .empty-state h3 {
+            position: relative;
+
+            margin: 0 0 8px;
+
+            color: #1e293b;
+
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            position: relative;
+
+            margin: 0;
+
+            color: #94a3b8;
+
+            font-size: 13px;
+        }
+
+        /* =====================================================
+           BUTTON FOCUS / ACCESSIBILITY
+        ====================================================== */
+        .notif-page button:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, 0.22);
+            outline-offset: 2px;
+        }
+
+        /* =====================================================
+           TABLET
+        ====================================================== */
+        @media (max-width: 768px) {
+            .notif-page {
+                padding-top: 28px;
+                padding-bottom: 55px;
+            }
+
+            .notif-page .container {
+                width: min(100% - 24px, 700px);
+            }
+
+            .notif-header {
+                padding: 21px;
+                border-radius: 20px;
+            }
+
+            .notif-header h1 {
+                font-size: 24px;
+            }
+
+            .notif-header .actions button {
+                min-height: 40px;
+            }
+        }
+
+        /* =====================================================
+           MOBILE
+        ====================================================== */
+        @media (max-width: 600px) {
+            .notif-page {
+                padding: 20px 0 45px;
+            }
+
+            .notif-page .container {
+                width: calc(100% - 20px);
+            }
+
+            .notif-header {
+                align-items: stretch;
+
+                flex-direction: column;
+
+                gap: 16px;
+
+                padding: 18px;
+
+                border-radius: 18px;
+            }
+
+            .notif-header h1 {
+                justify-content: flex-start;
+
+                font-size: 21px;
+            }
+
+            .notif-header h1::before {
+                width: 40px;
+                height: 40px;
+
+                border-radius: 12px;
+
+                font-size: 16px;
+            }
+
+            .notif-header h1 small {
+                font-size: 10px;
+            }
+
+            .notif-header .actions {
+                width: 100%;
+            }
+
+            .notif-header .actions button {
+                flex: 1 1 0;
+
+                min-width: 0;
+
+                padding: 9px 10px;
+
+                font-size: 10.5px;
+            }
+
+            .notif-header .actions button i {
+                font-size: 11px;
+            }
+
+            .notif-list {
+                gap: 10px;
+            }
+
+            .notif-item {
+                gap: 11px;
+
+                padding: 14px;
+
+                border-radius: 16px;
+            }
+
+            .notif-item .icon {
+                flex-basis: 42px;
+
+                width: 42px;
+                height: 42px;
+
+                border-radius: 13px;
+
+                font-size: 16px;
+            }
+
+            .notif-item .content .title {
+                font-size: 13px;
+            }
+
+            .notif-item .content .message {
+                font-size: 11.5px;
+            }
+
+            .notif-item .content .time {
+                font-size: 9.5px;
+            }
+
+            .notif-item .actions button {
+                width: 31px;
+                height: 31px;
+            }
+
+            .empty-state {
+                min-height: 280px;
+
+                padding: 40px 20px;
+
+                border-radius: 20px;
+            }
+
+            .empty-state i {
+                width: 75px;
+                height: 75px;
+
+                font-size: 29px;
+            }
+
+            .empty-state h3 {
+                font-size: 17px;
+            }
+        }
+
+        /* =====================================================
+           SMALL PHONES
+        ====================================================== */
+        @media (max-width: 400px) {
+            .notif-page .container {
+                width: calc(100% - 14px);
+            }
+
+            .notif-header {
+                padding: 15px;
+            }
+
+            .notif-header h1 {
+                gap: 7px;
+
+                font-size: 18px;
+            }
+
+            .notif-header h1::before {
+                width: 36px;
+                height: 36px;
+            }
+
+            .notif-header .actions {
+                flex-direction: column;
+            }
+
+            .notif-header .actions button {
+                width: 100%;
+
+                flex: none;
+            }
+
+            .notif-item {
+                align-items: flex-start;
+
+                padding: 12px;
+            }
+
+            .notif-item .icon {
+                flex-basis: 38px;
+
+                width: 38px;
+                height: 38px;
+
+                border-radius: 11px;
+            }
+
+            .notif-item .actions {
+                margin-left: 0;
+            }
+        }
+
+        /* =====================================================
+           EXTRA LARGE SCREENS
+        ====================================================== */
+        @media (min-width: 1400px) {
+            .notif-page .container {
+                width: min(100% - 80px, 980px);
+            }
+
+            .notif-page {
+                padding-top: 50px;
+            }
+
+            .notif-header {
+                padding: 28px 32px;
+
+                border-radius: 28px;
+            }
+
+            .notif-item {
+                padding: 20px 22px;
+
+                border-radius: 20px;
+            }
+        }
+
+        /* =====================================================
+           REDUCED MOTION
+        ====================================================== */
+        @media (prefers-reduced-motion: reduce) {
+            .notif-page *,
+            .notif-page *::before,
+            .notif-page *::after {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================================
+         NOTIFICATION PAGE
+    ========================================================== -->
+    <div class="notif-page">
+
+        <!-- Header injected by JavaScript -->
+
+        <div class="container">
+
+            <!-- =================================================
+                 PAGE HEADER
+            ================================================== -->
+            <div class="notif-header">
+
+                <h1>
+                    Notifications
+                    <small id="notifCount">0 unread</small>
+                </h1>
+
+                <div class="actions">
+
+                    <button
+                        type="button"
+                        id="markAllBtn"
+                        aria-label="Mark all notifications as read"
+                    >
+                        <i class="fas fa-check-double"></i>
+                        <span>Mark All Read</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        id="clearAllBtn"
+                        class="danger"
+                        aria-label="Clear all notifications"
+                    >
+                        <i class="fas fa-trash-alt"></i>
+                        <span>Clear All</span>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- =================================================
+                 NOTIFICATIONS CONTAINER
+            ================================================== -->
+            <div id="notifContainer">
+                <!-- Notifications injected by JavaScript -->
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODULE SCRIPT
+    ========================================================== -->
+    <script type="module">
+
+        /* =====================================================
+           IMPORTS
+        ====================================================== */
+
+        import { createHeader } from '../../components/header.js';
+
+        import { createFooter } from '../../components/footer.js';
+
+        import { getCartCount } from '../../js/cart.js';
+
+        import {
+            getNotifications,
+            getUnreadCount,
+            markAsRead,
+            markAllAsRead,
+            clearAllNotifications,
+            deleteNotification,
+            addNotificationListener
+        } from '../../js/notifications.js';
+
+        import {
+            isLoggedIn,
+            getCurrentUser
+        } from '../../js/auth.js';
+
+        import { showToast } from '../../js/main.js';
+
+        import {
+            formatRelativeTime
+        } from '../../js/utils/formatters.js';
+
+
+        /* =====================================================
+           USER / AUTHENTICATION
+        ====================================================== */
+
+        const user = getCurrentUser();
+
+        const isLoggedInUser = isLoggedIn();
+
+
+        /* =====================================================
+           LOGIN REDIRECT
+        ====================================================== */
+
+        if (!isLoggedInUser) {
+
+            setTimeout(() => {
+                window.location.href = '../common/login.html';
+            }, 1000);
+
+        }
+
+
+        /* =====================================================
+           CREATE HEADER
+        ====================================================== */
+
+        document.body.insertAdjacentHTML(
+            'afterbegin',
+
+            createHeader({
+
+                navLinks: [
+                    {
+                        label: 'Menu',
+                        href: 'menu.html'
+                    },
+
+                    {
+                        label: 'Order History',
+                        href: 'order-history.html'
+                    },
+
+                    {
+                        label: 'Profile',
+                        href: 'profile.html'
+                    }
+                ],
+
+                user: user,
+
+                isLoggedIn: isLoggedInUser,
+
+                cartCount: getCartCount(),
+
+                theme:
+                    localStorage.getItem('scos_theme') || 'light',
+
+                language:
+                    localStorage.getItem('scos_language') || 'en',
+
+                authButtons: {
+
+                    loginLabel: 'Login',
+
+                    registerLabel: 'Register',
+
+                    loginHref:
+                        '../common/login.html',
+
+                    registerHref:
+                        '../common/register.html'
+                },
+
+                onToggleMenu: () => {
+
+                    document
+                        .getElementById('mainNav')
+                        ?.classList.toggle('open');
+
+                },
+
+                onToggleTheme: () => {},
+
+                onToggleLanguage: () => {},
+
+                onLogout: () => {},
+
+                onNotificationClick: () => {}
+
+            })
+        );
+
+
+        /* =====================================================
+           CREATE FOOTER
+        ====================================================== */
+
+        document.body.insertAdjacentHTML(
+
+            'beforeend',
+
+            createFooter({
+
+                quickLinks: [
+
+                    {
+                        label: 'Home',
+                        href: '../../index.html'
+                    },
+
+                    {
+                        label: 'Menu',
+                        href: 'menu.html'
+                    },
+
+                    {
+                        label: 'Login',
+                        href: '../common/login.html'
+                    },
+
+                    {
+                        label: 'Register',
+                        href: '../common/register.html'
+                    }
+
+                ],
+
+                roleLinks: [
+
+                    {
+                        label: 'Customer',
+                        href: 'menu.html'
+                    },
+
+                    {
+                        label: 'Kitchen',
+                        href: '../kitchen/dashboard.html'
+                    },
+
+                    {
+                        label: 'Admin',
+                        href: '../admin/dashboard.html'
+                    }
+
+                ]
+
+            })
+        );
+
+
+        /* =====================================================
+           DOM REFERENCES
+        ====================================================== */
+
+        const container =
+            document.getElementById('notifContainer');
+
+        const notifCount =
+            document.getElementById('notifCount');
+
+        const markAllBtn =
+            document.getElementById('markAllBtn');
+
+        const clearAllBtn =
+            document.getElementById('clearAllBtn');
+
+
+        /* =====================================================
+           ICON MAP
+        ====================================================== */
+
+        const iconMap = {
+
+            status_update: 'fa-sync-alt',
+
+            ready: 'fa-check-circle',
+
+            order_placed: 'fa-shopping-bag',
+
+            payment: 'fa-credit-card',
+
+            cancelled: 'fa-times-circle',
+
+            feedback: 'fa-star',
+
+            admin: 'fa-shield-alt',
+
+            info: 'fa-info-circle',
+
+            success: 'fa-check-circle',
+
+            warning: 'fa-exclamation-triangle',
+
+            error: 'fa-exclamation-circle'
+
+        };
+
+
+        /* =====================================================
+           RENDER NOTIFICATIONS
+        ====================================================== */
+
+        function renderNotifications() {
+
+            const notifications =
+                getNotifications();
+
+            const unread =
+                getUnreadCount();
+
+
+            /* Update unread counter */
+
+            notifCount.textContent =
+                `${unread} unread`;
+
+
+            /* =================================================
+               EMPTY STATE
+            ================================================== */
+
+            if (notifications.length === 0) {
+
+                container.innerHTML = `
+
+                    <div class="empty-state">
+
+                        <i class="fas fa-bell-slash"></i>
+
+                        <h3>
+                            No Notifications
+                        </h3>
+
+                        <p>
+                            You're all caught up!
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+            }
+
+
+            /* =================================================
+               NOTIFICATION LIST
+            ================================================== */
+
+            container.innerHTML = `
+
+                <div class="notif-list">
+
+                    ${notifications.map(notification => {
+
+                        const icon =
+                            iconMap[notification.type]
+                            || 'fa-bell';
+
+
+                        return `
+
+                            <div
+                                class="notif-item ${
+                                    !notification.read
+                                        ? 'unread'
+                                        : ''
+                                }"
+                                data-id="${notification.id}"
+                                role="article"
+                            >
+
+                                <!-- Icon -->
+
+                                <div class="icon">
+
+                                    <i
+                                        class="fas ${icon}"
+                                        aria-hidden="true"
+                                    ></i>
+
+                                </div>
+
+
+                                <!-- Content -->
+
+                                <div class="content">
+
+                                    <div class="title">
+                                        ${notification.title}
+                                    </div>
+
+                                    <div class="message">
+                                        ${notification.message}
+                                    </div>
+
+                                    <div class="time">
+                                        ${formatRelativeTime(
+                                            notification.createdAt
+                                        )}
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Actions -->
+
+                                <div class="actions">
+
+                                    ${
+                                        !notification.read
+
+                                        ? `
+
+                                            <button
+                                                type="button"
+                                                class="mark-read"
+                                                data-id="${notification.id}"
+                                                title="Mark as read"
+                                                aria-label="Mark notification as read"
+                                            >
+                                                <i
+                                                    class="fas fa-check"
+                                                ></i>
+                                            </button>
+
+                                        `
+
+                                        : ''
+                                    }
+
+
+                                    <button
+                                        type="button"
+                                        class="delete-notif danger"
+                                        data-id="${notification.id}"
+                                        title="Delete"
+                                        aria-label="Delete notification"
+                                    >
+
+                                        <i
+                                            class="fas fa-times"
+                                        ></i>
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    }).join('')}
+
+                </div>
+
+            `;
+
+
+            /* =================================================
+               MARK AS READ EVENTS
+            ================================================== */
+
+            document
+                .querySelectorAll('.mark-read')
+                .forEach(button => {
+
+                    button.addEventListener(
+                        'click',
+
+                        function (event) {
+
+                            event.stopPropagation();
+
+                            const id =
+                                parseInt(
+                                    this.dataset.id,
+                                    10
+                                );
+
+
+                            markAsRead(id);
+
+                            renderNotifications();
+
+                            showToast(
+                                'Marked as read',
+                                'info'
+                            );
+
+                        }
+                    );
+
+                });
+
+
+            /* =================================================
+               DELETE EVENTS
+            ================================================== */
+
+            document
+                .querySelectorAll('.delete-notif')
+                .forEach(button => {
+
+                    button.addEventListener(
+                        'click',
+
+                        function (event) {
+
+                            event.stopPropagation();
+
+                            const id =
+                                parseInt(
+                                    this.dataset.id,
+                                    10
+                                );
+
+
+                            if (
+                                confirm(
+                                    'Delete this notification?'
+                                )
+                            ) {
+
+                                /*
+                                 * IMPORTANT:
+                                 * This page uses ES Modules.
+                                 *
+                                 * The previous code used:
+                                 * require('../../js/notifications.js')
+                                 *
+                                 * `require()` is CommonJS and is NOT
+                                 * available inside browser ES modules.
+                                 *
+                                 * deleteNotification is now imported
+                                 * correctly at the top of this module.
+                                 */
+
+                                deleteNotification(id);
+
+                                renderNotifications();
+
+                                showToast(
+                                    'Notification deleted',
+                                    'info'
+                                );
+
+                            }
+
+                        }
+                    );
+
+                });
+
+
+            /* =================================================
+               CLICK NOTIFICATION TO OPEN LINK
+            ================================================== */
+
+            document
+                .querySelectorAll('.notif-item')
+                .forEach(item => {
+
+                    const id =
+                        parseInt(
+                            item.dataset.id,
+                            10
+                        );
+
+                    const notification =
+                        notifications.find(
+                            n =>
+                                Number(n.id) === id
+                        );
+
+
+                    if (
+                        notification &&
+                        notification.link
+                    ) {
+
+                        item.style.cursor =
+                            'pointer';
+
+
+                        item.addEventListener(
+                            'click',
+
+                            function () {
+
+                                /*
+                                 * Mark notification as read
+                                 * before navigating.
+                                 */
+
+                                if (
+                                    !notification.read
+                                ) {
+
+                                    markAsRead(id);
+
+                                }
+
+
+                                window.location.href =
+                                    notification.link;
+
+                            }
+                        );
+
+                    }
+
+                });
+
+        }
+
+
+        /* =====================================================
+           MARK ALL AS READ
+        ====================================================== */
+
+        markAllBtn.addEventListener(
+            'click',
+
+            function () {
+
+                const unread =
+                    getUnreadCount();
+
+
+                if (unread === 0) {
+
+                    showToast(
+                        'All notifications already read',
+                        'info'
+                    );
+
+                    return;
+                }
+
+
+                markAllAsRead();
+
+                renderNotifications();
+
+                showToast(
+                    'All notifications marked as read',
+                    'success'
+                );
+
+            }
+        );
+
+
+        /* =====================================================
+           CLEAR ALL
+        ====================================================== */
+
+        clearAllBtn.addEventListener(
+            'click',
+
+            function () {
+
+                const count =
+                    getNotifications().length;
+
+
+                if (count === 0) {
+
+                    showToast(
+                        'No notifications to clear',
+                        'info'
+                    );
+
+                    return;
+                }
+
+
+                if (
+                    confirm(
+                        'Clear all notifications?'
+                    )
+                ) {
+
+                    clearAllNotifications(true);
+
+                    renderNotifications();
+
+                    showToast(
+                        'All notifications cleared',
+                        'info'
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
+           REAL-TIME NOTIFICATION LISTENER
+        ====================================================== */
+
+        addNotificationListener(() => {
+
+            renderNotifications();
+
+        });
+
+
+        /* =====================================================
+           INITIAL RENDER
+        ====================================================== */
+
+        renderNotifications();
+
+
+        /* =====================================================
+           DEBUG MESSAGE
+        ====================================================== */
+
+        console.log(
+            '🔔 Notifications page loaded successfully!'
+        );
+
+    </script>
+
+</body>
+</html>

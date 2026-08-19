@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Checkout | Smart Cafeteria</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <!-- Project CSS -->
+    <link rel="stylesheet" href="../../css/style.css" />
+    <link rel="stylesheet" href="../../css/components.css" />
+    <link rel="stylesheet" href="../../css/responsive.css" />
+
+    <style>
+        /* =========================================================
+           CHECKOUT PAGE
+           ========================================================= */
+
+        .checkout-page {
+            --checkout-primary: #2563eb;
+            --checkout-primary-dark: #1d4ed8;
+            --checkout-secondary: #7c3aed;
+            --checkout-cyan: #06b6d4;
+            --checkout-success: #10b981;
+            --checkout-danger: #dc2626;
+
+            --checkout-text: #111827;
+            --checkout-muted: #6b7280;
+            --checkout-border: rgba(148, 163, 184, 0.24);
+            --checkout-card: rgba(255, 255, 255, 0.92);
+
+            position: relative;
+            isolation: isolate;
+
+            min-height: 100vh;
+            padding: 34px 0 70px;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(37, 99, 235, 0.18),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 18%,
+                    rgba(124, 58, 237, 0.16),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 50% 100%,
+                    rgba(6, 182, 212, 0.12),
+                    transparent 32%
+                ),
+                linear-gradient(
+                    135deg,
+                    #f8fbff 0%,
+                    #f5f3ff 48%,
+                    #effaff 100%
+                );
+
+            overflow: hidden;
+        }
+
+        /* Decorative background lights */
+
+        .checkout-page::before,
+        .checkout-page::after {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(2px);
+        }
+
+        .checkout-page::before {
+            width: 340px;
+            height: 340px;
+            top: 70px;
+            left: -180px;
+            background: rgba(37, 99, 235, 0.12);
+            box-shadow:
+                0 0 80px rgba(37, 99, 235, 0.18),
+                0 0 140px rgba(37, 99, 235, 0.08);
+        }
+
+        .checkout-page::after {
+            width: 420px;
+            height: 420px;
+            right: -220px;
+            bottom: 80px;
+            background: rgba(124, 58, 237, 0.10);
+            box-shadow:
+                0 0 100px rgba(124, 58, 237, 0.18),
+                0 0 160px rgba(6, 182, 212, 0.08);
+        }
+
+        /* Container */
+
+        .checkout-page .container {
+            width: min(100% - 32px, 900px);
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* =========================================================
+           HEADER
+           ========================================================= */
+
+        .checkout-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+
+            margin-bottom: 28px;
+            padding: 22px 24px;
+
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: 22px;
+
+            background: rgba(255, 255, 255, 0.70);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            box-shadow:
+                0 14px 40px rgba(15, 23, 42, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checkout-header::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 5px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--checkout-primary),
+                    var(--checkout-secondary),
+                    var(--checkout-cyan)
+                );
+
+            border-radius: 20px 0 0 20px;
+        }
+
+        .checkout-header h1 {
+            margin: 0;
+            color: var(--checkout-text);
+
+            font-size: clamp(24px, 4vw, 34px);
+            line-height: 1.15;
+            font-weight: 800;
+            letter-spacing: -0.7px;
+        }
+
+        .checkout-header h1::after {
+            content: "";
+            display: block;
+
+            width: 46px;
+            height: 4px;
+
+            margin-top: 8px;
+            border-radius: 99px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--checkout-primary),
+                    var(--checkout-secondary)
+                );
+
+            box-shadow:
+                0 0 12px rgba(37, 99, 235, 0.35);
+        }
+
+        .checkout-header a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+
+            min-height: 46px;
+            padding: 10px 17px;
+
+            color: var(--checkout-primary);
+            background: rgba(239, 246, 255, 0.85);
+
+            border: 1px solid rgba(37, 99, 235, 0.16);
+            border-radius: 12px;
+
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+
+            white-space: nowrap;
+
+            transition:
+                transform 0.25s ease,
+                background 0.25s ease,
+                color 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .checkout-header a i {
+            font-size: 14px;
+            transition: transform 0.25s ease;
+        }
+
+        .checkout-header a:hover {
+            color: #ffffff;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--checkout-primary),
+                    var(--checkout-secondary)
+                );
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 10px 24px rgba(37, 99, 235, 0.22);
+        }
+
+        .checkout-header a:hover i {
+            transform: translateX(-3px);
+        }
+
+        /* =========================================================
+           CHECKOUT CARDS
+           ========================================================= */
+
+        .checkout-card {
+            position: relative;
+
+            margin-bottom: 18px;
+            padding: 26px 28px;
+
+            background: var(--checkout-card);
+
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            box-shadow:
+                0 12px 34px rgba(15, 23, 42, 0.07),
+                0 2px 8px rgba(15, 23, 42, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+            overflow: hidden;
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .checkout-card::before {
+            content: "";
+            position: absolute;
+
+            top: 0;
+            left: 0;
+            right: 0;
+
+            height: 3px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--checkout-primary),
+                    var(--checkout-secondary),
+                    var(--checkout-cyan)
+                );
+
+            opacity: 0.85;
+        }
+
+        .checkout-card:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 18px 44px rgba(15, 23, 42, 0.10),
+                0 4px 12px rgba(37, 99, 235, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .checkout-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            margin: 0 0 20px;
+
+            color: var(--checkout-text);
+
+            font-size: 17px;
+            line-height: 1.3;
+            font-weight: 700;
+        }
+
+        .checkout-card h3 i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 38px;
+            height: 38px;
+
+            flex: 0 0 38px;
+
+            color: #ffffff;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--checkout-primary),
+                    var(--checkout-secondary)
+                );
+
+            box-shadow:
+                0 7px 18px rgba(37, 99, 235, 0.20);
+        }
+
+        /* =========================================================
+           ORDER SUMMARY
+           ========================================================= */
+
+        #orderItems {
+            width: 100%;
+        }
+
+        .order-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+
+            min-height: 48px;
+            padding: 10px 4px;
+
+            color: #475569;
+
+            font-size: 14px;
+            font-weight: 500;
+
+            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+
+            transition:
+                background 0.2s ease,
+                padding 0.2s ease;
+        }
+
+        .order-item-row:hover {
+            padding-left: 9px;
+            padding-right: 9px;
+
+            background: rgba(239, 246, 255, 0.55);
+            border-radius: 9px;
+        }
+
+        .order-item-row:last-child {
+            border-bottom: none;
+        }
+
+        .order-item-row > span:first-child {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .order-item-row > span:last-child {
+            flex: 0 0 auto;
+
+            color: #1e293b;
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+        .order-item-row .qty {
+            display: inline-block;
+
+            margin-left: 5px;
+            padding: 3px 8px;
+
+            color: var(--checkout-primary);
+            background: #eff6ff;
+
+            border: 1px solid #dbeafe;
+            border-radius: 999px;
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .order-total-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+
+            margin-top: 15px;
+            padding: 17px 4px 0;
+
+            border-top: 2px solid rgba(148, 163, 184, 0.20);
+
+            color: var(--checkout-text);
+
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .order-total-row .amount {
+            color: var(--checkout-primary);
+
+            font-size: clamp(20px, 4vw, 24px);
+            font-weight: 800;
+
+            text-shadow:
+                0 4px 16px rgba(37, 99, 235, 0.16);
+        }
+
+        /* Empty cart */
+
+        #orderItems > p {
+            margin: 0;
+            padding: 15px;
+
+            text-align: center;
+
+            color: var(--checkout-muted) !important;
+
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+        }
+
+        /* =========================================================
+           PAYMENT OPTIONS
+           ========================================================= */
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .payment-option {
+            position: relative;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 120px;
+            padding: 18px;
+
+            color: #64748b;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.96),
+                    rgba(248, 250, 252, 0.92)
+                );
+
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+
+            text-align: center;
+
+            cursor: pointer;
+            user-select: none;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease,
+                background 0.25s ease,
+                color 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .payment-option::after {
+            content: "";
+
+            position: absolute;
+            top: 12px;
+            right: 12px;
+
+            width: 9px;
+            height: 9px;
+
+            border-radius: 50%;
+
+            background: transparent;
+
+            transition:
+                background 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .payment-option:hover {
+            color: var(--checkout-primary);
+            border-color: #93c5fd;
+
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 12px 26px rgba(37, 99, 235, 0.10);
+        }
+
+        .payment-option.active {
+            color: var(--checkout-primary);
+
+            border-color: var(--checkout-primary);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(239, 246, 255, 0.98),
+                    rgba(245, 243, 255, 0.95)
+                );
+
+            box-shadow:
+                0 12px 28px rgba(37, 99, 235, 0.13),
+                inset 0 0 0 1px rgba(37, 99, 235, 0.04);
+        }
+
+        .payment-option.active::after {
+            background: var(--checkout-primary);
+
+            box-shadow:
+                0 0 0 4px rgba(37, 99, 235, 0.12),
+                0 0 12px rgba(37, 99, 235, 0.35);
+        }
+
+        .payment-option i {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 54px;
+            height: 54px;
+
+            margin-bottom: 9px;
+
+            color: #ffffff;
+
+            border-radius: 15px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #7c3aed
+                );
+
+            font-size: 23px;
+
+            box-shadow:
+                0 9px 22px rgba(37, 99, 235, 0.20);
+
+            transition:
+                transform 0.25s ease;
+        }
+
+        .payment-option:nth-child(2) i {
+            background:
+                linear-gradient(
+                    135deg,
+                    #06b6d4,
+                    #2563eb
+                );
+        }
+
+        .payment-option:hover i {
+            transform: scale(1.06) rotate(-2deg);
+        }
+
+        /* =========================================================
+           FORM
+           ========================================================= */
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #334155;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .form-group label span {
+            color: var(--checkout-danger) !important;
+        }
+
+        .form-control {
+            display: block;
+
+            width: 100%;
+            min-height: 50px;
+
+            box-sizing: border-box;
+
+            padding: 12px 15px;
+
+            color: #1e293b;
+            background: rgba(255, 255, 255, 0.92);
+
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+
+            outline: none;
+
+            font-family: "Poppins", sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+
+            transition:
+                border-color 0.25s ease,
+                box-shadow 0.25s ease,
+                background 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        .form-control::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .form-control:hover {
+            border-color: #cbd5e1;
+        }
+
+        .form-control:focus {
+            background: #ffffff;
+            border-color: var(--checkout-primary);
+
+            box-shadow:
+                0 0 0 4px rgba(37, 99, 235, 0.10),
+                0 8px 22px rgba(37, 99, 235, 0.06);
+
+            transform: translateY(-1px);
+        }
+
+        /* =========================================================
+           PLACE ORDER BUTTON
+           ========================================================= */
+
+        .btn-place-order {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+
+            width: 100%;
+            min-height: 58px;
+
+            margin-top: 22px;
+            padding: 14px 20px;
+
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb 0%,
+                    #4f46e5 48%,
+                    #7c3aed 100%
+                );
+
+            border: 0;
+            border-radius: 15px;
+
+            box-shadow:
+                0 12px 30px rgba(37, 99, 235, 0.24),
+                0 4px 10px rgba(124, 58, 237, 0.12);
+
+            font-family: "Poppins", sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+
+            cursor: pointer;
+
+            overflow: hidden;
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                filter 0.25s ease;
+        }
+
+        .btn-place-order::before {
+            content: "";
+
+            position: absolute;
+            top: 0;
+            left: -110%;
+
+            width: 70%;
+            height: 100%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.25),
+                    transparent
+                );
+
+            transform: skewX(-20deg);
+
+            transition: left 0.7s ease;
+        }
+
+        .btn-place-order:hover::before {
+            left: 130%;
+        }
+
+        .btn-place-order:hover {
+            transform: translateY(-3px);
+
+            filter: brightness(1.04);
+
+            box-shadow:
+                0 18px 38px rgba(37, 99, 235, 0.30),
+                0 8px 18px rgba(124, 58, 237, 0.16);
+        }
+
+        .btn-place-order:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-place-order:disabled {
+            color: #94a3b8;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #e2e8f0,
+                    #cbd5e1
+                );
+
+            cursor: not-allowed;
+
+            transform: none;
+
+            box-shadow: none;
+            filter: none;
+        }
+
+        .btn-place-order:disabled::before {
+            display: none;
+        }
+
+        .btn-place-order .btn-text,
+        .btn-place-order .spinner {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-place-order .spinner {
+            display: none;
+        }
+
+        .btn-place-order.loading .spinner {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            animation: checkoutSpin 1s linear infinite;
+        }
+
+        .btn-place-order.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes checkoutSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =========================================================
+           RESPONSIVE - EXTRA LARGE
+           ========================================================= */
+
+        @media (min-width: 1400px) {
+            .checkout-page {
+                padding-top: 48px;
+                padding-bottom: 90px;
+            }
+
+            .checkout-page .container {
+                width: min(100% - 48px, 980px);
+            }
+
+            .checkout-card {
+                padding: 30px 34px;
+                border-radius: 22px;
+            }
+
+            .checkout-header {
+                padding: 25px 30px;
+                border-radius: 24px;
+            }
+        }
+
+        /* =========================================================
+           RESPONSIVE - LAPTOP / DESKTOP
+           ========================================================= */
+
+        @media (min-width: 1024px) and (max-width: 1399px) {
+            .checkout-page .container {
+                width: min(100% - 42px, 900px);
+            }
+        }
+
+        /* =========================================================
+           RESPONSIVE - TABLET
+           ========================================================= */
+
+        @media (max-width: 768px) {
+            .checkout-page {
+                padding: 24px 0 55px;
+            }
+
+            .checkout-page .container {
+                width: min(100% - 28px, 700px);
+            }
+
+            .checkout-header {
+                padding: 19px 20px;
+                margin-bottom: 20px;
+                border-radius: 18px;
+            }
+
+            .checkout-header h1 {
+                font-size: 25px;
+            }
+
+            .checkout-card {
+                padding: 22px;
+                border-radius: 18px;
+            }
+
+            .payment-options {
+                gap: 12px;
+            }
+
+            .payment-option {
+                min-height: 110px;
+            }
+        }
+
+        /* =========================================================
+           RESPONSIVE - MOBILE
+           ========================================================= */
+
+        @media (max-width: 600px) {
+            .checkout-page {
+                padding: 16px 0 42px;
+            }
+
+            .checkout-page .container {
+                width: calc(100% - 22px);
+            }
+
+            .checkout-header {
+                align-items: stretch;
+                flex-direction: column;
+                gap: 14px;
+
+                padding: 18px;
+
+                border-radius: 17px;
+            }
+
+            .checkout-header h1 {
+                font-size: 24px;
+            }
+
+            .checkout-header a {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .checkout-card {
+                padding: 19px 16px;
+                margin-bottom: 14px;
+                border-radius: 16px;
+            }
+
+            .checkout-card h3 {
+                gap: 9px;
+                margin-bottom: 17px;
+                font-size: 16px;
+            }
+
+            .checkout-card h3 i {
+                width: 35px;
+                height: 35px;
+                flex-basis: 35px;
+                border-radius: 10px;
+                font-size: 13px;
+            }
+
+            .order-item-row {
+                gap: 10px;
+                min-height: 45px;
+                padding: 9px 2px;
+                font-size: 13px;
+            }
+
+            .order-item-row .qty {
+                padding: 2px 7px;
+                font-size: 11px;
+            }
+
+            .order-total-row {
+                font-size: 16px;
+            }
+
+            .order-total-row .amount {
+                font-size: 20px;
+            }
+
+            .payment-options {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .payment-option {
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 13px;
+
+                min-height: 76px;
+                padding: 12px 15px;
+
+                text-align: left;
+            }
+
+            .payment-option i {
+                width: 45px;
+                height: 45px;
+                flex: 0 0 45px;
+
+                margin: 0;
+
+                border-radius: 12px;
+                font-size: 18px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-control {
+                min-height: 48px;
+                padding: 11px 13px;
+            }
+
+            .btn-place-order {
+                min-height: 54px;
+                margin-top: 18px;
+                border-radius: 13px;
+                font-size: 15px;
+            }
+        }
+
+        /* =========================================================
+           RESPONSIVE - VERY SMALL PHONES
+           ========================================================= */
+
+        @media (max-width: 380px) {
+            .checkout-page .container {
+                width: calc(100% - 16px);
+            }
+
+            .checkout-header {
+                padding: 16px;
+            }
+
+            .checkout-header h1 {
+                font-size: 21px;
+            }
+
+            .checkout-card {
+                padding: 16px 13px;
+            }
+
+            .checkout-card h3 {
+                font-size: 15px;
+            }
+
+            .checkout-card h3 i {
+                width: 32px;
+                height: 32px;
+                flex-basis: 32px;
+            }
+
+            .order-item-row {
+                font-size: 12px;
+            }
+
+            .order-total-row {
+                font-size: 15px;
+            }
+
+            .order-total-row .amount {
+                font-size: 18px;
+            }
+
+            .payment-option {
+                min-height: 70px;
+            }
+
+            .payment-option i {
+                width: 41px;
+                height: 41px;
+                flex-basis: 41px;
+            }
+
+            .btn-place-order {
+                font-size: 14px;
+            }
+        }
+
+        /* =========================================================
+           ACCESSIBILITY / REDUCED MOTION
+           ========================================================= */
+
+        @media (prefers-reduced-motion: reduce) {
+            .checkout-page *,
+            .checkout-page *::before,
+            .checkout-page *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="checkout-page">
+
+        <!-- Header injected -->
+        <div class="container">
+
+            <!-- =====================================================
+                 CHECKOUT HEADER
+                 ===================================================== -->
+
+            <div class="checkout-header">
+                <h1>Checkout</h1>
+
+                <a href="cart.html">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Cart
+                </a>
+            </div>
+
+
+            <!-- =====================================================
+                 ORDER SUMMARY
+                 ===================================================== -->
+
+            <div class="checkout-card" id="orderSummary">
+
+                <h3>
+                    <i class="fas fa-receipt"></i>
+                    Order Summary
+                </h3>
+
+                <div id="orderItems"></div>
+
+                <div class="order-total-row">
+                    <span>Total</span>
+                    <span class="amount" id="orderTotal">0 ብር</span>
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 PAYMENT METHOD
+                 ===================================================== -->
+
+            <div class="checkout-card">
+
+                <h3>
+                    <i class="fas fa-credit-card"></i>
+                    Payment Method
+                </h3>
+
+                <div
+                    class="payment-options"
+                    id="paymentOptions"
+                >
+
+                    <div
+                        class="payment-option active"
+                        data-method="cbe_birr"
+                    >
+                        <i class="fas fa-university"></i>
+                        <span>CBE Birr</span>
+                    </div>
+
+                    <div
+                        class="payment-option"
+                        data-method="telebirr"
+                    >
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>TeleBirr</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 PAYMENT DETAILS
+                 ===================================================== -->
+
+            <div class="checkout-card">
+
+                <h3>
+                    <i class="fas fa-info-circle"></i>
+                    Payment Details
+                </h3>
+
+                <div class="form-group">
+
+                    <label for="phoneNumber">
+                        Phone Number
+                        <span style="color:#dc2626;">*</span>
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="phoneNumber"
+                        class="form-control"
+                        placeholder="e.g., 0912345678"
+                        required
+                    />
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="reference">
+                        Reference / Notes (Optional)
+                    </label>
+
+                    <input
+                        type="text"
+                        id="reference"
+                        class="form-control"
+                        placeholder="Any special instructions..."
+                    />
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 PLACE ORDER
+                 ===================================================== -->
+
+            <button
+                type="button"
+                class="btn-place-order"
+                id="placeOrderBtn"
+            >
+
+                <span class="btn-text">
+                    <i class="fas fa-check-circle"></i>
+                    Place Order
+                </span>
+
+                <span class="spinner">
+                    <i class="fas fa-spinner"></i>
+                </span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =============================================================
+         SCRIPT
+         ============================================================= -->
+
+    <script type="module">
+
+        /* =========================================================
+           IMPORTS
+           ========================================================= */
+
+        import { createHeader }
+            from '../../components/header.js';
+
+        import { createFooter }
+            from '../../components/footer.js';
+
+        import {
+            getCartItems,
+            getCartTotal,
+            getCartCount,
+            clearCart,
+            isCartEmpty
+        } from '../../js/cart.js';
+
+        import {
+            placeOrder
+        } from '../../js/orders.js';
+
+        import {
+            simulatePayment
+        } from '../../js/payment.js';
+
+        import {
+            isLoggedIn,
+            getCurrentUser
+        } from '../../js/auth.js';
+
+        import {
+            showToast
+        } from '../../js/main.js';
+
+
+        /* =========================================================
+           USER / LOGIN
+           ========================================================= */
+
+        const user = getCurrentUser();
+
+        const isLoggedInUser = isLoggedIn();
+
+
+        if (!isLoggedInUser) {
+
+            showToast(
+                'Please login to checkout',
+                'warning'
+            );
+
+            setTimeout(() => {
+
+                window.location.href =
+                    '../common/login.html';
+
+            }, 1500);
+
+        }
+
+
+        /* =========================================================
+           RENDER HEADER
+           ========================================================= */
+
+        document.body.insertAdjacentHTML(
+            'afterbegin',
+            createHeader({
+
+                navLinks: [
+
+                    {
+                        label: 'Menu',
+                        href: 'menu.html'
+                    },
+
+                    {
+                        label: 'Order History',
+                        href: 'order-history.html'
+                    },
+
+                    {
+                        label: 'Profile',
+                        href: 'profile.html'
+                    }
+
+                ],
+
+                user: user,
+
+                isLoggedIn: isLoggedInUser,
+
+                cartCount: getCartCount(),
+
+                theme:
+                    localStorage.getItem(
+                        'scos_theme'
+                    ) || 'light',
+
+                language:
+                    localStorage.getItem(
+                        'scos_language'
+                    ) || 'en',
+
+                authButtons: {
+
+                    loginLabel: 'Login',
+
+                    registerLabel: 'Register',
+
+                    loginHref:
+                        '../common/login.html',
+
+                    registerHref:
+                        '../common/register.html'
+
+                },
+
+                onToggleMenu: () => {
+
+                    document
+                        .getElementById('mainNav')
+                        ?.classList.toggle('open');
+
+                },
+
+                onToggleTheme: () => {},
+
+                onToggleLanguage: () => {},
+
+                onLogout: () => {
+
+                    if (confirm('Are you sure?')) {
+
+                        localStorage.removeItem(
+                            'scos_user'
+                        );
+
+                        localStorage.removeItem(
+                            'scos_token'
+                        );
+
+                        localStorage.removeItem(
+                            'scos_cart'
+                        );
+
+                        window.location.href =
+                            '../common/login.html';
+
+                    }
+
+                },
+
+                onNotificationClick: () => {
+
+                    window.location.href =
+                        'notifications.html';
+
+                }
+
+            })
+        );
+
+
+        /* =========================================================
+           RENDER FOOTER
+           ========================================================= */
+
+        document.body.insertAdjacentHTML(
+            'beforeend',
+            createFooter({
+
+                quickLinks: [
+
+                    {
+                        label: 'Home',
+                        href: '../../index.html'
+                    },
+
+                    {
+                        label: 'Menu',
+                        href: 'menu.html'
+                    },
+
+                    {
+                        label: 'Login',
+                        href: '../common/login.html'
+                    },
+
+                    {
+                        label: 'Register',
+                        href: '../common/register.html'
+                    }
+
+                ],
+
+                roleLinks: [
+
+                    {
+                        label: 'Customer',
+                        href: 'menu.html'
+                    },
+
+                    {
+                        label: 'Kitchen',
+                        href: '../kitchen/dashboard.html'
+                    },
+
+                    {
+                        label: 'Admin',
+                        href: '../admin/dashboard.html'
+                    }
+
+                ]
+
+            })
+        );
+
+
+        /* =========================================================
+           DOM ELEMENTS
+           ========================================================= */
+
+        const orderItemsEl =
+            document.getElementById(
+                'orderItems'
+            );
+
+        const orderTotalEl =
+            document.getElementById(
+                'orderTotal'
+            );
+
+        const phoneInput =
+            document.getElementById(
+                'phoneNumber'
+            );
+
+        const referenceInput =
+            document.getElementById(
+                'reference'
+            );
+
+        const placeBtn =
+            document.getElementById(
+                'placeOrderBtn'
+            );
+
+        const paymentOptions =
+            document.querySelectorAll(
+                '.payment-option'
+            );
+
+
+        /* =========================================================
+           DEFAULT PAYMENT METHOD
+           ========================================================= */
+
+        let selectedMethod = 'cbe_birr';
+
+
+        /* =========================================================
+           PAYMENT METHOD SELECTION
+           ========================================================= */
+
+        paymentOptions.forEach(
+            opt => {
+
+                opt.addEventListener(
+                    'click',
+                    function () {
+
+                        paymentOptions.forEach(
+                            option => {
+
+                                option.classList.remove(
+                                    'active'
+                                );
+
+                            }
+                        );
+
+                        this.classList.add(
+                            'active'
+                        );
+
+                        selectedMethod =
+                            this.dataset.method;
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =========================================================
+           RENDER ORDER SUMMARY
+           ========================================================= */
+
+        function renderOrderSummary() {
+
+            const items =
+                getCartItems();
+
+            const lang =
+                localStorage.getItem(
+                    'scos_language'
+                ) || 'en';
+
+
+            /* -----------------------------------------------------
+               EMPTY CART
+               ----------------------------------------------------- */
+
+            if (items.length === 0) {
+
+                orderItemsEl.innerHTML =
+                    '<p style="color:var(--gray-500);">Your cart is empty.</p>';
+
+                orderTotalEl.textContent =
+                    '0 ብር';
+
+                placeBtn.disabled = true;
+
+                return;
+
+            }
+
+
+            /* -----------------------------------------------------
+               ITEMS
+               ----------------------------------------------------- */
+
+            orderItemsEl.innerHTML =
+                items
+                    .map(item => {
+
+                        const name =
+                            item.name[lang] ||
+                            item.name.en ||
+                            'Item';
+
+                        return `
+
+                            <div class="order-item-row">
+
+                                <span>
+                                    ${name}
+
+                                    <span class="qty">
+                                        ×${item.quantity}
+                                    </span>
+                                </span>
+
+                                <span>
+                                    ${item.price * item.quantity} ብር
+                                </span>
+
+                            </div>
+
+                        `;
+
+                    })
+                    .join('');
+
+
+            /* -----------------------------------------------------
+               TOTAL
+               ----------------------------------------------------- */
+
+            const total =
+                getCartTotal();
+
+            orderTotalEl.textContent =
+                `${total} ብር`;
+
+            placeBtn.disabled = false;
+
+        }
+
+
+        /* =========================================================
+           PLACE ORDER
+           ========================================================= */
+
+        async function handlePlaceOrder() {
+
+            const items =
+                getCartItems();
+
+
+            /* -----------------------------------------------------
+               CART CHECK
+               ----------------------------------------------------- */
+
+            if (items.length === 0) {
+
+                showToast(
+                    'Your cart is empty',
+                    'error'
+                );
+
+                return;
+
+            }
+
+
+            /* -----------------------------------------------------
+               PHONE CHECK
+               ----------------------------------------------------- */
+
+            const phone =
+                phoneInput.value.trim();
+
+
+            if (!phone) {
+
+                showToast(
+                    'Please enter your phone number',
+                    'warning'
+                );
+
+                phoneInput.focus();
+
+                return;
+
+            }
+
+
+            /* -----------------------------------------------------
+               LOADING
+               ----------------------------------------------------- */
+
+            placeBtn.classList.add(
+                'loading'
+            );
+
+            placeBtn.disabled = true;
+
+
+            try {
+
+                /* =================================================
+                   1. PLACE ORDER
+                   ================================================= */
+
+                const orderResult =
+                    await placeOrder({
+
+                        items: items,
+
+                        totalAmount:
+                            getCartTotal(),
+
+                        paymentMethod:
+                            selectedMethod,
+
+                        notes:
+                            referenceInput.value.trim()
+
+                    });
+
+
+                if (!orderResult.success) {
+
+                    showToast(
+                        orderResult.error ||
+                        'Failed to place order',
+                        'error'
+                    );
+
+                    placeBtn.classList.remove(
+                        'loading'
+                    );
+
+                    placeBtn.disabled = false;
+
+                    return;
+
+                }
+
+
+                const order =
+                    orderResult.order;
+
+
+                /* =================================================
+                   2. SIMULATE PAYMENT
+                   ================================================= */
+
+                const paymentResult =
+                    await simulatePayment(
+
+                        order.id,
+
+                        selectedMethod,
+
+                        {
+
+                            phone: phone,
+
+                            reference:
+                                referenceInput.value.trim()
+
+                        }
+
+                    );
+
+
+                if (!paymentResult.success) {
+
+                    showToast(
+                        'Payment failed. Please try again.',
+                        'error'
+                    );
+
+                    placeBtn.classList.remove(
+                        'loading'
+                    );
+
+                    placeBtn.disabled = false;
+
+                    return;
+
+                }
+
+
+                /* =================================================
+                   3. SUCCESS
+                   ================================================= */
+
+                clearCart(false);
+
+                showToast(
+                    'Order placed successfully! 🎉',
+                    'success'
+                );
+
+
+                /* -------------------------------------------------
+                   Redirect to order tracking
+                   ------------------------------------------------- */
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        `order-tracking.html?id=${order.id}`;
+
+                }, 1000);
+
+
+            } catch (error) {
+
+                console.error(
+                    'Checkout error:',
+                    error
+                );
+
+                showToast(
+                    'An error occurred. Please try again.',
+                    'error'
+                );
+
+                placeBtn.classList.remove(
+                    'loading'
+                );
+
+                placeBtn.disabled = false;
+
+            }
+
+        }
+
+
+        /* =========================================================
+           EVENT LISTENERS
+           ========================================================= */
+
+        placeBtn.addEventListener(
+            'click',
+            handlePlaceOrder
+        );
+
+
+        /* ---------------------------------------------------------
+           Enter Key Support
+           --------------------------------------------------------- */
+
+        phoneInput.addEventListener(
+            'keypress',
+            (e) => {
+
+                if (e.key === 'Enter') {
+
+                    handlePlaceOrder();
+
+                }
+
+            }
+        );
+
+
+        /* =========================================================
+           INIT
+           ========================================================= */
+
+        renderOrderSummary();
+
+        console.log(
+            '💳 Checkout page loaded successfully!'
+        );
+
+    </script>
+
+</body>
+</html>

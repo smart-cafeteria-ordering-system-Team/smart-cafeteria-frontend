@@ -1,0 +1,3402 @@
+
+
+<!--
+===============================================================
+SMART CAFETERIA - LUXURY COLORFUL KITCHEN ORDERS
+===============================================================
+Existing HTML structure, imports, paths and JavaScript preserved.
+Only visual styling has been upgraded.
+===============================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>Kitchen Orders | Smart Cafeteria</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    />
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <link rel="stylesheet" href="../../css/style.css" />
+    <link rel="stylesheet" href="../../css/kitchen.css" />
+    <link rel="stylesheet" href="../../css/components.css" />
+    <link rel="stylesheet" href="../../css/responsive.css" />
+
+
+<style>
+
+/* ============================================================
+   LUXURY COLOR SYSTEM
+   ============================================================ */
+
+:root {
+
+    --lux-blue: #2563eb;
+    --lux-blue-2: #3b82f6;
+
+    --lux-cyan: #06b6d4;
+    --lux-purple: #7c3aed;
+    --lux-violet: #8b5cf6;
+
+    --lux-pink: #ec4899;
+    --lux-rose: #f43f5e;
+
+    --lux-orange: #f97316;
+    --lux-yellow: #f59e0b;
+
+    --lux-green: #10b981;
+    --lux-emerald: #059669;
+
+    --dark-lux: #111827;
+
+    --glass:
+        rgba(255,255,255,.76);
+
+    --glass-strong:
+        rgba(255,255,255,.91);
+
+    --shadow-lux:
+        0 25px 70px rgba(37,99,235,.15),
+        0 12px 30px rgba(124,58,237,.09);
+
+    --shadow-hover:
+        0 30px 90px rgba(37,99,235,.23),
+        0 15px 35px rgba(236,72,153,.12);
+
+}
+
+
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+
+    margin: 0;
+
+    font-family:
+        "Poppins",
+        sans-serif;
+
+    color: #172033;
+
+    min-height: 100vh;
+
+    overflow-x: hidden;
+
+    background:
+
+        radial-gradient(
+            circle at 5% 8%,
+            rgba(37,99,235,.38),
+            transparent 25%
+        ),
+
+        radial-gradient(
+            circle at 95% 5%,
+            rgba(236,72,153,.30),
+            transparent 24%
+        ),
+
+        radial-gradient(
+            circle at 85% 55%,
+            rgba(124,58,237,.25),
+            transparent 28%
+        ),
+
+        radial-gradient(
+            circle at 10% 80%,
+            rgba(6,182,212,.25),
+            transparent 27%
+        ),
+
+        linear-gradient(
+            135deg,
+            #eef6ff 0%,
+            #f8f4ff 35%,
+            #fff4f8 68%,
+            #effcff 100%
+        );
+
+}
+
+
+/* ============================================================
+   LUXURY BACKGROUND
+   ============================================================ */
+
+.kitchen-orders-page {
+
+    position: relative;
+
+    min-height: 100vh;
+
+    padding:
+        42px
+        0
+        90px;
+
+    overflow: hidden;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.20),
+            rgba(255,255,255,.04)
+        );
+
+}
+
+
+/* large glowing orb */
+
+.kitchen-orders-page::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 520px;
+    height: 520px;
+
+    top: -250px;
+    right: -150px;
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(
+            circle,
+            rgba(124,58,237,.32) 0%,
+            rgba(236,72,153,.18) 35%,
+            rgba(37,99,235,.06) 62%,
+            transparent 75%
+        );
+
+    filter: blur(2px);
+
+    pointer-events: none;
+
+    animation:
+        luxuryFloat 10s ease-in-out infinite;
+
+}
+
+
+/* second orb */
+
+.kitchen-orders-page::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 470px;
+    height: 470px;
+
+    left: -210px;
+    bottom: -220px;
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(
+            circle,
+            rgba(6,182,212,.30),
+            rgba(37,99,235,.15) 40%,
+            transparent 72%
+        );
+
+    pointer-events: none;
+
+    animation:
+        luxuryFloatReverse 12s ease-in-out infinite;
+
+}
+
+
+/* floating animation */
+
+@keyframes luxuryFloat {
+
+    0%,
+    100% {
+        transform:
+            translate3d(0,0,0)
+            scale(1);
+    }
+
+    50% {
+        transform:
+            translate3d(-25px,30px,0)
+            scale(1.06);
+    }
+
+}
+
+@keyframes luxuryFloatReverse {
+
+    0%,
+    100% {
+        transform:
+            translate3d(0,0,0)
+            scale(1);
+    }
+
+    50% {
+        transform:
+            translate3d(30px,-25px,0)
+            scale(1.08);
+    }
+
+}
+
+
+/* ============================================================
+   CONTAINER
+   ============================================================ */
+
+.kitchen-orders-page .container {
+
+    position: relative;
+
+    z-index: 5;
+
+    width:
+        min(
+            1180px,
+            calc(100% - 36px)
+        );
+
+    max-width: 1180px;
+
+    margin: 0 auto;
+
+    padding: 0;
+
+}
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.page-header {
+
+    position: relative;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    flex-wrap: wrap;
+
+    margin-bottom: 25px;
+
+    padding:
+        27px
+        30px;
+
+    border-radius: 27px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.93),
+            rgba(248,245,255,.80)
+        );
+
+    border:
+        1px solid
+        rgba(255,255,255,.95);
+
+    box-shadow:
+        var(--shadow-lux);
+
+    backdrop-filter:
+        blur(22px);
+
+    -webkit-backdrop-filter:
+        blur(22px);
+
+    overflow: hidden;
+
+}
+
+
+/* rainbow top line */
+
+.page-header::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 5px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #2563eb,
+            #06b6d4,
+            #7c3aed,
+            #ec4899,
+            #f97316,
+            #10b981
+        );
+
+    background-size:
+        300% 100%;
+
+    animation:
+        rainbowMove 7s linear infinite;
+
+}
+
+
+@keyframes rainbowMove {
+
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 300% 50%;
+    }
+
+}
+
+
+/* colorful header glow */
+
+.page-header::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 240px;
+    height: 240px;
+
+    top: -160px;
+    right: 130px;
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(
+            circle,
+            rgba(37,99,235,.16),
+            rgba(124,58,237,.08),
+            transparent 70%
+        );
+
+    pointer-events: none;
+
+}
+
+
+/* title */
+
+.page-header h1 {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 11px;
+
+    margin: 0;
+
+    font-size:
+        clamp(
+            24px,
+            3vw,
+            34px
+        );
+
+    line-height: 1.2;
+
+    font-weight: 800;
+
+    letter-spacing:
+        -.8px;
+
+    color: #182033;
+
+}
+
+
+/* icon */
+
+.page-header h1 i {
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 53px;
+    height: 53px;
+
+    border-radius: 17px;
+
+    color: white !important;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #7c3aed 55%,
+            #ec4899
+        );
+
+    box-shadow:
+
+        0 12px 30px
+        rgba(124,58,237,.32);
+
+    font-size: 21px;
+
+    animation:
+        iconGlow 4s ease-in-out infinite;
+
+}
+
+
+@keyframes iconGlow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 12px 30px
+            rgba(37,99,235,.25);
+    }
+
+    50% {
+        box-shadow:
+            0 12px 40px
+            rgba(236,72,153,.35);
+    }
+
+}
+
+
+/* order count */
+
+.page-header h1 small {
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 31px;
+
+    padding:
+        5px
+        13px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: #6d28d9;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #f5f3ff,
+            #fdf2f8
+        );
+
+    border:
+        1px solid
+        rgba(124,58,237,.15);
+
+    box-shadow:
+        0 5px 15px
+        rgba(124,58,237,.08);
+
+}
+
+
+/* ============================================================
+   REFRESH BUTTON
+   ============================================================ */
+
+.header-actions {
+
+    position: relative;
+
+    z-index: 5;
+
+    display: flex;
+
+    align-items: center;
+
+}
+
+
+.page-header .header-actions .btn-refresh {
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    min-height: 47px;
+
+    padding:
+        11px
+        21px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    color: white;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #7c3aed,
+            #ec4899
+        );
+
+    background-size:
+        200% 200%;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+
+        0 12px 28px
+        rgba(124,58,237,.28);
+
+    transition:
+        .3s ease;
+
+}
+
+
+.page-header .header-actions .btn-refresh:hover {
+
+    transform:
+        translateY(-3px)
+        scale(1.02);
+
+    background-position:
+        100% 50%;
+
+    box-shadow:
+
+        0 17px 38px
+        rgba(236,72,153,.28);
+
+}
+
+
+.page-header .header-actions .btn-refresh i {
+
+    transition:
+        transform .5s ease;
+
+}
+
+
+.page-header .header-actions .btn-refresh:hover i {
+
+    transform:
+        rotate(180deg);
+
+}
+
+
+/* ============================================================
+   SEARCH FILTER CARD
+   ============================================================ */
+
+.search-filter-bar {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 13px;
+
+    margin-bottom: 24px;
+
+    padding: 17px;
+
+    border-radius: 23px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.91),
+            rgba(255,255,255,.70)
+        );
+
+    border:
+        1px solid
+        rgba(255,255,255,.98);
+
+    box-shadow:
+        var(--shadow-lux);
+
+    backdrop-filter:
+        blur(22px);
+
+    -webkit-backdrop-filter:
+        blur(22px);
+
+}
+
+
+.search-filter-bar::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 25px;
+    right: 25px;
+
+    height: 3px;
+
+    border-radius: 99px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            transparent,
+            #06b6d4,
+            #2563eb,
+            #7c3aed,
+            #ec4899,
+            transparent
+        );
+
+}
+
+
+/* ============================================================
+   SEARCH BOX
+   ============================================================ */
+
+.search-filter-bar .search-box {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    flex:
+        1 1 320px;
+
+    min-width: 220px;
+
+    min-height: 50px;
+
+    padding:
+        5px
+        16px;
+
+    border:
+        1.5px solid
+        #dbe4f0;
+
+    border-radius: 15px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            rgba(248,250,252,.95),
+            rgba(239,246,255,.72)
+        );
+
+    transition:
+        .3s ease;
+
+}
+
+
+.search-filter-bar .search-box:hover {
+
+    border-color:
+        rgba(37,99,235,.35);
+
+}
+
+
+.search-filter-bar .search-box:focus-within {
+
+    border-color:
+        #7c3aed;
+
+    background:
+        white;
+
+    box-shadow:
+
+        0 0 0 4px
+        rgba(124,58,237,.09),
+
+        0 12px 28px
+        rgba(37,99,235,.10);
+
+}
+
+
+.search-filter-bar .search-box i {
+
+    color:
+        #7c3aed;
+
+    font-size:
+        16px;
+
+}
+
+
+.search-filter-bar .search-box input {
+
+    width: 100%;
+
+    min-width: 0;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    padding:
+        8px
+        0;
+
+    color:
+        #334155;
+
+    font-size:
+        13px;
+
+    font-weight:
+        500;
+
+}
+
+
+.search-filter-bar .search-box input::placeholder {
+
+    color:
+        #94a3b8;
+
+}
+
+
+/* ============================================================
+   SELECT
+   ============================================================ */
+
+.search-filter-bar select {
+
+    min-height: 50px;
+
+    min-width: 165px;
+
+    padding:
+        9px
+        38px
+        9px
+        15px;
+
+    border:
+        1.5px solid
+        #dbe4f0;
+
+    border-radius: 15px;
+
+    outline: none;
+
+    background:
+        rgba(255,255,255,.95);
+
+    color:
+        #475569;
+
+    font-size:
+        12px;
+
+    font-weight:
+        600;
+
+    cursor: pointer;
+
+    transition:
+        .3s ease;
+
+}
+
+
+.search-filter-bar select:hover {
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        #06b6d4;
+
+    box-shadow:
+        0 8px 20px
+        rgba(6,182,212,.10);
+
+}
+
+
+.search-filter-bar select:focus {
+
+    border-color:
+        #7c3aed;
+
+    box-shadow:
+
+        0 0 0 4px
+        rgba(124,58,237,.08);
+
+}
+
+
+/* ============================================================
+   ORDERS CARD
+   ============================================================ */
+
+.orders-table-wrapper {
+
+    position: relative;
+
+    width: 100%;
+
+    overflow-x: auto;
+
+    overflow-y: hidden;
+
+    border-radius: 25px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.94),
+            rgba(255,255,255,.78)
+        );
+
+    border:
+        1px solid
+        rgba(255,255,255,.98);
+
+    box-shadow:
+        var(--shadow-lux);
+
+    backdrop-filter:
+        blur(20px);
+
+    -webkit-backdrop-filter:
+        blur(20px);
+
+    scrollbar-width:
+        thin;
+
+    scrollbar-color:
+        #7c3aed
+        transparent;
+
+}
+
+
+.orders-table-wrapper:hover {
+
+    box-shadow:
+        var(--shadow-hover);
+
+}
+
+
+.orders-table-wrapper::-webkit-scrollbar {
+
+    height: 8px;
+
+}
+
+
+.orders-table-wrapper::-webkit-scrollbar-track {
+
+    background:
+        rgba(226,232,240,.45);
+
+}
+
+
+.orders-table-wrapper::-webkit-scrollbar-thumb {
+
+    border-radius:
+        99px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #06b6d4,
+            #2563eb,
+            #7c3aed,
+            #ec4899
+        );
+
+}
+
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+
+.orders-table {
+
+    width: 100%;
+
+    min-width: 840px;
+
+    border-collapse:
+        separate;
+
+    border-spacing:
+        0;
+
+    font-size:
+        13px;
+
+}
+
+
+/* table head */
+
+.orders-table th {
+
+    padding:
+        18px
+        17px;
+
+    text-align:
+        left;
+
+    white-space:
+        nowrap;
+
+    color:
+        #475569;
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .08em;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #eef6ff,
+            #f5f0ff,
+            #fff2f8
+        );
+
+    border-bottom:
+        2px solid
+        rgba(124,58,237,.10);
+
+}
+
+
+.orders-table th:first-child {
+
+    border-top-left-radius:
+        25px;
+
+}
+
+
+.orders-table th:last-child {
+
+    border-top-right-radius:
+        25px;
+
+}
+
+
+/* table rows */
+
+.orders-table td {
+
+    padding:
+        16px
+        17px;
+
+    vertical-align:
+        middle;
+
+    color:
+        #475569;
+
+    background:
+        rgba(255,255,255,.78);
+
+    border-bottom:
+        1px solid
+        rgba(226,232,240,.65);
+
+    transition:
+        .25s ease;
+
+}
+
+
+.orders-table tbody tr {
+
+    transition:
+        .25s ease;
+
+}
+
+
+.orders-table tbody tr:hover {
+
+    transform:
+        scale(1.002);
+
+}
+
+
+.orders-table tbody tr:hover td {
+
+    background:
+
+        linear-gradient(
+            90deg,
+            rgba(239,246,255,.95),
+            rgba(245,243,255,.92),
+            rgba(253,242,248,.85)
+        );
+
+}
+
+
+.orders-table tbody tr:last-child td {
+
+    border-bottom:
+        none;
+
+}
+
+
+/* order id */
+
+.orders-table td:first-child strong {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    padding:
+        7px
+        11px;
+
+    border-radius:
+        10px;
+
+    color:
+        #2563eb;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #eff6ff,
+            #eef2ff
+        );
+
+    border:
+        1px solid
+        #dbeafe;
+
+    font-size:
+        11px;
+
+}
+
+
+/* items */
+
+.orders-table .items-cell {
+
+    max-width:
+        240px;
+
+}
+
+
+.orders-table .items-cell .item-tag {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    margin:
+        3px
+        5px
+        3px
+        0;
+
+    padding:
+        5px
+        10px;
+
+    border-radius:
+        9px;
+
+    white-space:
+        nowrap;
+
+    color:
+        #475569;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #f0f9ff,
+            #f5f3ff
+        );
+
+    border:
+        1px solid
+        rgba(124,58,237,.10);
+
+    font-size:
+        10px;
+
+    font-weight:
+        600;
+
+}
+
+
+/* ============================================================
+   COLORFUL STATUS BADGES
+   ============================================================ */
+
+.orders-table .status-badge {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    min-width:
+        90px;
+
+    padding:
+        7px
+        12px;
+
+    border-radius:
+        999px;
+
+    font-size:
+        9px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .05em;
+
+}
+
+
+/* pending */
+
+.orders-table .status-badge.pending {
+
+    color:
+        #b45309;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff7ed,
+            #fffbeb
+        );
+
+    border:
+        1px solid
+        #fed7aa;
+
+    box-shadow:
+        0 5px 15px
+        rgba(249,115,22,.10);
+
+}
+
+
+/* preparing */
+
+.orders-table .status-badge.preparing {
+
+    color:
+        #0369a1;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ecfeff,
+            #eff6ff
+        );
+
+    border:
+        1px solid
+        #bae6fd;
+
+    box-shadow:
+        0 5px 15px
+        rgba(6,182,212,.10);
+
+}
+
+
+/* ready */
+
+.orders-table .status-badge.ready {
+
+    color:
+        #047857;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ecfdf5,
+            #f0fdf4
+        );
+
+    border:
+        1px solid
+        #a7f3d0;
+
+    box-shadow:
+        0 5px 15px
+        rgba(16,185,129,.12);
+
+}
+
+
+/* served */
+
+.orders-table .status-badge.served {
+
+    color:
+        #4338ca;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef2ff,
+            #f5f3ff
+        );
+
+    border:
+        1px solid
+        #c7d2fe;
+
+    box-shadow:
+        0 5px 15px
+        rgba(99,102,241,.10);
+
+}
+
+
+/* cancelled */
+
+.orders-table .status-badge.cancelled {
+
+    color:
+        #be123c;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff1f2,
+            #fdf2f8
+        );
+
+    border:
+        1px solid
+        #fecdd3;
+
+    box-shadow:
+        0 5px 15px
+        rgba(244,63,94,.10);
+
+}
+
+
+/* ============================================================
+   ACTION BUTTONS
+   ============================================================ */
+
+.orders-table .action-btns {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        6px;
+
+    flex-wrap:
+        wrap;
+
+}
+
+
+.orders-table .action-btns .btn-sm {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        5px;
+
+    min-height:
+        31px;
+
+    padding:
+        6px
+        11px;
+
+    border:
+        none;
+
+    border-radius:
+        9px;
+
+    font-size:
+        9px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        .25s ease;
+
+}
+
+
+.orders-table .action-btns .btn-sm:hover {
+
+    transform:
+        translateY(-2px);
+
+}
+
+
+.orders-table .action-btns .btn-sm:active {
+
+    transform:
+        translateY(0);
+
+}
+
+
+/* accept */
+
+.btn-sm-accept {
+
+    color:
+        white;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #06b6d4,
+            #2563eb
+        );
+
+    box-shadow:
+        0 7px 17px
+        rgba(37,99,235,.22);
+
+}
+
+
+.btn-sm-accept:hover {
+
+    box-shadow:
+        0 11px 25px
+        rgba(37,99,235,.32);
+
+}
+
+
+/* ready */
+
+.btn-sm-ready {
+
+    color:
+        white;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #10b981,
+            #059669
+        );
+
+    box-shadow:
+        0 7px 17px
+        rgba(16,185,129,.22);
+
+}
+
+
+.btn-sm-ready:hover {
+
+    box-shadow:
+        0 11px 25px
+        rgba(16,185,129,.32);
+
+}
+
+
+/* serve */
+
+.btn-sm-serve {
+
+    color:
+        white;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #64748b,
+            #475569
+        );
+
+    box-shadow:
+        0 7px 17px
+        rgba(71,85,105,.18);
+
+}
+
+
+/* view */
+
+.btn-sm-view {
+
+    color:
+        #6d28d9 !important;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #f5f3ff,
+            #fdf2f8
+        ) !important;
+
+    border:
+        1px solid
+        #e9d5ff !important;
+
+}
+
+
+.btn-sm-view:hover {
+
+    color:
+        #2563eb !important;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #eff6ff,
+            #f5f3ff
+        ) !important;
+
+    box-shadow:
+        0 7px 18px
+        rgba(124,58,237,.12);
+
+}
+
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.empty-state {
+
+    position:
+        relative;
+
+    text-align:
+        center;
+
+    padding:
+        85px
+        25px;
+
+    background:
+
+        radial-gradient(
+            circle at center,
+            rgba(124,58,237,.07),
+            rgba(6,182,212,.03),
+            transparent 65%
+        );
+
+}
+
+
+.empty-state i {
+
+    display:
+        flex !important;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    width:
+        95px;
+
+    height:
+        95px;
+
+    margin:
+        0 auto
+        20px;
+
+    border-radius:
+        29px;
+
+    color:
+        #7c3aed !important;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #eff6ff,
+            #f5f3ff,
+            #fdf2f8
+        );
+
+    border:
+        1px solid
+        #e9d5ff;
+
+    box-shadow:
+
+        0 18px 45px
+        rgba(124,58,237,.13);
+
+    font-size:
+        36px !important;
+
+}
+
+
+.empty-state h3 {
+
+    margin:
+        0 0 8px;
+
+    color:
+        #334155 !important;
+
+    font-size:
+        20px;
+
+    font-weight:
+        800;
+
+}
+
+
+.empty-state p {
+
+    margin:
+        0;
+
+    color:
+        #94a3b8 !important;
+
+    font-size:
+        12px;
+
+}
+
+
+/* ============================================================
+   PAYMENT
+   ============================================================ */
+
+.orders-table td span[style*="16a34a"] {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        5px;
+
+    padding:
+        6px
+        10px;
+
+    border-radius:
+        999px;
+
+    color:
+        #047857 !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ecfdf5,
+            #f0fdf4
+        );
+
+    border:
+        1px solid
+        #a7f3d0;
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+
+}
+
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .kitchen-orders-page {
+
+        padding-top:
+            28px;
+
+    }
+
+    .kitchen-orders-page .container {
+
+        width:
+            calc(100% - 26px);
+
+    }
+
+    .page-header {
+
+        padding:
+            23px;
+
+    }
+
+    .search-filter-bar {
+
+        padding:
+            14px;
+
+    }
+
+    .search-filter-bar .search-box {
+
+        flex-basis:
+            100%;
+
+    }
+
+    .search-filter-bar select {
+
+        flex:
+            1 1 180px;
+
+    }
+
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .kitchen-orders-page {
+
+        padding:
+            18px
+            0
+            55px;
+
+    }
+
+    .kitchen-orders-page .container {
+
+        width:
+            calc(100% - 18px);
+
+    }
+
+    .page-header {
+
+        flex-direction:
+            column;
+
+        align-items:
+            stretch;
+
+        padding:
+            20px
+            16px;
+
+        border-radius:
+            21px;
+
+    }
+
+    .page-header h1 {
+
+        font-size:
+            22px;
+
+    }
+
+    .page-header h1 i {
+
+        width:
+            45px;
+
+        height:
+            45px;
+
+        border-radius:
+            14px;
+
+        font-size:
+            17px;
+
+    }
+
+    .header-actions {
+
+        width:
+            100%;
+
+    }
+
+    .page-header .header-actions .btn-refresh {
+
+        width:
+            100%;
+
+        min-height:
+            46px;
+
+    }
+
+    .search-filter-bar {
+
+        flex-direction:
+            column;
+
+        align-items:
+            stretch;
+
+        padding:
+            12px;
+
+        border-radius:
+            19px;
+
+    }
+
+    .search-filter-bar .search-box {
+
+        width:
+            100%;
+
+        min-width:
+            0;
+
+        flex:
+            none;
+
+    }
+
+    .search-filter-bar select {
+
+        width:
+            100%;
+
+        min-width:
+            0;
+
+        flex:
+            none;
+
+    }
+
+    .orders-table-wrapper {
+
+        border-radius:
+            20px;
+
+    }
+
+    .orders-table {
+
+        min-width:
+            820px;
+
+        font-size:
+            12px;
+
+    }
+
+    .orders-table th,
+    .orders-table td {
+
+        padding:
+            12px
+            11px;
+
+    }
+
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 480px) {
+
+    .kitchen-orders-page .container {
+
+        width:
+            calc(100% - 12px);
+
+    }
+
+    .page-header {
+
+        padding:
+            17px
+            13px;
+
+        border-radius:
+            18px;
+
+    }
+
+    .page-header h1 {
+
+        font-size:
+            19px;
+
+    }
+
+    .page-header h1 i {
+
+        width:
+            39px;
+
+        height:
+            39px;
+
+        font-size:
+            15px;
+
+    }
+
+    .page-header h1 small {
+
+        width:
+            100%;
+
+        justify-content:
+            center;
+
+    }
+
+    .search-filter-bar {
+
+        padding:
+            9px;
+
+        gap:
+            8px;
+
+    }
+
+    .search-filter-bar .search-box,
+    .search-filter-bar select {
+
+        min-height:
+            44px;
+
+    }
+
+    .orders-table {
+
+        min-width:
+            760px;
+
+    }
+
+    .orders-table th,
+    .orders-table td {
+
+        padding:
+            9px;
+
+    }
+
+    .orders-table th {
+
+        font-size:
+            8px;
+
+    }
+
+    .orders-table .status-badge {
+
+        min-width:
+            72px;
+
+        padding:
+            5px
+            8px;
+
+        font-size:
+            8px;
+
+    }
+
+    .orders-table .action-btns .btn-sm {
+
+        min-height:
+            28px;
+
+        padding:
+            5px
+            8px;
+
+        font-size:
+            8px;
+
+    }
+
+    .empty-state {
+
+        padding:
+            60px
+            15px;
+
+    }
+
+    .empty-state i {
+
+        width:
+            75px;
+
+        height:
+            75px;
+
+        font-size:
+            28px !important;
+
+    }
+
+}
+
+
+/* ============================================================
+   VERY SMALL SCREEN
+   ============================================================ */
+
+@media (max-width: 360px) {
+
+    .kitchen-orders-page .container {
+
+        width:
+            calc(100% - 8px);
+
+    }
+
+    .page-header h1 {
+
+        font-size:
+            17px;
+
+    }
+
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        animation-duration:
+            .01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            .01ms !important;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="kitchen-orders-page">
+
+    <!-- Header injected -->
+
+    <div class="container">
+
+        <div class="page-header">
+
+            <h1>
+
+                <i class="fas fa-list"></i>
+
+                All Orders
+
+                <small id="orderCount">
+                    Loading...
+                </small>
+
+            </h1>
+
+
+            <div class="header-actions">
+
+                <button
+                    class="btn-refresh"
+                    id="refreshBtn"
+                >
+
+                    <i class="fas fa-sync-alt"></i>
+
+                    Refresh
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- Search & Filter -->
+
+        <div class="search-filter-bar">
+
+            <div class="search-box">
+
+                <i class="fas fa-search"></i>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search by order ID or customer..."
+                />
+
+            </div>
+
+
+            <select id="statusFilter">
+
+                <option value="all">
+                    All Statuses
+                </option>
+
+                <option value="pending">
+                    Pending
+                </option>
+
+                <option value="preparing">
+                    Preparing
+                </option>
+
+                <option value="ready">
+                    Ready for Pickup
+                </option>
+
+                <option value="served">
+                    Served
+                </option>
+
+                <option value="cancelled">
+                    Cancelled
+                </option>
+
+            </select>
+
+
+            <select id="dateFilter">
+
+                <option value="all">
+                    All Time
+                </option>
+
+                <option value="today">
+                    Today
+                </option>
+
+                <option value="week">
+                    This Week
+                </option>
+
+                <option value="month">
+                    This Month
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Orders Table -->
+
+        <div class="orders-table-wrapper">
+
+            <div id="ordersContainer">
+
+                <!-- Injected by JS -->
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     SCRIPT
+     ============================================================ -->
+
+<script type="module">
+
+import { createHeader }
+    from '../../components/header.js';
+
+import { createFooter }
+    from '../../components/footer.js';
+
+import { getCartCount }
+    from '../../js/cart.js';
+
+import {
+    isLoggedIn,
+    getCurrentUser
+}
+    from '../../js/auth.js';
+
+import {
+    getAllOrders,
+    updateOrderStatus,
+    markOrderReady
+}
+    from '../../js/orders.js';
+
+import { showToast }
+    from '../../js/main.js';
+
+import {
+    formatDate,
+    formatTime
+}
+    from '../../js/utils/formatters.js';
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+const user =
+    getCurrentUser();
+
+const isLoggedInUser =
+    isLoggedIn();
+
+
+if (
+    !isLoggedInUser ||
+    user?.role !== 'kitchen'
+) {
+
+    showToast(
+        'Access denied. Kitchen staff only.',
+        'error'
+    );
+
+    setTimeout(() => {
+
+        window.location.href =
+            '../common/login.html';
+
+    }, 1500);
+
+}
+
+
+/* ============================================================
+   HEADER INJECTION
+   ============================================================ */
+
+document.body.insertAdjacentHTML(
+
+    'afterbegin',
+
+    createHeader({
+
+        navLinks: [
+
+            {
+                label: 'Dashboard',
+                href: 'dashboard.html'
+            },
+
+            {
+                label: 'Orders',
+                href: 'orders.html',
+                active: true
+            }
+
+        ],
+
+        user: user,
+
+        isLoggedIn:
+            isLoggedInUser,
+
+        cartCount:
+            getCartCount(),
+
+        theme:
+            localStorage.getItem(
+                'scos_theme'
+            ) || 'light',
+
+        language:
+            localStorage.getItem(
+                'scos_language'
+            ) || 'en',
+
+        authButtons: {
+
+            loginLabel:
+                'Login',
+
+            registerLabel:
+                'Register',
+
+            loginHref:
+                '../common/login.html',
+
+            registerHref:
+                '../common/register.html'
+
+        },
+
+        onToggleMenu: () => {
+
+            document
+                .getElementById('mainNav')
+                ?.classList
+                .toggle('open');
+
+        },
+
+        onToggleTheme: () => {},
+
+        onToggleLanguage: () => {},
+
+        onLogout: () => {
+
+            if (confirm('Are you sure?')) {
+
+                localStorage.removeItem(
+                    'scos_user'
+                );
+
+                localStorage.removeItem(
+                    'scos_token'
+                );
+
+                localStorage.removeItem(
+                    'scos_cart'
+                );
+
+                window.location.href =
+                    '../common/login.html';
+
+            }
+
+        },
+
+        onNotificationClick: () => {}
+
+    })
+
+);
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+document.body.insertAdjacentHTML(
+
+    'beforeend',
+
+    createFooter({
+
+        quickLinks: [
+
+            {
+                label: 'Home',
+                href: '../../index.html'
+            },
+
+            {
+                label: 'Menu',
+                href: '../customer/menu.html'
+            },
+
+            {
+                label: 'Login',
+                href: '../common/login.html'
+            },
+
+            {
+                label: 'Register',
+                href: '../common/register.html'
+            }
+
+        ],
+
+        roleLinks: [
+
+            {
+                label: 'Customer',
+                href: '../customer/menu.html'
+            },
+
+            {
+                label: 'Kitchen',
+                href: 'dashboard.html'
+            },
+
+            {
+                label: 'Admin',
+                href: '../admin/dashboard.html'
+            }
+
+        ]
+
+    })
+
+);
+
+
+/* ============================================================
+   DOM
+   ============================================================ */
+
+const container =
+    document.getElementById(
+        'ordersContainer'
+    );
+
+const orderCount =
+    document.getElementById(
+        'orderCount'
+    );
+
+const searchInput =
+    document.getElementById(
+        'searchInput'
+    );
+
+const statusFilter =
+    document.getElementById(
+        'statusFilter'
+    );
+
+const dateFilter =
+    document.getElementById(
+        'dateFilter'
+    );
+
+const refreshBtn =
+    document.getElementById(
+        'refreshBtn'
+    );
+
+
+let allOrders = [];
+
+
+/* ============================================================
+   RENDER ORDERS
+   ============================================================ */
+
+function renderOrders() {
+
+    const search =
+        searchInput.value
+            .toLowerCase()
+            .trim();
+
+    const status =
+        statusFilter.value;
+
+    const date =
+        dateFilter.value;
+
+
+    let filtered =
+        [...allOrders];
+
+
+    /* Search */
+
+    if (search) {
+
+        filtered =
+            filtered.filter(o =>
+
+                String(o.id)
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(o.userId || '')
+                    .toLowerCase()
+                    .includes(search)
+
+            );
+
+    }
+
+
+    /* Status */
+
+    if (status !== 'all') {
+
+        filtered =
+            filtered.filter(
+                o =>
+                    o.status === status
+            );
+
+    }
+
+
+    /* Date */
+
+    if (date !== 'all') {
+
+        const now =
+            new Date();
+
+        const today =
+            now.toISOString()
+                .split('T')[0];
+
+        const weekAgo =
+            new Date(now);
+
+        weekAgo.setDate(
+            weekAgo.getDate() - 7
+        );
+
+        const monthAgo =
+            new Date(now);
+
+        monthAgo.setMonth(
+            monthAgo.getMonth() - 1
+        );
+
+
+        filtered =
+            filtered.filter(o => {
+
+                const orderDate =
+                    o.orderTime
+                        .split('T')[0];
+
+
+                if (
+                    date === 'today'
+                )
+                    return (
+                        orderDate === today
+                    );
+
+
+                if (
+                    date === 'week'
+                )
+                    return (
+                        orderDate >=
+                        weekAgo
+                            .toISOString()
+                            .split('T')[0]
+                    );
+
+
+                if (
+                    date === 'month'
+                )
+                    return (
+                        orderDate >=
+                        monthAgo
+                            .toISOString()
+                            .split('T')[0]
+                    );
+
+
+                return true;
+
+            });
+
+    }
+
+
+    /* Newest first */
+
+    filtered.sort(
+        (a, b) =>
+            new Date(b.orderTime) -
+            new Date(a.orderTime)
+    );
+
+
+    /* Count */
+
+    orderCount.textContent =
+        `${filtered.length} order${
+            filtered.length !== 1
+                ? 's'
+                : ''
+        }`;
+
+
+    /* Empty */
+
+    if (
+        filtered.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                <i class="fas fa-search"></i>
+
+                <h3>
+                    No Orders Found
+                </h3>
+
+                <p>
+                    Try adjusting your filters or search terms.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const lang =
+        localStorage.getItem(
+            'scos_language'
+        ) || 'en';
+
+
+    /* ========================================================
+       TABLE
+       ======================================================== */
+
+    container.innerHTML = `
+
+        <table class="orders-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Order ID
+                    </th>
+
+                    <th>
+                        Items
+                    </th>
+
+                    <th>
+                        Total
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Payment
+                    </th>
+
+                    <th>
+                        Time
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                ${filtered.map(order => {
+
+                    const statusLabel = {
+
+                        pending:
+                            'Pending',
+
+                        preparing:
+                            'Preparing',
+
+                        ready:
+                            'Ready for Pickup',
+
+                        served:
+                            'Served',
+
+                        cancelled:
+                            'Cancelled'
+
+                    }[order.status]
+                    ||
+                    order.status;
+
+
+                    const itemsHTML =
+                        order.items
+                            .map(item =>
+
+                                `
+                                <span
+                                    class="item-tag"
+                                >
+                                    ${
+                                        item.name[
+                                            lang
+                                        ]
+                                        ||
+                                        item.name.en
+                                        ||
+                                        item.name
+                                    }
+
+                                    ×${item.quantity}
+
+                                </span>
+                                `
+
+                            )
+                            .join('');
+
+
+                    const canAccept =
+                        order.status ===
+                        'pending';
+
+                    const canReady =
+                        order.status ===
+                        'preparing';
+
+                    const canServe =
+                        order.status ===
+                        'ready';
+
+                    const isCancelled =
+                        order.status ===
+                        'cancelled';
+
+
+                    return `
+
+                        <tr>
+
+                            <td>
+
+                                <strong>
+                                    #${order.id}
+                                </strong>
+
+                            </td>
+
+
+                            <td
+                                class="items-cell"
+                            >
+                                ${itemsHTML}
+                            </td>
+
+
+                            <td>
+
+                                <strong>
+                                    ${order.totalAmount}
+                                    ብር
+                                </strong>
+
+                            </td>
+
+
+                            <td>
+
+                                <span
+                                    class="
+                                        status-badge
+                                        ${order.status}
+                                    "
+                                >
+
+                                    ${statusLabel}
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                ${
+                                    order.paymentStatus
+                                    ===
+                                    'simulated'
+
+                                        ? `
+                                            <span
+                                                style="
+                                                    color:#16a34a;
+                                                "
+                                            >
+                                                <i
+                                                    class="
+                                                        fas
+                                                        fa-check-circle
+                                                    "
+                                                ></i>
+
+                                                Paid
+                                            </span>
+                                          `
+
+                                        : `
+                                            <span
+                                                style="
+                                                    color:var(--gray-400);
+                                                "
+                                            >
+                                                Pending
+                                            </span>
+                                          `
+                                }
+
+                            </td>
+
+
+                            <td
+                                style="
+                                    font-size:11px;
+                                    color:var(--gray-400);
+                                "
+                            >
+
+                                ${formatTime(
+                                    order.orderTime
+                                )}
+
+                                <br>
+
+                                ${formatDate(
+                                    order.orderTime
+                                )}
+
+                            </td>
+
+
+                            <td>
+
+                                <div
+                                    class="action-btns"
+                                >
+
+                                    ${
+                                        !isCancelled
+
+                                            ? `
+
+                                                ${
+                                                    canAccept
+
+                                                        ? `
+                                                            <button
+                                                                class="
+                                                                    btn-sm
+                                                                    btn-sm-accept
+                                                                "
+                                                                data-id="${order.id}"
+                                                                data-action="accept"
+                                                            >
+
+                                                                <i
+                                                                    class="
+                                                                        fas
+                                                                        fa-check
+                                                                    "
+                                                                ></i>
+
+                                                                Accept
+
+                                                            </button>
+                                                          `
+
+                                                        : ''
+                                                }
+
+
+                                                ${
+                                                    canReady
+
+                                                        ? `
+                                                            <button
+                                                                class="
+                                                                    btn-sm
+                                                                    btn-sm-ready
+                                                                "
+                                                                data-id="${order.id}"
+                                                                data-action="ready"
+                                                            >
+
+                                                                <i
+                                                                    class="
+                                                                        fas
+                                                                        fa-check-double
+                                                                    "
+                                                                ></i>
+
+                                                                Ready
+
+                                                            </button>
+                                                          `
+
+                                                        : ''
+                                                }
+
+
+                                                ${
+                                                    canServe
+
+                                                        ? `
+                                                            <button
+                                                                class="
+                                                                    btn-sm
+                                                                    btn-sm-serve
+                                                                "
+                                                                data-id="${order.id}"
+                                                                data-action="serve"
+                                                            >
+
+                                                                <i
+                                                                    class="
+                                                                        fas
+                                                                        fa-hand-holding-heart
+                                                                    "
+                                                                ></i>
+
+                                                                Serve
+
+                                                            </button>
+                                                          `
+
+                                                        : ''
+                                                }
+
+                                            `
+
+                                            : ''
+                                    }
+
+
+                                    <a
+                                        href="../customer/order-tracking.html?id=${order.id}"
+                                        target="_blank"
+                                        class="
+                                            btn-sm
+                                            btn-sm-view
+                                        "
+                                        style="
+                                            display:inline-flex;
+                                            padding:6px 11px;
+                                            border-radius:9px;
+                                            text-decoration:none;
+                                            font-size:10px;
+                                            font-weight:700;
+                                        "
+                                    >
+
+                                        <i
+                                            class="
+                                                fas
+                                                fa-eye
+                                            "
+                                        ></i>
+
+                                        View
+
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }).join('')}
+
+            </tbody>
+
+        </table>
+
+    `;
+
+
+    /* ========================================================
+       ACTION HANDLERS
+       ======================================================== */
+
+    document
+        .querySelectorAll(
+            '.btn-sm-accept, .btn-sm-ready, .btn-sm-serve'
+        )
+        .forEach(btn => {
+
+            btn.addEventListener(
+                'click',
+                async function() {
+
+                    const orderId =
+                        this.dataset.id;
+
+                    const action =
+                        this.dataset.action;
+
+                    this.disabled =
+                        true;
+
+                    this.textContent =
+                        '...';
+
+
+                    let result;
+
+
+                    try {
+
+                        switch (action) {
+
+                            case 'accept':
+
+                                result =
+                                    await updateOrderStatus(
+                                        orderId,
+                                        'preparing'
+                                    );
+
+                                if (
+                                    result.success
+                                )
+                                    showToast(
+                                        `Order ${orderId} accepted`,
+                                        'success'
+                                    );
+
+                                break;
+
+
+                            case 'ready':
+
+                                result =
+                                    await markOrderReady(
+                                        orderId
+                                    );
+
+                                if (
+                                    result.success
+                                )
+                                    showToast(
+                                        `Order ${orderId} ready for pickup`,
+                                        'success'
+                                    );
+
+                                break;
+
+
+                            case 'serve':
+
+                                result =
+                                    await updateOrderStatus(
+                                        orderId,
+                                        'served'
+                                    );
+
+                                if (
+                                    result.success
+                                )
+                                    showToast(
+                                        `Order ${orderId} served`,
+                                        'info'
+                                    );
+
+                                break;
+
+
+                            default:
+
+                                result = {
+                                    success:
+                                        false
+                                };
+
+                        }
+
+
+                        if (
+                            result.success
+                        ) {
+
+                            loadOrders();
+
+                        } else {
+
+                            showToast(
+                                result.error ||
+                                'Action failed',
+                                'error'
+                            );
+
+                            this.disabled =
+                                false;
+
+                            this.textContent =
+                                action === 'accept'
+                                    ? 'Accept'
+                                    : action === 'ready'
+                                        ? 'Ready'
+                                        : 'Serve';
+
+                        }
+
+                    } catch (error) {
+
+                        console.error(
+                            error
+                        );
+
+                        showToast(
+                            'Action failed. Please try again.',
+                            'error'
+                        );
+
+                        this.disabled =
+                            false;
+
+                    }
+
+                }
+            );
+
+        });
+
+}
+
+
+/* ============================================================
+   LOAD ORDERS
+   ============================================================ */
+
+function loadOrders() {
+
+    try {
+
+        allOrders =
+            getAllOrders();
+
+        if (
+            !Array.isArray(allOrders)
+        ) {
+
+            allOrders = [];
+
+        }
+
+        renderOrders();
+
+    } catch (error) {
+
+        console.error(
+            'Order loading error:',
+            error
+        );
+
+        allOrders = [];
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                <i
+                    class="
+                        fas
+                        fa-triangle-exclamation
+                    "
+                    style="
+                        color:#f97316 !important;
+                    "
+                ></i>
+
+                <h3>
+                    Unable to Load Orders
+                </h3>
+
+                <p>
+                    Please refresh the page and try again.
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+
+searchInput.addEventListener(
+    'input',
+    renderOrders
+);
+
+statusFilter.addEventListener(
+    'change',
+    renderOrders
+);
+
+dateFilter.addEventListener(
+    'change',
+    renderOrders
+);
+
+
+refreshBtn.addEventListener(
+    'click',
+    loadOrders
+);
+
+
+/* ============================================================
+   AUTO REFRESH
+   ============================================================ */
+
+setInterval(
+    loadOrders,
+    60000
+);
+
+
+/* ============================================================
+   INIT
+   ============================================================ */
+
+loadOrders();
+
+console.log(
+    '📋 Kitchen Orders page loaded successfully!'
+);
+
+</script>
+
+</body>
+</html>

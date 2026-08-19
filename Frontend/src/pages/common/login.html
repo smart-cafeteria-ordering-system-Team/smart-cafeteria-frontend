@@ -1,0 +1,1407 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Login | Smart Cafeteria</title>
+
+    <!-- =========================================================
+         Google Font
+    ========================================================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    />
+
+    <!-- =========================================================
+         Font Awesome
+    ========================================================== -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <!-- =========================================================
+         Custom CSS
+         IMPORTANT: Keep these paths unchanged
+    ========================================================== -->
+    <link rel="stylesheet" href="../../css/style.css" />
+    <link rel="stylesheet" href="../../css/responsive.css" />
+
+    <style>
+        /* =========================================================
+           SMART CAFETERIA LOGIN PAGE
+           Page-specific styles
+           ========================================================= */
+
+        /* ---------- Safe Box Sizing ---------- */
+        .auth-page,
+        .auth-page *,
+        .auth-page *::before,
+        .auth-page *::after {
+            box-sizing: border-box;
+        }
+
+        /* ---------- Main Page ---------- */
+        .auth-page {
+            min-height: 100vh;
+            min-height: 100svh;
+
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            position: relative;
+            overflow-x: hidden;
+
+            padding: 30px 20px;
+
+            font-family: "Poppins", sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 10% 15%,
+                    rgba(37, 99, 235, 0.15) 0,
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 90% 85%,
+                    rgba(16, 185, 129, 0.14) 0,
+                    transparent 30%
+                ),
+                linear-gradient(
+                    135deg,
+                    #eff6ff 0%,
+                    #ffffff 48%,
+                    #f0fdf4 100%
+                );
+        }
+
+        /* ---------- Decorative Background ---------- */
+        .auth-page::before {
+            content: "";
+            position: absolute;
+
+            width: 360px;
+            height: 360px;
+
+            top: -180px;
+            left: -160px;
+
+            border-radius: 50%;
+
+            background: rgba(37, 99, 235, 0.08);
+
+            filter: blur(2px);
+
+            pointer-events: none;
+        }
+
+        .auth-page::after {
+            content: "";
+            position: absolute;
+
+            width: 420px;
+            height: 420px;
+
+            right: -200px;
+            bottom: -220px;
+
+            border-radius: 50%;
+
+            background: rgba(16, 185, 129, 0.08);
+
+            filter: blur(2px);
+
+            pointer-events: none;
+        }
+
+        /* =========================================================
+           AUTH CARD
+        ========================================================== */
+
+        .auth-card {
+            position: relative;
+            z-index: 2;
+
+            width: 100%;
+            max-width: 460px;
+
+            padding: 40px 38px;
+
+            border-radius: 28px;
+
+            /*
+             * Fallback colors are intentionally included.
+             * This prevents the page from breaking if variables
+             * in style.css are missing or overridden.
+             */
+            background: rgba(255, 255, 255, 0.94);
+
+            border: 1px solid rgba(255, 255, 255, 0.85);
+
+            box-shadow:
+                0 25px 70px rgba(15, 23, 42, 0.14),
+                0 8px 25px rgba(37, 99, 235, 0.08);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            animation: authFadeIn 0.55s ease both;
+        }
+
+        .auth-card::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 12%;
+
+            width: 76%;
+            height: 4px;
+
+            border-radius: 0 0 10px 10px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #2563eb,
+                    #7c3aed,
+                    #06b6d4,
+                    #10b981
+                );
+        }
+
+        @keyframes authFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(22px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* =========================================================
+           BACK LINK
+        ========================================================== */
+
+        .auth-card .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            margin-bottom: 20px;
+
+            color: #64748b;
+
+            font-size: 13px;
+            font-weight: 500;
+
+            text-decoration: none;
+
+            transition:
+                color 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        .auth-card .back-link i {
+            font-size: 12px;
+
+            transition: transform 0.25s ease;
+        }
+
+        .auth-card .back-link:hover {
+            color: #2563eb;
+            transform: translateX(-2px);
+        }
+
+        .auth-card .back-link:hover i {
+            transform: translateX(-3px);
+        }
+
+        /* =========================================================
+           BRAND
+        ========================================================== */
+
+        .auth-card .brand {
+            display: flex;
+            align-items: center;
+
+            margin-bottom: 7px;
+
+            font-size: 27px;
+            line-height: 1.2;
+
+            font-weight: 800;
+
+            letter-spacing: -0.5px;
+
+            color: #2563eb;
+        }
+
+        .auth-card .brand i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 42px;
+            height: 42px;
+
+            margin-right: 10px;
+
+            border-radius: 12px;
+
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #4f46e5
+                );
+
+            box-shadow:
+                0 8px 20px rgba(37, 99, 235, 0.25);
+
+            font-size: 18px;
+        }
+
+        .auth-card .brand span {
+            color: #111827;
+        }
+
+        .auth-card .subtitle {
+            margin: 0 0 25px;
+
+            color: #64748b;
+
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+           ALERT
+        ========================================================== */
+
+        .auth-card .alert {
+            display: none;
+
+            align-items: flex-start;
+
+            padding: 12px 14px;
+
+            margin-bottom: 18px;
+
+            border-radius: 12px;
+
+            font-size: 13px;
+            line-height: 1.5;
+
+            animation: alertSlide 0.25s ease;
+        }
+
+        .auth-card .alert.show {
+            display: flex;
+        }
+
+        .auth-card .alert i {
+            margin-top: 2px;
+            margin-right: 9px;
+        }
+
+        @keyframes alertSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-card .alert-error {
+            color: #991b1b;
+
+            background: #fef2f2;
+
+            border: 1px solid #fecaca;
+            border-left: 4px solid #dc2626;
+        }
+
+        .auth-card .alert-success {
+            color: #166534;
+
+            background: #f0fdf4;
+
+            border: 1px solid #bbf7d0;
+            border-left: 4px solid #16a34a;
+        }
+
+        /* =========================================================
+           ROLE SELECTOR
+        ========================================================== */
+
+        .auth-card .role-selector {
+            display: grid;
+
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+
+            gap: 10px;
+
+            width: 100%;
+
+            margin-bottom: 22px;
+        }
+
+        .auth-card .role-option {
+            min-width: 0;
+
+            padding: 13px 8px 11px;
+
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+
+            text-align: center;
+
+            cursor: pointer;
+
+            color: #64748b;
+            background: #ffffff;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            transition:
+                border-color 0.25s ease,
+                background 0.25s ease,
+                color 0.25s ease,
+                transform 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .auth-card .role-option:hover {
+            border-color: #93c5fd;
+
+            background: #f8fbff;
+
+            color: #2563eb;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 8px 20px rgba(37, 99, 235, 0.08);
+        }
+
+        .auth-card .role-option.active {
+            border-color: #2563eb;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #eff6ff,
+                    #f5f3ff
+                );
+
+            color: #2563eb;
+
+            box-shadow:
+                0 8px 22px rgba(37, 99, 235, 0.12);
+        }
+
+        .auth-card .role-option i {
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-size: 20px;
+        }
+
+        .auth-card .role-option.active i {
+            transform: scale(1.05);
+        }
+
+        .auth-card .role-label {
+            display: block;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.06em;
+        }
+
+        /* =========================================================
+           FORM
+        ========================================================== */
+
+        .auth-card #loginForm {
+            width: 100%;
+        }
+
+        .auth-card .form-group {
+            width: 100%;
+
+            margin-bottom: 17px;
+
+            text-align: left;
+        }
+
+        .auth-card .form-group label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #374151;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            line-height: 1.4;
+        }
+
+        .auth-card .form-group label .required {
+            color: #dc2626;
+        }
+
+        /* =========================================================
+           INPUT
+        ========================================================== */
+
+        .auth-card .form-control {
+            display: block;
+
+            width: 100%;
+            max-width: 100%;
+
+            min-height: 48px;
+
+            padding: 12px 15px;
+
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+
+            outline: none;
+
+            color: #1f2937;
+            background: #ffffff;
+
+            font-family: "Poppins", sans-serif;
+            font-size: 13px;
+
+            box-shadow: none;
+
+            transition:
+                border-color 0.25s ease,
+                box-shadow 0.25s ease,
+                background 0.25s ease;
+        }
+
+        .auth-card .form-control::placeholder {
+            color: #9ca3af;
+        }
+
+        .auth-card .form-control:hover {
+            border-color: #cbd5e1;
+        }
+
+        .auth-card .form-control:focus {
+            border-color: #2563eb;
+
+            background: #ffffff;
+
+            box-shadow:
+                0 0 0 4px rgba(37, 99, 235, 0.10),
+                0 5px 15px rgba(37, 99, 235, 0.05);
+        }
+
+        .auth-card .form-control.error {
+            border-color: #dc2626;
+        }
+
+        /* =========================================================
+           FORM OPTIONS
+        ========================================================== */
+
+        .auth-card .form-options {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 12px;
+
+            margin: 8px 0 21px;
+
+            font-size: 12px;
+        }
+
+        .auth-card .form-options label {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            margin: 0;
+
+            color: #64748b;
+
+            cursor: pointer;
+
+            font-weight: 400;
+        }
+
+        .auth-card .form-options input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+
+            margin: 0;
+
+            accent-color: #2563eb;
+
+            cursor: pointer;
+        }
+
+        .auth-card .form-options a {
+            color: #2563eb;
+
+            text-decoration: none;
+
+            font-weight: 600;
+
+            transition: color 0.2s ease;
+        }
+
+        .auth-card .form-options a:hover {
+            color: #1d4ed8;
+
+            text-decoration: underline;
+        }
+
+        /* =========================================================
+           LOGIN BUTTON
+        ========================================================== */
+
+        .auth-card .btn-login {
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
+            min-height: 50px;
+
+            padding: 13px 18px;
+
+            border: none;
+            border-radius: 12px;
+
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb 0%,
+                    #4f46e5 55%,
+                    #7c3aed 100%
+                );
+
+            font-family: "Poppins", sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 10px 25px rgba(37, 99, 235, 0.24);
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                filter 0.25s ease;
+        }
+
+        .auth-card .btn-login:hover {
+            transform: translateY(-2px);
+
+            filter: brightness(1.04);
+
+            box-shadow:
+                0 14px 30px rgba(37, 99, 235, 0.30);
+        }
+
+        .auth-card .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .auth-card .btn-login:disabled {
+            opacity: 0.65;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+            box-shadow:
+                0 6px 15px rgba(37, 99, 235, 0.12);
+        }
+
+        .auth-card .btn-login .spinner {
+            display: none;
+        }
+
+        .auth-card .btn-login.loading .spinner {
+            display: inline-block;
+
+            animation: spin 1s linear infinite;
+        }
+
+        .auth-card .btn-login.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================== */
+
+        .auth-card .footer-text {
+            margin-top: 22px;
+
+            color: #64748b;
+
+            text-align: center;
+
+            font-size: 13px;
+
+            line-height: 1.8;
+        }
+
+        .auth-card .footer-text > a {
+            color: #2563eb;
+
+            font-weight: 700;
+
+            text-decoration: none;
+        }
+
+        .auth-card .footer-text > a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-card .footer-text span {
+            color: #94a3b8;
+        }
+
+        .auth-card .footer-text span a {
+            color: #2563eb;
+
+            font-weight: 600;
+
+            text-decoration: none;
+        }
+
+        .auth-card .footer-text span a:hover {
+            text-decoration: underline;
+        }
+
+        /* =========================================================
+           TABLET
+        ========================================================== */
+
+        @media (max-width: 600px) {
+            .auth-page {
+                padding: 22px 15px;
+            }
+
+            .auth-card {
+                max-width: 450px;
+
+                padding: 34px 27px;
+
+                border-radius: 24px;
+            }
+
+            .auth-card .brand {
+                font-size: 25px;
+            }
+        }
+
+        /* =========================================================
+           MOBILE
+        ========================================================== */
+
+        @media (max-width: 480px) {
+            .auth-page {
+                align-items: center;
+
+                padding: 18px 12px;
+            }
+
+            .auth-card {
+                padding: 29px 18px;
+
+                border-radius: 21px;
+            }
+
+            .auth-card .brand {
+                font-size: 23px;
+            }
+
+            .auth-card .brand i {
+                width: 38px;
+                height: 38px;
+
+                margin-right: 8px;
+
+                font-size: 16px;
+            }
+
+            .auth-card .subtitle {
+                font-size: 12px;
+
+                margin-bottom: 21px;
+            }
+
+            .auth-card .role-selector {
+                gap: 7px;
+            }
+
+            .auth-card .role-option {
+                padding: 11px 5px 9px;
+
+                border-radius: 11px;
+            }
+
+            .auth-card .role-option i {
+                font-size: 18px;
+            }
+
+            .auth-card .role-label {
+                font-size: 9px;
+            }
+
+            .auth-card .form-options {
+                font-size: 11px;
+            }
+
+            .auth-card .btn-login {
+                min-height: 48px;
+
+                font-size: 14px;
+            }
+        }
+
+        /* =========================================================
+           VERY SMALL DEVICES
+        ========================================================== */
+
+        @media (max-width: 350px) {
+            .auth-page {
+                padding: 12px 8px;
+            }
+
+            .auth-card {
+                padding: 25px 14px;
+            }
+
+            .auth-card .brand {
+                font-size: 21px;
+            }
+
+            .auth-card .role-selector {
+                gap: 5px;
+            }
+
+            .auth-card .role-option {
+                padding-left: 3px;
+                padding-right: 3px;
+            }
+
+            .auth-card .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* =========================================================
+           REDUCED MOTION
+        ========================================================== */
+
+        @media (prefers-reduced-motion: reduce) {
+            .auth-card,
+            .auth-card *,
+            .auth-page::before,
+            .auth-page::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================================
+         AUTH PAGE
+    ========================================================== -->
+    <div class="auth-page">
+
+        <div class="auth-card">
+
+            <!-- =====================================================
+                 Back Link
+            ====================================================== -->
+            <a href="index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back
+            </a>
+
+            <!-- =====================================================
+                 Brand
+            ====================================================== -->
+            <div class="brand">
+                <i class="fas fa-utensils"></i>
+                Smart<span>Cafeteria</span>
+            </div>
+
+            <p class="subtitle">
+                Login to your account / ወደ መለያዎ ይግቡ
+            </p>
+
+            <!-- =====================================================
+                 Alert
+            ====================================================== -->
+            <div class="alert alert-error" id="alertMessage">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="alertText">Invalid credentials</span>
+            </div>
+
+            <!-- =====================================================
+                 Role Selector
+            ====================================================== -->
+            <div class="role-selector" id="roleSelector">
+
+                <div
+                    class="role-option active"
+                    data-role="customer"
+                >
+                    <i class="fas fa-user"></i>
+                    <span class="role-label">Customer</span>
+                </div>
+
+                <div
+                    class="role-option"
+                    data-role="kitchen"
+                >
+                    <i class="fas fa-utensil-spoon"></i>
+                    <span class="role-label">Kitchen</span>
+                </div>
+
+                <div
+                    class="role-option"
+                    data-role="admin"
+                >
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="role-label">Admin</span>
+                </div>
+
+            </div>
+
+            <!-- =====================================================
+                 Login Form
+            ====================================================== -->
+            <form id="loginForm" onsubmit="return false;">
+
+                <!-- Email / Username -->
+                <div class="form-group">
+
+                    <label for="identifier">
+                        Email or Username
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="identifier"
+                        class="form-control"
+                        placeholder="Enter your email or username"
+                        value="kidus@gmail.com"
+                        autocomplete="username"
+                        required
+                    />
+
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        class="form-control"
+                        placeholder="Enter your password"
+                        value="password123"
+                        autocomplete="current-password"
+                        required
+                    />
+
+                </div>
+
+                <!-- Form Options -->
+                <div class="form-options">
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="rememberMe"
+                            checked
+                        />
+                        Remember me
+                    </label>
+
+                    <a href="#">
+                        Forgot password?
+                    </a>
+
+                </div>
+
+                <!-- Login Button -->
+                <button
+                    type="submit"
+                    class="btn-login"
+                    id="loginBtn"
+                >
+
+                    <span class="btn-text">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login / መግቢያ
+                    </span>
+
+                    <span class="spinner">
+                        <i class="fas fa-spinner"></i>
+                    </span>
+
+                </button>
+
+            </form>
+
+            <!-- =====================================================
+                 Footer / Registration
+            ====================================================== -->
+            <div class="footer-text">
+
+                Don't have an account?
+                <a href="register.html">Register</a>
+
+                <br />
+
+                <span style="font-size:12px;">
+                    አካውንት የለህም?
+                    <a
+                        href="register.html"
+                        style="font-size:12px;"
+                    >
+                        ምዝገባ
+                    </a>
+                </span>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =========================================================
+         LOGIN SCRIPT
+         IMPORTANT: Keep auth.js path unchanged
+    ========================================================== -->
+    <script type="module">
+
+        import { login } from '../../js/auth.js';
+
+        // =========================================================
+        // Elements
+        // =========================================================
+
+        const form = document.getElementById('loginForm');
+
+        const identifier =
+            document.getElementById('identifier');
+
+        const password =
+            document.getElementById('password');
+
+        const loginBtn =
+            document.getElementById('loginBtn');
+
+        const alertEl =
+            document.getElementById('alertMessage');
+
+        const alertText =
+            document.getElementById('alertText');
+
+        const roleOptions =
+            document.querySelectorAll('.role-option');
+
+        let selectedRole = 'customer';
+
+
+        // =========================================================
+        // Role Selection
+        // =========================================================
+
+        roleOptions.forEach(opt => {
+
+            opt.addEventListener('click', function () {
+
+                roleOptions.forEach(o => {
+                    o.classList.remove('active');
+                });
+
+                this.classList.add('active');
+
+                selectedRole = this.dataset.role;
+
+            });
+
+        });
+
+
+        // =========================================================
+        // Show Alert
+        // =========================================================
+
+        function showAlert(message, type = 'error') {
+
+            alertEl.className =
+                `alert alert-${type} show`;
+
+            alertText.textContent = message;
+
+        }
+
+
+        // =========================================================
+        // Hide Alert
+        // =========================================================
+
+        function hideAlert() {
+
+            alertEl.className = 'alert';
+
+        }
+
+
+        // =========================================================
+        // Login Handler
+        // =========================================================
+
+        async function handleLogin(e) {
+
+            e.preventDefault();
+
+            hideAlert();
+
+            const email =
+                identifier.value.trim();
+
+            const pass =
+                password.value.trim();
+
+
+            // -----------------------------------------------------
+            // Validation
+            // -----------------------------------------------------
+
+            if (!email || !pass) {
+
+                showAlert(
+                    'Please fill in all fields',
+                    'error'
+                );
+
+                return;
+            }
+
+
+            // -----------------------------------------------------
+            // Loading State
+            // -----------------------------------------------------
+
+            loginBtn.classList.add('loading');
+
+            loginBtn.disabled = true;
+
+
+            try {
+
+                // =================================================
+                // Call auth.js login()
+                // =================================================
+
+                const result =
+                    await login(email, pass);
+
+
+                // =================================================
+                // Successful Login
+                // =================================================
+
+                if (result.success) {
+
+                    // -------------------------------------------------
+                    // Check Selected Role
+                    // -------------------------------------------------
+
+                    if (
+                        result.user.role !== selectedRole
+                    ) {
+
+                        showAlert(
+                            `You logged in as ${result.user.role}, but selected ${selectedRole}. Please select correct role.`,
+                            'error'
+                        );
+
+                        loginBtn.classList.remove(
+                            'loading'
+                        );
+
+                        loginBtn.disabled = false;
+
+                        return;
+                    }
+
+
+                    // -------------------------------------------------
+                    // Success Message
+                    // -------------------------------------------------
+
+                    showAlert(
+                        'Login successful! Redirecting...',
+                        'success'
+                    );
+
+
+                    // -------------------------------------------------
+                    // Redirect Based on Role
+                    // IMPORTANT: Original paths preserved
+                    // -------------------------------------------------
+
+                    const rolePaths = {
+
+                        admin:
+                            '../admin/dashboard.html',
+
+                        kitchen:
+                            '../kitchen/dashboard.html',
+
+                        customer:
+                            '../customer/menu.html',
+
+                    };
+
+
+                    setTimeout(() => {
+
+                        window.location.href =
+                            rolePaths[result.user.role] ||
+                            '../customer/menu.html';
+
+                    }, 500);
+
+                }
+
+                // =================================================
+                // Login Failed
+                // =================================================
+
+                else {
+
+                    showAlert(
+                        result.error ||
+                        'Login failed. Please try again.',
+                        'error'
+                    );
+
+                    loginBtn.classList.remove(
+                        'loading'
+                    );
+
+                    loginBtn.disabled = false;
+
+                }
+
+            }
+
+            // =====================================================
+            // Unexpected Error
+            // =====================================================
+
+            catch (error) {
+
+                console.error(
+                    'Login error:',
+                    error
+                );
+
+                showAlert(
+                    'An error occurred. Please try again.',
+                    'error'
+                );
+
+                loginBtn.classList.remove(
+                    'loading'
+                );
+
+                loginBtn.disabled = false;
+
+            }
+
+        }
+
+
+        // =========================================================
+        // Submit Event
+        // =========================================================
+
+        form.addEventListener(
+            'submit',
+            handleLogin
+        );
+
+
+        // =========================================================
+        // Enter Key Support
+        // =========================================================
+
+        password.addEventListener(
+            'keypress',
+            (e) => {
+
+                if (e.key === 'Enter') {
+
+                    form.dispatchEvent(
+                        new Event('submit')
+                    );
+
+                }
+
+            }
+        );
+
+
+        // =========================================================
+        // Demo Credentials
+        // IMPORTANT: Original credentials preserved
+        // =========================================================
+
+        const demoCredentials = {
+
+            customer: {
+                identifier: 'wondesen@gmail.com',
+                password: 'password123'
+            },
+
+            kitchen: {
+                identifier: 'sintayehu@gmail.com',
+                password: 'password123'
+            },
+
+            admin: {
+                identifier: 'kidus@gmail.com',
+                password: 'password123'
+            }
+
+        };
+
+
+        // =========================================================
+        // Auto-fill Demo Credentials on Role Change
+        // =========================================================
+
+        roleOptions.forEach(opt => {
+
+            opt.addEventListener(
+                'click',
+                function () {
+
+                    const role =
+                        this.dataset.role;
+
+                    const creds =
+                        demoCredentials[role];
+
+
+                    if (creds) {
+
+                        identifier.value =
+                            creds.identifier;
+
+                        password.value =
+                            creds.password;
+
+                    }
+
+                    hideAlert();
+
+                }
+            );
+
+        });
+
+
+        // =========================================================
+        // Initial Demo Fill
+        // =========================================================
+
+        const initialCreds =
+            demoCredentials['customer'];
+
+        if (initialCreds) {
+
+            identifier.value =
+                initialCreds.identifier;
+
+            password.value =
+                initialCreds.password;
+
+        }
+
+
+        // =========================================================
+        // Debug Message
+        // =========================================================
+
+        console.log(
+            '🔐 Login page loaded. Default: Customer (wondesen@gmail.com / password123)'
+        );
+
+    </script>
+
+</body>
+</html>
+

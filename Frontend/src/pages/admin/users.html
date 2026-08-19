@@ -1,0 +1,2433 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Manage Users | Smart Cafeteria</title>
+
+    <!-- =========================================================
+         GOOGLE FONTS
+         ========================================================= -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    />
+
+    <!-- =========================================================
+         FONT AWESOME
+         ========================================================= -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <!-- =========================================================
+         EXISTING CSS — PATHS PRESERVED
+         ========================================================= -->
+    <link rel="stylesheet" href="../../css/style.css" />
+    <link rel="stylesheet" href="../../css/admin.css" />
+    <link rel="stylesheet" href="../../css/components.css" />
+    <link rel="stylesheet" href="../../css/responsive.css" />
+
+    <style>
+        /* =========================================================
+           PREMIUM USERS PAGE
+           ========================================================= */
+
+        :root {
+            --blue: #2563eb;
+            --indigo: #4f46e5;
+            --purple: #7c3aed;
+            --violet: #8b5cf6;
+            --pink: #ec4899;
+            --cyan: #06b6d4;
+            --green: #10b981;
+            --orange: #f97316;
+            --yellow: #f59e0b;
+            --red: #ef4444;
+
+            --text: #111827;
+            --text-soft: #475569;
+            --muted: #64748b;
+
+            --glass: rgba(255,255,255,.86);
+
+            --shadow:
+                0 20px 55px rgba(15,23,42,.09);
+
+            --shadow-hover:
+                0 28px 70px rgba(37,99,235,.16);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family: 'Poppins', sans-serif;
+
+            color: var(--text);
+
+            overflow-x: hidden;
+
+            background:
+                radial-gradient(
+                    circle at 4% 5%,
+                    rgba(37,99,235,.14),
+                    transparent 25%
+                ),
+                radial-gradient(
+                    circle at 95% 8%,
+                    rgba(236,72,153,.13),
+                    transparent 24%
+                ),
+                radial-gradient(
+                    circle at 85% 85%,
+                    rgba(16,185,129,.10),
+                    transparent 27%
+                ),
+                radial-gradient(
+                    circle at 15% 90%,
+                    rgba(124,58,237,.09),
+                    transparent 24%
+                ),
+                linear-gradient(
+                    135deg,
+                    #f8fbff 0%,
+                    #ffffff 45%,
+                    #faf7ff 100%
+                );
+        }
+
+        /* =========================================================
+           PAGE BACKGROUND DECORATION
+           ========================================================= */
+
+        .admin-page {
+            min-height: 100vh;
+
+            position: relative;
+
+            background:
+                radial-gradient(
+                    circle at 30% 20%,
+                    rgba(59,130,246,.055),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 75% 45%,
+                    rgba(168,85,247,.055),
+                    transparent 30%
+                );
+        }
+
+        .admin-page::before,
+        .admin-page::after {
+            content: "";
+
+            position: fixed;
+
+            border-radius: 50%;
+
+            pointer-events: none;
+
+            z-index: 0;
+
+            filter: blur(35px);
+        }
+
+        .admin-page::before {
+            width: 300px;
+            height: 300px;
+
+            top: 80px;
+            right: -120px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(37,99,235,.13),
+                    rgba(236,72,153,.09)
+                );
+        }
+
+        .admin-page::after {
+            width: 280px;
+            height: 280px;
+
+            bottom: 20px;
+            left: 170px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(6,182,212,.09),
+                    rgba(124,58,237,.08)
+                );
+        }
+
+        /* =========================================================
+           MAIN CONTENT
+           ========================================================= */
+
+        .admin-page .main-content {
+            position: relative;
+
+            z-index: 2;
+
+            margin-left: 260px;
+
+            width: calc(100% - 260px);
+
+            min-width: 0;
+
+            padding:
+                28px 30px 65px;
+
+            transition:
+                margin-left .3s ease,
+                width .3s ease,
+                padding .3s ease;
+        }
+
+        /* =========================================================
+           PAGE HEADER
+           ========================================================= */
+
+        .page-header {
+            position: relative;
+
+            overflow: hidden;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 18px;
+
+            padding: 23px 25px;
+
+            margin-bottom: 20px;
+
+            border-radius: 24px;
+
+            border:
+                1px solid rgba(148,163,184,.16);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,.95),
+                    rgba(248,250,255,.88)
+                );
+
+            box-shadow:
+                0 18px 50px rgba(15,23,42,.08),
+                inset 0 1px 0 rgba(255,255,255,.95);
+
+            backdrop-filter: blur(18px);
+        }
+
+        .page-header::before {
+            content: "";
+
+            position: absolute;
+
+            left: 0;
+            top: 0;
+
+            width: 7px;
+            height: 100%;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--blue),
+                    var(--purple),
+                    var(--pink)
+                );
+
+            border-radius: 24px 0 0 24px;
+        }
+
+        .page-header::after {
+            content: "";
+
+            position: absolute;
+
+            width: 190px;
+            height: 190px;
+
+            right: -65px;
+            top: -90px;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(37,99,235,.15),
+                    rgba(236,72,153,.07)
+                );
+        }
+
+        .page-header > div {
+            position: relative;
+            z-index: 2;
+
+            min-width: 0;
+        }
+
+        .page-header h1 {
+            margin: 0;
+
+            display: flex;
+
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            gap: 10px;
+
+            font-size: 25px;
+
+            font-weight: 800;
+
+            letter-spacing: -.6px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #172554,
+                    #2563eb,
+                    #7c3aed,
+                    #ec4899
+                );
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header h1 i {
+            font-size: 22px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #7c3aed
+                );
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-header h1 small {
+            display: inline-flex;
+
+            align-items: center;
+
+            padding: 5px 10px;
+
+            border-radius: 999px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eff6ff,
+                    #f5f3ff
+                );
+
+            border:
+                1px solid rgba(99,102,241,.14);
+
+            color: #6366f1;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            letter-spacing: .3px;
+
+            -webkit-text-fill-color: initial;
+        }
+
+        /* =========================================================
+           ADD BUTTON
+           ========================================================= */
+
+        .btn-add {
+            position: relative;
+
+            z-index: 3;
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 9px;
+
+            min-height: 46px;
+
+            padding: 11px 19px;
+
+            border: 0;
+
+            border-radius: 14px;
+
+            color: #fff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #4f46e5 50%,
+                    #7c3aed
+                );
+
+            font-family: 'Poppins', sans-serif;
+
+            font-size: 13px;
+
+            font-weight: 800;
+
+            letter-spacing: .2px;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 12px 27px rgba(79,70,229,.28);
+
+            transition:
+                transform .3s ease,
+                box-shadow .3s ease;
+        }
+
+        .btn-add::before {
+            content: "";
+
+            position: absolute;
+
+            inset: 0;
+
+            background:
+                linear-gradient(
+                    110deg,
+                    transparent 20%,
+                    rgba(255,255,255,.28) 50%,
+                    transparent 80%
+                );
+
+            transform:
+                translateX(-120%);
+
+            transition:
+                transform .65s ease;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 18px 38px rgba(79,70,229,.36);
+        }
+
+        .btn-add:hover::before {
+            transform:
+                translateX(120%);
+        }
+
+        .btn-add i {
+            font-size: 13px;
+        }
+
+        /* =========================================================
+           SEARCH / FILTER BAR
+           ========================================================= */
+
+        .search-filter-bar {
+            position: relative;
+
+            display: flex;
+
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            gap: 12px;
+
+            padding: 15px;
+
+            margin-bottom: 20px;
+
+            border-radius: 20px;
+
+            border:
+                1px solid rgba(148,163,184,.15);
+
+            background:
+                rgba(255,255,255,.82);
+
+            box-shadow:
+                0 14px 40px rgba(15,23,42,.065);
+
+            backdrop-filter: blur(16px);
+        }
+
+        .search-filter-bar::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 25px;
+            right: 25px;
+
+            height: 3px;
+
+            border-radius: 0 0 10px 10px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--blue),
+                    var(--cyan),
+                    var(--purple),
+                    var(--pink)
+                );
+        }
+
+        .search-filter-bar .search-box {
+            min-width: 220px;
+
+            flex: 1;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            min-height: 47px;
+
+            padding:
+                4px 15px;
+
+            border-radius: 14px;
+
+            border:
+                1.5px solid #e2e8f0;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #f8fafc
+                );
+
+            transition:
+                border-color .25s ease,
+                box-shadow .25s ease,
+                transform .25s ease;
+        }
+
+        .search-filter-bar .search-box:focus-within {
+            border-color:
+                rgba(79,70,229,.55);
+
+            box-shadow:
+                0 0 0 4px rgba(99,102,241,.09),
+                0 9px 25px rgba(37,99,235,.08);
+
+            transform:
+                translateY(-1px);
+        }
+
+        .search-filter-bar .search-box i {
+            color: #6366f1;
+
+            font-size: 14px;
+        }
+
+        .search-filter-bar .search-box input {
+            width: 100%;
+
+            min-width: 0;
+
+            border: 0;
+
+            outline: 0;
+
+            background: transparent;
+
+            color: #1e293b;
+
+            font-family: 'Poppins', sans-serif;
+
+            font-size: 13px;
+
+            font-weight: 500;
+        }
+
+        .search-filter-bar .search-box input::placeholder {
+            color: #94a3b8;
+        }
+
+        .search-filter-bar select {
+            min-height: 47px;
+
+            padding:
+                8px 38px 8px 14px;
+
+            border:
+                1.5px solid #e2e8f0;
+
+            border-radius: 14px;
+
+            outline: 0;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #f8fafc
+                );
+
+            color: #334155;
+
+            font-family: 'Poppins', sans-serif;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                border-color .25s ease,
+                box-shadow .25s ease;
+        }
+
+        .search-filter-bar select:focus {
+            border-color: #6366f1;
+
+            box-shadow:
+                0 0 0 4px rgba(99,102,241,.08);
+        }
+
+        /* =========================================================
+           USERS TABLE WRAPPER
+           ========================================================= */
+
+        .users-table-wrapper {
+            position: relative;
+
+            width: 100%;
+
+            overflow: hidden;
+
+            border-radius: 23px;
+
+            border:
+                1px solid rgba(148,163,184,.14);
+
+            background:
+                rgba(255,255,255,.89);
+
+            box-shadow:
+                0 18px 50px rgba(15,23,42,.075);
+
+            backdrop-filter: blur(16px);
+        }
+
+        .users-table-wrapper::before {
+            content: "";
+
+            display: block;
+
+            height: 4px;
+
+            width: 100%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #2563eb,
+                    #06b6d4,
+                    #7c3aed,
+                    #ec4899
+                );
+        }
+
+        #usersContainer {
+            width: 100%;
+
+            overflow-x: auto;
+
+            scrollbar-width: thin;
+
+            scrollbar-color:
+                #a5b4fc
+                #f1f5f9;
+        }
+
+        #usersContainer::-webkit-scrollbar {
+            height: 7px;
+        }
+
+        #usersContainer::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+
+        #usersContainer::-webkit-scrollbar-thumb {
+            background:
+                linear-gradient(
+                    90deg,
+                    #60a5fa,
+                    #8b5cf6
+                );
+
+            border-radius: 999px;
+        }
+
+        /* =========================================================
+           TABLE
+           ========================================================= */
+
+        .users-table {
+            width: 100%;
+
+            min-width: 760px;
+
+            border-collapse: separate;
+
+            border-spacing: 0;
+
+            font-size: 13px;
+        }
+
+        .users-table th {
+            position: sticky;
+
+            top: 0;
+
+            z-index: 1;
+
+            text-align: left;
+
+            padding:
+                15px 17px;
+
+            color: #64748b;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8fafc,
+                    #f1f5ff
+                );
+
+            border-bottom:
+                1px solid #e2e8f0;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: .08em;
+
+            white-space: nowrap;
+        }
+
+        .users-table th:first-child {
+            padding-left: 22px;
+        }
+
+        .users-table td {
+            padding:
+                14px 17px;
+
+            color: #475569;
+
+            font-weight: 500;
+
+            border-bottom:
+                1px solid #f1f5f9;
+
+            vertical-align: middle;
+
+            white-space: nowrap;
+        }
+
+        .users-table td:first-child {
+            padding-left: 22px;
+        }
+
+        .users-table tbody tr {
+            position: relative;
+
+            transition:
+                background .25s ease,
+                transform .25s ease;
+        }
+
+        .users-table tbody tr:hover {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(239,246,255,.72),
+                    rgba(250,245,255,.72),
+                    rgba(255,255,255,.72)
+                );
+        }
+
+        .users-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        /* =========================================================
+           AVATAR
+           ========================================================= */
+
+        .users-table .avatar-sm {
+            position: relative;
+
+            width: 42px;
+            height: 42px;
+
+            flex: 0 0 42px;
+
+            border-radius: 14px;
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            color: #fff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #7c3aed,
+                    #ec4899
+                );
+
+            font-size: 14px;
+
+            font-weight: 800;
+
+            box-shadow:
+                0 8px 18px rgba(79,70,229,.20);
+
+            overflow: hidden;
+        }
+
+        .users-table .avatar-sm::after {
+            content: "";
+
+            position: absolute;
+
+            width: 25px;
+            height: 25px;
+
+            top: -12px;
+            right: -12px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(255,255,255,.28);
+        }
+
+        .user-name-cell {
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+        }
+
+        .user-name {
+            color: #1e293b;
+
+            font-weight: 700;
+        }
+
+        .user-email {
+            color: #64748b;
+
+            font-weight: 500;
+        }
+
+        .phone-value {
+            color: #475569;
+
+            font-weight: 600;
+        }
+
+        /* =========================================================
+           ROLE BADGES
+           ========================================================= */
+
+        .users-table .role-badge {
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 6px;
+
+            min-width: 78px;
+
+            padding:
+                6px 12px;
+
+            border-radius: 999px;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: .07em;
+
+            border: 1px solid transparent;
+        }
+
+        .role-badge.admin {
+            color: #be123c;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #fff1f2,
+                    #fce7f3
+                );
+
+            border-color:
+                #fecdd3;
+
+            box-shadow:
+                0 5px 14px rgba(236,72,153,.08);
+        }
+
+        .role-badge.admin::before {
+            content: "◆";
+
+            font-size: 7px;
+        }
+
+        .role-badge.kitchen {
+            color: #c2410c;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #fff7ed,
+                    #fef3c7
+                );
+
+            border-color:
+                #fed7aa;
+
+            box-shadow:
+                0 5px 14px rgba(245,158,11,.08);
+        }
+
+        .role-badge.kitchen::before {
+            content: "●";
+
+            font-size: 7px;
+        }
+
+        .role-badge.customer {
+            color: #1d4ed8;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eff6ff,
+                    #eef2ff
+                );
+
+            border-color:
+                #bfdbfe;
+
+            box-shadow:
+                0 5px 14px rgba(37,99,235,.08);
+        }
+
+        .role-badge.customer::before {
+            content: "●";
+
+            font-size: 7px;
+        }
+
+        /* =========================================================
+           ACTION BUTTONS
+           ========================================================= */
+
+        .action-btns {
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            flex-wrap: wrap;
+        }
+
+        .action-btns .btn-sm {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 6px;
+
+            min-height: 32px;
+
+            padding:
+                6px 11px;
+
+            border: 0;
+
+            border-radius: 10px;
+
+            font-family: 'Poppins', sans-serif;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            cursor: pointer;
+
+            transition:
+                transform .25s ease,
+                box-shadow .25s ease,
+                background .25s ease;
+        }
+
+        .action-btns .btn-sm:hover {
+            transform:
+                translateY(-2px);
+        }
+
+        .btn-sm-edit {
+            color: #4338ca;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eef2ff,
+                    #e0e7ff
+                );
+
+            box-shadow:
+                0 6px 14px rgba(79,70,229,.08);
+        }
+
+        .btn-sm-edit:hover {
+            color: #fff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4f46e5,
+                    #7c3aed
+                );
+
+            box-shadow:
+                0 9px 20px rgba(79,70,229,.25);
+        }
+
+        .btn-sm-delete {
+            color: #be123c;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #fff1f2,
+                    #ffe4e6
+                );
+
+            box-shadow:
+                0 6px 14px rgba(239,68,68,.07);
+        }
+
+        .btn-sm-delete:hover {
+            color: #fff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ef4444,
+                    #e11d48
+                );
+
+            box-shadow:
+                0 9px 20px rgba(239,68,68,.25);
+        }
+
+        /* =========================================================
+           EMPTY STATE
+           ========================================================= */
+
+        .empty-state {
+            min-height: 310px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-direction: column;
+
+            padding: 50px 20px;
+
+            text-align: center;
+
+            background:
+                radial-gradient(
+                    circle at 50% 30%,
+                    rgba(99,102,241,.08),
+                    transparent 38%
+                ),
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #f8fafc,
+                    #faf5ff
+                );
+
+            color: #64748b;
+        }
+
+        .empty-state i {
+            width: 76px;
+            height: 76px;
+
+            display: flex !important;
+
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 16px;
+
+            border-radius: 24px;
+
+            font-size: 30px !important;
+
+            color: #6366f1 !important;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eff6ff,
+                    #f5f3ff
+                );
+
+            border:
+                1px solid #e0e7ff;
+
+            box-shadow:
+                0 14px 30px rgba(79,70,229,.10);
+        }
+
+        .empty-state p {
+            margin: 0;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            color: #64748b;
+        }
+
+        /* =========================================================
+           TABLET
+           ========================================================= */
+
+        @media (max-width: 1200px) {
+
+            .admin-page .main-content {
+                padding:
+                    23px 20px 55px;
+            }
+
+            .page-header {
+                border-radius: 21px;
+            }
+
+            .users-table {
+                min-width: 720px;
+            }
+        }
+
+        /* =========================================================
+           SIDEBAR BREAKPOINT
+           ========================================================= */
+
+        @media (max-width: 1024px) {
+
+            .admin-page .main-content {
+                margin-left: 0;
+
+                width: 100%;
+
+                padding:
+                    20px 18px 50px;
+            }
+
+            .page-header {
+                padding:
+                    21px;
+            }
+
+            .search-filter-bar {
+                padding:
+                    14px;
+            }
+        }
+
+        /* =========================================================
+           TABLET / LARGE MOBILE
+           ========================================================= */
+
+        @media (max-width: 768px) {
+
+            .admin-page .main-content {
+                padding:
+                    16px 13px 42px;
+            }
+
+            .page-header {
+                align-items: stretch;
+
+                flex-direction: column;
+
+                padding:
+                    19px;
+
+                border-radius: 20px;
+            }
+
+            .page-header h1 {
+                font-size: 21px;
+            }
+
+            .page-header h1 i {
+                font-size: 19px;
+            }
+
+            .page-header h1 small {
+                font-size: 9px;
+            }
+
+            .btn-add {
+                width: 100%;
+
+                min-height: 44px;
+            }
+
+            .search-filter-bar {
+                flex-direction: column;
+
+                align-items: stretch;
+
+                border-radius: 18px;
+            }
+
+            .search-filter-bar .search-box {
+                width: 100%;
+
+                min-width: 0;
+            }
+
+            .search-filter-bar select {
+                width: 100%;
+            }
+
+            .users-table-wrapper {
+                border-radius: 19px;
+            }
+
+            .users-table {
+                min-width: 700px;
+            }
+        }
+
+        /* =========================================================
+           MOBILE
+           ========================================================= */
+
+        @media (max-width: 480px) {
+
+            .admin-page .main-content {
+                padding:
+                    11px 9px 35px;
+            }
+
+            .page-header {
+                padding:
+                    17px 15px;
+
+                margin-bottom: 13px;
+
+                border-radius: 18px;
+            }
+
+            .page-header h1 {
+                font-size: 18px;
+
+                gap: 7px;
+            }
+
+            .page-header h1 i {
+                font-size: 17px;
+            }
+
+            .page-header h1 small {
+                padding:
+                    4px 8px;
+
+                font-size: 8px;
+            }
+
+            .btn-add {
+                min-height: 42px;
+
+                font-size: 11px;
+
+                border-radius: 12px;
+            }
+
+            .search-filter-bar {
+                gap: 9px;
+
+                padding: 11px;
+
+                margin-bottom: 13px;
+
+                border-radius: 16px;
+            }
+
+            .search-filter-bar .search-box {
+                min-height: 43px;
+
+                padding:
+                    3px 12px;
+
+                border-radius: 12px;
+            }
+
+            .search-filter-bar .search-box input {
+                font-size: 11px;
+            }
+
+            .search-filter-bar select {
+                min-height: 43px;
+
+                font-size: 10px;
+
+                border-radius: 12px;
+            }
+
+            .users-table-wrapper {
+                border-radius: 17px;
+            }
+
+            .users-table {
+                min-width: 680px;
+
+                font-size: 11px;
+            }
+
+            .users-table th {
+                padding:
+                    11px 12px;
+
+                font-size: 8px;
+            }
+
+            .users-table td {
+                padding:
+                    11px 12px;
+            }
+
+            .users-table td:first-child,
+            .users-table th:first-child {
+                padding-left: 14px;
+            }
+
+            .users-table .avatar-sm {
+                width: 36px;
+                height: 36px;
+
+                flex-basis: 36px;
+
+                border-radius: 11px;
+
+                font-size: 12px;
+            }
+
+            .user-name {
+                font-size: 10px;
+            }
+
+            .user-email,
+            .phone-value {
+                font-size: 10px;
+            }
+
+            .users-table .role-badge {
+                min-width: 68px;
+
+                padding:
+                    5px 9px;
+
+                font-size: 7px;
+            }
+
+            .action-btns .btn-sm {
+                min-height: 29px;
+
+                padding:
+                    5px 8px;
+
+                font-size: 8px;
+
+                border-radius: 8px;
+            }
+
+            .empty-state {
+                min-height: 260px;
+
+                padding:
+                    40px 15px;
+            }
+        }
+
+        /* =========================================================
+           EXTRA SMALL
+           ========================================================= */
+
+        @media (max-width: 360px) {
+
+            .admin-page .main-content {
+                padding:
+                    8px 7px 30px;
+            }
+
+            .page-header {
+                padding:
+                    15px 12px;
+            }
+
+            .page-header h1 {
+                font-size: 16px;
+            }
+
+            .page-header h1 small {
+                font-size: 7px;
+            }
+
+            .search-filter-bar {
+                padding: 9px;
+            }
+
+            .users-table {
+                min-width: 640px;
+            }
+        }
+
+        /* =========================================================
+           REDUCE MOTION
+           ========================================================= */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+
+                animation-iteration-count: 1 !important;
+
+                transition-duration: .01ms !important;
+
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <!-- =========================================================
+         MAIN CONTENT
+         ========================================================= -->
+
+    <div class="main-content">
+
+        <!-- =====================================================
+             PAGE HEADER
+             ===================================================== -->
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>
+                    <i class="fas fa-users"></i>
+
+                    <span>Manage Users</span>
+
+                    <small id="userCount">
+                        Loading...
+                    </small>
+                </h1>
+
+            </div>
+
+            <button
+                class="btn-add"
+                id="addUserBtn"
+                type="button"
+            >
+                <i class="fas fa-plus"></i>
+                Add User
+            </button>
+
+        </div>
+
+
+        <!-- =====================================================
+             SEARCH + FILTER
+             ===================================================== -->
+
+        <div class="search-filter-bar">
+
+            <div class="search-box">
+
+                <i class="fas fa-search"></i>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search by name or email..."
+                    autocomplete="off"
+                />
+
+            </div>
+
+
+            <select id="roleFilter">
+
+                <option value="all">
+                    All Roles
+                </option>
+
+                <option value="admin">
+                    Admin
+                </option>
+
+                <option value="kitchen">
+                    Kitchen
+                </option>
+
+                <option value="customer">
+                    Customer
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- =====================================================
+             USERS TABLE
+             ===================================================== -->
+
+        <div class="users-table-wrapper">
+
+            <div id="usersContainer">
+                <!-- Injected by JS -->
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     SCRIPT
+     ============================================================= -->
+
+<script type="module">
+
+    /* =========================================================
+       EXISTING IMPORTS — PRESERVED
+       ========================================================= */
+
+    import {
+        createSidebar
+    } from '../../components/sidebar.js';
+
+    import {
+        createFooter
+    } from '../../components/footer.js';
+
+    import {
+        isLoggedIn,
+        getCurrentUser
+    } from '../../js/auth.js';
+
+    import {
+        getAdminUsers,
+        deleteUser
+    } from '../../js/admin.js';
+
+    import {
+        showToast
+    } from '../../js/main.js';
+
+
+    /* =========================================================
+       CHECK ADMIN
+       ========================================================= */
+
+    const user = getCurrentUser();
+
+    const isLoggedInUser =
+        isLoggedIn();
+
+
+    if (
+        !isLoggedInUser ||
+        user?.role !== 'admin'
+    ) {
+
+        showToast(
+            'Access denied. Admin only.',
+            'error'
+        );
+
+        setTimeout(
+            () => {
+
+                window.location.href =
+                    '../common/login.html';
+
+            },
+            1500
+        );
+    }
+
+
+    /* =========================================================
+       SIDEBAR
+       ========================================================= */
+
+    const sidebarContainer =
+        document.createElement('div');
+
+    sidebarContainer.id =
+        'sidebarContainer';
+
+    document.body.prepend(
+        sidebarContainer
+    );
+
+
+    let sidebarOpen =
+        window.innerWidth > 1024;
+
+
+    function toggleSidebar() {
+
+        sidebarOpen =
+            !sidebarOpen;
+
+        const sidebar =
+            document.querySelector(
+                '.admin-sidebar'
+            );
+
+        const overlay =
+            document.querySelector(
+                '.sidebar-overlay'
+            );
+
+
+        if (sidebar) {
+
+            sidebar.classList.toggle(
+                'open',
+                sidebarOpen
+            );
+        }
+
+
+        if (overlay) {
+
+            overlay.style.display =
+                sidebarOpen &&
+                window.innerWidth <= 1024
+                    ? 'block'
+                    : 'none';
+        }
+    }
+
+
+    /* =========================================================
+       CREATE SIDEBAR
+       ========================================================= */
+
+    sidebarContainer.innerHTML =
+        createSidebar({
+
+            brandText:
+                'SmartCafeteria',
+
+            brandIcon:
+                'fa-utensils',
+
+            userRole:
+                'admin',
+
+            userName:
+                user?.name ||
+                'Admin',
+
+            isOpen:
+                sidebarOpen,
+
+            onToggle:
+                toggleSidebar,
+
+            navItems: [
+
+                {
+                    label:
+                        'Dashboard',
+
+                    icon:
+                        'fa-chart-pie',
+
+                    href:
+                        'dashboard.html'
+                },
+
+                {
+                    label:
+                        'Users',
+
+                    icon:
+                        'fa-users',
+
+                    href:
+                        'users.html',
+
+                    active:
+                        true
+                },
+
+                {
+                    label:
+                        'Menu',
+
+                    icon:
+                        'fa-utensils',
+
+                    href:
+                        'menu.html'
+                },
+
+                {
+                    label:
+                        'Categories',
+
+                    icon:
+                        'fa-tags',
+
+                    href:
+                        'categories.html'
+                },
+
+                {
+                    label:
+                        'Orders',
+
+                    icon:
+                        'fa-shopping-bag',
+
+                    href:
+                        'orders.html'
+                },
+
+                {
+                    label:
+                        'Payments',
+
+                    icon:
+                        'fa-credit-card',
+
+                    href:
+                        'payments.html'
+                },
+
+                {
+                    label:
+                        'Feedback',
+
+                    icon:
+                        'fa-star',
+
+                    href:
+                        'feedback.html'
+                },
+
+                {
+                    label:
+                        'Cancellations',
+
+                    icon:
+                        'fa-times-circle',
+
+                    href:
+                        'cancellations.html'
+                },
+
+                {
+                    label:
+                        'Reports',
+
+                    icon:
+                        'fa-file-alt',
+
+                    href:
+                        'reports.html'
+                },
+
+                {
+                    label:
+                        'Settings',
+
+                    icon:
+                        'fa-cog',
+
+                    href:
+                        'settings.html'
+                }
+
+            ]
+
+        });
+
+
+    /* =========================================================
+       FOOTER — PRESERVED
+       ========================================================= */
+
+    document.body.insertAdjacentHTML(
+        'beforeend',
+
+        createFooter({
+
+            quickLinks: [
+
+                {
+                    label:
+                        'Home',
+
+                    href:
+                        '../../index.html'
+                },
+
+                {
+                    label:
+                        'Menu',
+
+                    href:
+                        '../customer/menu.html'
+                },
+
+                {
+                    label:
+                        'Login',
+
+                    href:
+                        '../common/login.html'
+                },
+
+                {
+                    label:
+                        'Register',
+
+                    href:
+                        '../common/register.html'
+                }
+
+            ],
+
+            roleLinks: [
+
+                {
+                    label:
+                        'Customer',
+
+                    href:
+                        '../customer/menu.html'
+                },
+
+                {
+                    label:
+                        'Kitchen',
+
+                    href:
+                        '../kitchen/dashboard.html'
+                },
+
+                {
+                    label:
+                        'Admin',
+
+                    href:
+                        'dashboard.html'
+                }
+
+            ]
+
+        })
+    );
+
+
+    /* =========================================================
+       DOM
+       ========================================================= */
+
+    const container =
+        document.getElementById(
+            'usersContainer'
+        );
+
+    const userCount =
+        document.getElementById(
+            'userCount'
+        );
+
+    const searchInput =
+        document.getElementById(
+            'searchInput'
+        );
+
+    const roleFilter =
+        document.getElementById(
+            'roleFilter'
+        );
+
+    const addBtn =
+        document.getElementById(
+            'addUserBtn'
+        );
+
+
+    /* =========================================================
+       RENDER USERS
+       ========================================================= */
+
+    function renderUsers() {
+
+        const search =
+            searchInput.value
+                .toLowerCase()
+                .trim();
+
+        const role =
+            roleFilter.value;
+
+
+        let users =
+            getAdminUsers({
+
+                search,
+
+                role:
+                    role === 'all'
+                        ? null
+                        : role
+
+            });
+
+
+        /* =====================================================
+           COUNT
+           ===================================================== */
+
+        userCount.textContent =
+            `${users.length} user${
+                users.length !== 1
+                    ? 's'
+                    : ''
+            }`;
+
+
+        /* =====================================================
+           EMPTY
+           ===================================================== */
+
+        if (
+            users.length === 0
+        ) {
+
+            container.innerHTML = `
+
+                <div class="empty-state">
+
+                    <i
+                        class="fas fa-users"
+                    ></i>
+
+                    <p>
+                        No users found matching
+                        your criteria.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        /* =====================================================
+           TABLE
+           ===================================================== */
+
+        container.innerHTML = `
+
+            <table
+                class="users-table"
+            >
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            User
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Phone
+                        </th>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${users.map(
+                        u => {
+
+                            const safeName =
+                                String(
+                                    u.name ||
+                                    'User'
+                                );
+
+                            const initial =
+                                safeName
+                                    .charAt(0)
+                                    .toUpperCase();
+
+                            return `
+
+                                <tr>
+
+                                    <td>
+
+                                        <div
+                                            class="user-name-cell"
+                                        >
+
+                                            <span
+                                                class="avatar-sm"
+                                            >
+                                                ${initial}
+                                            </span>
+
+                                            <span
+                                                class="user-name"
+                                            >
+                                                ${safeName}
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="user-email"
+                                        >
+                                            ${u.email || '—'}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="phone-value"
+                                        >
+                                            ${u.phone || '—'}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="
+                                                role-badge
+                                                ${u.role || 'customer'}
+                                            "
+                                        >
+                                            ${u.role || 'customer'}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div
+                                            class="action-btns"
+                                        >
+
+                                            <button
+                                                class="
+                                                    btn-sm
+                                                    btn-sm-edit
+                                                "
+                                                data-id="${u.id}"
+                                                type="button"
+                                            >
+
+                                                <i
+                                                    class="fas fa-edit"
+                                                ></i>
+
+                                                Edit
+
+                                            </button>
+
+
+                                            ${
+                                                u.role !== 'admin'
+                                                    ? `
+
+                                                        <button
+                                                            class="
+                                                                btn-sm
+                                                                btn-sm-delete
+                                                            "
+                                                            data-id="${u.id}"
+                                                            type="button"
+                                                        >
+
+                                                            <i
+                                                                class="fas fa-trash"
+                                                            ></i>
+
+                                                            Delete
+
+                                                        </button>
+
+                                                    `
+                                                    : ''
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            `;
+
+                        }
+                    ).join('')}
+
+                </tbody>
+
+            </table>
+
+        `;
+
+
+        /* =====================================================
+           EDIT
+           ===================================================== */
+
+        document
+            .querySelectorAll(
+                '.btn-sm-edit'
+            )
+            .forEach(
+                btn => {
+
+                    btn.addEventListener(
+                        'click',
+                        function () {
+
+                            const id =
+                                this.dataset.id;
+
+                            showToast(
+                                `Edit user ${id} (coming soon)`,
+                                'info'
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /* =====================================================
+           DELETE
+           ===================================================== */
+
+        document
+            .querySelectorAll(
+                '.btn-sm-delete'
+            )
+            .forEach(
+                btn => {
+
+                    btn.addEventListener(
+                        'click',
+                        async function () {
+
+                            const id =
+                                this.dataset.id;
+
+
+                            if (
+                                !confirm(
+                                    'Are you sure you want to delete this user?'
+                                )
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            const result =
+                                await deleteUser(
+                                    id
+                                );
+
+
+                            if (
+                                result.success
+                            ) {
+
+                                showToast(
+                                    'User deleted successfully',
+                                    'success'
+                                );
+
+                                renderUsers();
+
+                            } else {
+
+                                showToast(
+                                    result.error ||
+                                    'Failed to delete user',
+                                    'error'
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+
+
+    /* =========================================================
+       SEARCH
+       ========================================================= */
+
+    searchInput.addEventListener(
+        'input',
+        renderUsers
+    );
+
+
+    /* =========================================================
+       ROLE FILTER
+       ========================================================= */
+
+    roleFilter.addEventListener(
+        'change',
+        renderUsers
+    );
+
+
+    /* =========================================================
+       ADD USER
+       ========================================================= */
+
+    addBtn.addEventListener(
+        'click',
+        () => {
+
+            showToast(
+                'Add user form (coming soon)',
+                'info'
+            );
+
+        }
+    );
+
+
+    /* =========================================================
+       INITIAL RENDER
+       ========================================================= */
+
+    renderUsers();
+
+
+    /* =========================================================
+       RESPONSIVE SIDEBAR
+       ========================================================= */
+
+    window.addEventListener(
+        'resize',
+        () => {
+
+            if (
+                window.innerWidth > 1024
+            ) {
+
+                sidebarOpen = true;
+
+
+                const sidebar =
+                    document.querySelector(
+                        '.admin-sidebar'
+                    );
+
+                const overlay =
+                    document.querySelector(
+                        '.sidebar-overlay'
+                    );
+
+
+                if (sidebar) {
+
+                    sidebar.classList.add(
+                        'open'
+                    );
+
+                }
+
+
+                if (overlay) {
+
+                    overlay.style.display =
+                        'none';
+
+                }
+
+            } else {
+
+                const overlay =
+                    document.querySelector(
+                        '.sidebar-overlay'
+                    );
+
+
+                if (overlay) {
+
+                    overlay.style.display =
+                        sidebarOpen
+                            ? 'block'
+                            : 'none';
+
+                }
+
+            }
+
+        }
+    );
+
+
+    /* =========================================================
+       DEBUG
+       ========================================================= */
+
+    console.log(
+        '👥 Premium Admin Users page loaded successfully!'
+    );
+
+</script>
+
+</body>
+</html>

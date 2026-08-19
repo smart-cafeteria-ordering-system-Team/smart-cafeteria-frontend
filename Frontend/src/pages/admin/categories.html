@@ -1,0 +1,1106 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Categories | Smart Cafeteria</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="../../css/style.css" />
+    <link rel="stylesheet" href="../../css/admin.css" />
+    <link rel="stylesheet" href="../../css/components.css" />
+    <link rel="stylesheet" href="../../css/responsive.css" />
+
+    <style>
+        /* =========================================================
+           SMART CAFETERIA — PREMIUM CATEGORIES PAGE
+           Existing links / JS paths / functionality preserved
+        ========================================================= */
+
+        :root {
+            --cat-blue: #2563eb;
+            --cat-blue-dark: #1d4ed8;
+            --cat-cyan: #06b6d4;
+            --cat-purple: #7c3aed;
+            --cat-pink: #ec4899;
+            --cat-green: #10b981;
+            --cat-orange: #f59e0b;
+            --cat-red: #ef4444;
+
+            --cat-bg: #f4f7ff;
+            --cat-card: rgba(255,255,255,0.92);
+            --cat-border: rgba(148,163,184,0.20);
+            --cat-text: #172033;
+            --cat-muted: #64748b;
+
+            --cat-shadow:
+                0 15px 45px rgba(30,64,175,0.08),
+                0 4px 15px rgba(15,23,42,0.04);
+
+            --cat-shadow-hover:
+                0 25px 65px rgba(37,99,235,0.15),
+                0 8px 25px rgba(15,23,42,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            background:
+                radial-gradient(circle at 8% 8%, rgba(37,99,235,0.11), transparent 28%),
+                radial-gradient(circle at 92% 15%, rgba(124,58,237,0.10), transparent 25%),
+                radial-gradient(circle at 50% 100%, rgba(6,182,212,0.07), transparent 30%),
+                linear-gradient(135deg, #f8fbff 0%, #f3f6ff 48%, #ffffff 100%);
+            color: var(--cat-text);
+        }
+
+        .admin-page {
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Decorative background */
+        .admin-page::before {
+            content: "";
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            top: -180px;
+            right: -160px;
+            border-radius: 50%;
+            background: linear-gradient(
+                135deg,
+                rgba(37,99,235,0.12),
+                rgba(124,58,237,0.04)
+            );
+            filter: blur(2px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .admin-page::after {
+            content: "";
+            position: fixed;
+            width: 330px;
+            height: 330px;
+            bottom: -170px;
+            left: -130px;
+            border-radius: 50%;
+            background: linear-gradient(
+                135deg,
+                rgba(6,182,212,0.09),
+                rgba(16,185,129,0.03)
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* =========================================================
+           MAIN CONTENT
+        ========================================================= */
+
+        .admin-page .main-content {
+            position: relative;
+            z-index: 1;
+            margin-left: 260px;
+            padding: 34px 34px 70px;
+            min-height: 100vh;
+            transition: margin-left 0.25s ease;
+        }
+
+        /* =========================================================
+           PAGE HEADER
+        ========================================================= */
+
+        .page-header {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 22px;
+            margin-bottom: 30px;
+            padding: 25px 28px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.75);
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,0.96),
+                    rgba(248,250,255,0.88)
+                );
+            box-shadow: var(--cat-shadow);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 6px;
+            height: 100%;
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--cat-blue),
+                    var(--cat-purple),
+                    var(--cat-cyan)
+                );
+        }
+
+        .page-header::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            right: -90px;
+            top: -100px;
+            border-radius: 50%;
+            background: rgba(37,99,235,0.06);
+            pointer-events: none;
+        }
+
+        .page-header > div {
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            color: #172033;
+            font-size: clamp(21px, 2vw, 29px);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .page-header h1 > i {
+            width: 45px;
+            height: 45px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            color: #fff !important;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--cat-blue),
+                    var(--cat-purple)
+                );
+            box-shadow:
+                0 10px 25px rgba(37,99,235,0.25);
+            font-size: 19px;
+        }
+
+        .page-header h1 small {
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            color: var(--cat-blue);
+            background: rgba(37,99,235,0.09);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        /* =========================================================
+           ADD BUTTON
+        ========================================================= */
+
+        .btn-add {
+            position: relative;
+            z-index: 3;
+            min-height: 48px;
+            padding: 12px 20px;
+            border: 0;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            color: #fff;
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb 0%,
+                    #4f46e5 50%,
+                    #7c3aed 100%
+                );
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow:
+                0 10px 25px rgba(37,99,235,0.25);
+            transition:
+                transform .25s ease,
+                box-shadow .25s ease,
+                filter .25s ease;
+            white-space: nowrap;
+        }
+
+        .btn-add i {
+            font-size: 14px;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 16px 35px rgba(37,99,235,0.32);
+            filter: brightness(1.06);
+        }
+
+        .btn-add:active {
+            transform: translateY(-1px);
+        }
+
+        /* =========================================================
+           CATEGORY GRID
+        ========================================================= */
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        /* =========================================================
+           CATEGORY CARD
+        ========================================================= */
+
+        .category-card {
+            position: relative;
+            min-height: 230px;
+            padding: 24px 20px 19px;
+            border: 1px solid rgba(255,255,255,0.8);
+            border-radius: 23px;
+            background: var(--cat-card);
+            box-shadow: var(--cat-shadow);
+            text-align: center;
+            overflow: hidden;
+            isolation: isolate;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+
+            transition:
+                transform .3s cubic-bezier(.2,.8,.2,1),
+                box-shadow .3s ease,
+                border-color .3s ease;
+        }
+
+        .category-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 4px;
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--cat-blue),
+                    var(--cat-purple),
+                    var(--cat-cyan)
+                );
+            opacity: .85;
+        }
+
+        .category-card::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            top: -90px;
+            right: -70px;
+            border-radius: 50%;
+            background: rgba(37,99,235,0.055);
+            z-index: -1;
+            transition: transform .35s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(37,99,235,0.16);
+            box-shadow: var(--cat-shadow-hover);
+        }
+
+        .category-card:hover::after {
+            transform: scale(1.4);
+        }
+
+        /* =========================================================
+           CATEGORY ICON
+        ========================================================= */
+
+        .category-card .cat-icon {
+            width: 78px;
+            height: 78px;
+            margin: 3px auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 22px;
+
+            font-size: 38px;
+            line-height: 1;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(37,99,235,0.10),
+                    rgba(124,58,237,0.10)
+                );
+
+            border: 1px solid rgba(37,99,235,0.08);
+
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.9),
+                0 10px 24px rgba(37,99,235,0.08);
+
+            transition:
+                transform .3s ease,
+                box-shadow .3s ease;
+        }
+
+        .category-card:hover .cat-icon {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.9),
+                0 15px 30px rgba(37,99,235,0.13);
+        }
+
+        .category-card .cat-name {
+            margin-bottom: 5px;
+            color: #172033;
+            font-size: 16px;
+            line-height: 1.4;
+            font-weight: 800;
+            word-break: break-word;
+        }
+
+        .category-card .cat-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 26px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            color: #64748b;
+            background: #f1f5f9;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* =========================================================
+           ACTIONS
+        ========================================================= */
+
+        .category-card .cat-actions {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 17px;
+        }
+
+        .category-card .cat-actions .btn-sm {
+            min-height: 34px;
+            padding: 7px 12px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+
+            transition:
+                transform .2s ease,
+                background .2s ease,
+                color .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .category-card .cat-actions .btn-sm:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-sm-edit-cat {
+            color: #334155;
+            background: #f1f5f9;
+            border-color: #e2e8f0 !important;
+        }
+
+        .btn-sm-edit-cat:hover {
+            color: #fff;
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #4f46e5
+                );
+            border-color: transparent !important;
+            box-shadow:
+                0 7px 18px rgba(37,99,235,0.23);
+        }
+
+        .btn-sm-delete-cat {
+            min-width: 36px;
+            color: #dc2626;
+            background: #fff1f2;
+            border-color: #fecdd3 !important;
+        }
+
+        .btn-sm-delete-cat:hover {
+            color: #fff;
+            background:
+                linear-gradient(
+                    135deg,
+                    #ef4444,
+                    #dc2626
+                );
+            border-color: transparent !important;
+            box-shadow:
+                0 7px 18px rgba(239,68,68,0.23);
+        }
+
+        /* =========================================================
+           EMPTY STATE
+        ========================================================= */
+
+        .empty-state {
+            position: relative;
+            padding: 75px 25px;
+            border: 1px solid rgba(255,255,255,0.8);
+            border-radius: 25px;
+            background: rgba(255,255,255,0.90);
+            box-shadow: var(--cat-shadow);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .empty-state::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--cat-blue),
+                    var(--cat-purple),
+                    var(--cat-cyan)
+                );
+        }
+
+        .empty-state i {
+            width: 90px !important;
+            height: 90px;
+            margin: 0 auto 18px !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            border-radius: 28px;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(37,99,235,.08),
+                    rgba(124,58,237,.08)
+                );
+            color: #94a3b8 !important;
+            font-size: 38px !important;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 8px;
+            font-size: 20px;
+            font-weight: 800;
+            color: #334155 !important;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 13px;
+            color: #64748b !important;
+        }
+
+        /* =========================================================
+           TABLET
+        ========================================================= */
+
+        @media (max-width: 1200px) {
+            .admin-page .main-content {
+                margin-left: 250px;
+                padding-left: 25px;
+                padding-right: 25px;
+            }
+
+            .categories-grid {
+                grid-template-columns:
+                    repeat(auto-fill, minmax(205px, 1fr));
+            }
+        }
+
+        /* =========================================================
+           SIDEBAR BREAKPOINT
+        ========================================================= */
+
+        @media (max-width: 1024px) {
+            .admin-page .main-content {
+                margin-left: 0;
+                padding: 24px 20px 60px;
+            }
+
+            .page-header {
+                padding: 22px;
+            }
+        }
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 700px) {
+            .admin-page .main-content {
+                padding: 18px 14px 50px;
+            }
+
+            .page-header {
+                align-items: stretch;
+                flex-direction: column;
+                gap: 17px;
+                margin-bottom: 20px;
+                padding: 20px 18px;
+                border-radius: 20px;
+            }
+
+            .page-header h1 {
+                font-size: 21px;
+                gap: 8px;
+            }
+
+            .page-header h1 > i {
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
+                font-size: 17px;
+            }
+
+            .page-header h1 small {
+                font-size: 10px;
+            }
+
+            .btn-add {
+                width: 100%;
+                min-height: 46px;
+            }
+
+            .categories-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+
+            .category-card {
+                min-height: 215px;
+                padding: 20px 12px 15px;
+                border-radius: 19px;
+            }
+
+            .category-card .cat-icon {
+                width: 65px;
+                height: 65px;
+                border-radius: 18px;
+                font-size: 30px;
+                margin-bottom: 12px;
+            }
+
+            .category-card .cat-name {
+                font-size: 13px;
+            }
+
+            .category-card .cat-count {
+                font-size: 9px;
+                min-height: 23px;
+                padding: 3px 8px;
+            }
+
+            .category-card .cat-actions {
+                gap: 5px;
+                margin-top: 13px;
+            }
+
+            .category-card .cat-actions .btn-sm {
+                min-height: 31px;
+                padding: 6px 8px;
+                font-size: 9px;
+            }
+
+            .btn-sm-delete-cat {
+                min-width: 32px;
+            }
+        }
+
+        /* =========================================================
+           VERY SMALL PHONES
+        ========================================================= */
+
+        @media (max-width: 380px) {
+            .admin-page .main-content {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .categories-grid {
+                gap: 9px;
+            }
+
+            .category-card {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            .category-card .cat-icon {
+                width: 58px;
+                height: 58px;
+                font-size: 27px;
+            }
+
+            .category-card .cat-name {
+                font-size: 12px;
+            }
+
+            .category-card .cat-actions .btn-sm {
+                padding-left: 6px;
+                padding-right: 6px;
+            }
+        }
+
+        /* =========================================================
+           ACCESSIBILITY
+        ========================================================= */
+
+        button:focus-visible {
+            outline: 3px solid rgba(37,99,235,0.25);
+            outline-offset: 3px;
+        }
+
+        /* =========================================================
+           REDUCED MOTION
+        ========================================================= */
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-page">
+
+        <!-- Sidebar injected -->
+        <div class="main-content">
+
+            <div class="page-header">
+                <div>
+                    <h1>
+                        <i class="fas fa-tags"></i>
+                        Manage Categories
+                        <small id="catCount">Loading...</small>
+                    </h1>
+                </div>
+
+                <button class="btn-add" id="addCatBtn">
+                    <i class="fas fa-plus"></i>
+                    Add Category
+                </button>
+            </div>
+
+            <div id="categoriesContainer">
+                <!-- Injected by JS -->
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== Script ===== -->
+    <script type="module">
+
+        import { createSidebar } from '../../components/sidebar.js';
+        import { createFooter } from '../../components/footer.js';
+        import { isLoggedIn, getCurrentUser } from '../../js/auth.js';
+        import { getCategories, getMenuItems } from '../../js/menu.js';
+        import { showToast } from '../../js/main.js';
+
+        // ---- Check Admin ----
+        const user = getCurrentUser();
+        const isLoggedInUser = isLoggedIn();
+
+        if (!isLoggedInUser || user?.role !== 'admin') {
+            showToast('Access denied. Admin only.', 'error');
+
+            setTimeout(() => {
+                window.location.href = '../common/login.html';
+            }, 1500);
+        }
+
+        // ---- Render Sidebar ----
+        const sidebarContainer = document.createElement('div');
+        sidebarContainer.id = 'sidebarContainer';
+        document.body.prepend(sidebarContainer);
+
+        let sidebarOpen = window.innerWidth > 1024;
+
+        function toggleSidebar() {
+            sidebarOpen = !sidebarOpen;
+
+            const sidebar = document.querySelector('.admin-sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            if (sidebar) {
+                sidebar.classList.toggle('open', sidebarOpen);
+            }
+
+            if (overlay) {
+                overlay.style.display =
+                    sidebarOpen && window.innerWidth <= 1024
+                        ? 'block'
+                        : 'none';
+            }
+        }
+
+        sidebarContainer.innerHTML = createSidebar({
+            brandText: 'SmartCafeteria',
+            brandIcon: 'fa-utensils',
+            userRole: 'admin',
+            userName: user?.name || 'Admin',
+            isOpen: sidebarOpen,
+            onToggle: toggleSidebar,
+
+            navItems: [
+                {
+                    label: 'Dashboard',
+                    icon: 'fa-chart-pie',
+                    href: 'dashboard.html'
+                },
+                {
+                    label: 'Users',
+                    icon: 'fa-users',
+                    href: 'users.html'
+                },
+                {
+                    label: 'Menu',
+                    icon: 'fa-utensils',
+                    href: 'menu.html'
+                },
+                {
+                    label: 'Categories',
+                    icon: 'fa-tags',
+                    href: 'categories.html',
+                    active: true
+                },
+                {
+                    label: 'Orders',
+                    icon: 'fa-shopping-bag',
+                    href: 'orders.html'
+                },
+                {
+                    label: 'Payments',
+                    icon: 'fa-credit-card',
+                    href: 'payments.html'
+                },
+                {
+                    label: 'Feedback',
+                    icon: 'fa-star',
+                    href: 'feedback.html'
+                },
+                {
+                    label: 'Cancellations',
+                    icon: 'fa-times-circle',
+                    href: 'cancellations.html'
+                },
+                {
+                    label: 'Reports',
+                    icon: 'fa-file-alt',
+                    href: 'reports.html'
+                },
+                {
+                    label: 'Settings',
+                    icon: 'fa-cog',
+                    href: 'settings.html'
+                }
+            ]
+        });
+
+        // ---- Footer ----
+        document.body.insertAdjacentHTML(
+            'beforeend',
+            createFooter({
+                quickLinks: [
+                    {
+                        label: 'Home',
+                        href: '../../index.html'
+                    },
+                    {
+                        label: 'Menu',
+                        href: '../customer/menu.html'
+                    },
+                    {
+                        label: 'Login',
+                        href: '../common/login.html'
+                    },
+                    {
+                        label: 'Register',
+                        href: '../common/register.html'
+                    }
+                ],
+
+                roleLinks: [
+                    {
+                        label: 'Customer',
+                        href: '../customer/menu.html'
+                    },
+                    {
+                        label: 'Kitchen',
+                        href: '../kitchen/dashboard.html'
+                    },
+                    {
+                        label: 'Admin',
+                        href: 'dashboard.html'
+                    }
+                ]
+            })
+        );
+
+        // ---- DOM ----
+        const container =
+            document.getElementById('categoriesContainer');
+
+        const catCount =
+            document.getElementById('catCount');
+
+        // ---- Render Categories ----
+        function renderCategories() {
+
+            const categories = getCategories('en');
+            const menuItems = getMenuItems();
+
+            catCount.textContent =
+                `${categories.length} category${categories.length !== 1 ? 's' : ''}`;
+
+            if (categories.length === 0) {
+
+                container.innerHTML = `
+                    <div class="empty-state">
+
+                        <i class="fas fa-tags"></i>
+
+                        <h3>No Categories</h3>
+
+                        <p>
+                            Create your first category to organize
+                            menu items.
+                        </p>
+
+                    </div>
+                `;
+
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="categories-grid">
+
+                    ${categories.map(cat => {
+
+                        const count =
+                            menuItems.filter(
+                                item => item.category === cat.id
+                            ).length;
+
+                        return `
+                            <div class="category-card">
+
+                                <span class="cat-icon">
+                                    ${cat.icon || '📁'}
+                                </span>
+
+                                <div class="cat-name">
+                                    ${cat.name}
+                                </div>
+
+                                <div class="cat-count">
+                                    ${count} items
+                                </div>
+
+                                <div class="cat-actions">
+
+                                    <button
+                                        class="btn-sm btn-sm-edit-cat"
+                                        data-id="${cat.id}"
+                                        aria-label="Edit category"
+                                    >
+                                        <i class="fas fa-edit"></i>
+                                        Edit
+                                    </button>
+
+                                    <button
+                                        class="btn-sm btn-sm-delete-cat"
+                                        data-id="${cat.id}"
+                                        aria-label="Delete category"
+                                    >
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        `;
+
+                    }).join('')}
+
+                </div>
+            `;
+
+            // ---- Edit ----
+            document
+                .querySelectorAll('.btn-sm-edit-cat')
+                .forEach(btn => {
+
+                    btn.addEventListener('click', function () {
+
+                        const id = this.dataset.id;
+
+                        showToast(
+                            `Edit category ${id} (coming soon)`,
+                            'info'
+                        );
+
+                    });
+
+                });
+
+            // ---- Delete ----
+            document
+                .querySelectorAll('.btn-sm-delete-cat')
+                .forEach(btn => {
+
+                    btn.addEventListener('click', function () {
+
+                        const id = this.dataset.id;
+
+                        if (
+                            confirm(
+                                'Delete this category? Items will remain uncategorized.'
+                            )
+                        ) {
+
+                            showToast(
+                                `Category ${id} deleted (coming soon)`,
+                                'info'
+                            );
+
+                        }
+
+                    });
+
+                });
+        }
+
+        // ---- Add ----
+        document
+            .getElementById('addCatBtn')
+            .addEventListener('click', () => {
+
+                showToast(
+                    'Add category form (coming soon)',
+                    'info'
+                );
+
+            });
+
+        // ---- Init ----
+        renderCategories();
+
+        // ---- Resize handler ----
+        window.addEventListener('resize', () => {
+
+            if (window.innerWidth > 1024) {
+
+                sidebarOpen = true;
+
+                const sidebar =
+                    document.querySelector('.admin-sidebar');
+
+                const overlay =
+                    document.querySelector('.sidebar-overlay');
+
+                if (sidebar) {
+                    sidebar.classList.add('open');
+                }
+
+                if (overlay) {
+                    overlay.style.display = 'none';
+                }
+
+            } else {
+
+                const overlay =
+                    document.querySelector('.sidebar-overlay');
+
+                if (overlay) {
+                    overlay.style.display =
+                        sidebarOpen ? 'block' : 'none';
+                }
+
+            }
+
+        });
+
+        console.log(
+            '🏷️ Admin Categories page loaded successfully!'
+        );
+
+    </script>
+
+</body>
+</html>

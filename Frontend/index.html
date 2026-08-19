@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Cafeteria Ordering System</title>
+
+    <!-- ===== Favicon (Logo) ===== -->
+    <link rel="icon" type="image/png" href="favicon.ico" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+
+    <!-- ===== Google Font: Poppins ===== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    />
+
+    <!-- ===== Font Awesome Icons ===== -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <!-- ===== Custom CSS ===== -->
+    <link rel="stylesheet" href="src/css/style.css" />
+    <link rel="stylesheet" href="src/css/responsive.css" />
+
+    <style>
+        /* ===== Temporary inline styles until CSS files are created ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f7f7;
+            color: #1a1a2e;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ===== Header ===== */
+        .header {
+            background: #1A1A2E;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 28px;
+        }
+
+        .logo span {
+            color: #1a1a2e;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: #2563eb;
+        }
+
+        .nav .auth-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+        }
+
+        .btn-outline:hover {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: #ffffff;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+
+        /* ===== Hero Section ===== */
+        .hero {
+            padding: 80px 0 60px;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+        }
+ .hero .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.15;
+            color: #1a1a2e;
+            margin-bottom: 16px;
+        }
+
+        .hero-content h1 .highlight {
+            color: #2563eb;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+
+        .hero-content .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .hero-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-image .placeholder-img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            padding: 60px 40px;
+            text-align: center;
+            font-size: 80px;
+            color: #2563eb;
+            aspect-ratio: 4/3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hero-image .placeholder-img span {
+            font-size: 20px;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+
+        /* ===== How It Works ===== */
+        .how-it-works {
+            padding: 80px 0;
+            background: #f8fafc;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 17px;
+            margin-bottom: 50px;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .step-card {
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .step-card .step-number {
+            display: inline-block;
+            background: #2563eb;
+            color: #ffffff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            line-height: 50px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .step-card .step-icon {
+            font-size: 40px;
+            color: #2563eb;
+            margin-bottom: 16px;
+        }
+
+        .step-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .step-card p {
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        /* ===== Menu Preview ===== */
+        .menu-preview {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .menu-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #f1f5f9;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+ .menu-card .menu-img {
+            height: 180px;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+
+        .menu-card .menu-body {
+            padding: 20px;
+        }
+
+        .menu-card .menu-body h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+        }
+
+        .menu-card .menu-body .menu-category {
+            font-size: 13px;
+            color: #2563eb;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-card .menu-body .menu-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-top: 8px;
+        }
+
+        .menu-card .menu-body .menu-desc {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        /* ===== Features ===== */
+        .features {
+            padding: 80px 0;
+            background: #f8fafc;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            padding: 30px 25px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .feature-card .feature-icon {
+            font-size: 40px;
+            color: #2563eb;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* ===== Testimonials ===== */
+        .testimonials {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .testimonial-card {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .testimonial-card .stars {
+            color: #f59e0b;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .testimonial-card p {
+            color: #4b5563;
+            font-size: 15px;
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+
+        .testimonial-card .author {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .testimonial-card .role {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            background: #1a1a2e;
+            color: #e5e7eb;
+            padding: 50px 0 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer h4 {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .footer p,
+        .footer a {
+            color: #9ca3af;
+            font-size: 14px;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 6px;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: #ffffff;
+        }
+
+        .footer .footer-logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+
+        .footer .footer-logo span {
+            color: #ffffff;
+        }
+
+        .footer .social-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+.footer .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            color: #9ca3af;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .footer .social-links a:hover {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .footer-bottom .developed-by {
+            color: #2563eb;
+            font-weight: 500;
+        }
+
+        /* ===== Mobile Menu Toggle ===== */
+        .menu-toggle {
+            display: none;
+            font-size: 26px;
+            background: none;
+            border: none;
+            color: #1a1a2e;
+            cursor: pointer;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 992px) {
+            .hero .container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-content p {
+                margin: 0 auto 30px;
+            }
+
+            .hero-content .hero-buttons {
+                justify-content: center;
+            }
+
+            .steps-grid,
+            .menu-grid,
+            .features-grid,
+            .testimonials-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                display: none;
+                flex-direction: column;
+                gap: 16px;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: #ffffff;
+                padding: 20px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                border-radius: 0 0 16px 16px;
+            }
+
+            .nav.open {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .hero-content h1 {
+                font-size: 32px;
+            }
+
+            .steps-grid,
+            .menu-grid,
+            .features-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer .social-links {
+                justify-content: center;
+            }
+        }
+.a{
+  color: white;
+}
+
+    </style>
+</head>
+
+<body>
+    <!-- ============================================================ -->
+    <!-- HEADER -->
+    <!-- ============================================================ -->
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <img src="public/assets/images/logo2.jpg"
+     alt="Smart Cafeteria Logo"
+     style="
+        height: 120px;
+        width: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #FFD700;
+        box-shadow:
+            0 0 8px #FFD700,
+            0 0 18px #FFD700,
+            0 0 35px rgba(255, 215, 0, 0.85),
+            0 0 60px rgba(255, 193, 7, 0.65),
+            0 0 90px rgba(255, 193, 7, 0.4);
+    " />
+                Smart<div class="a">Cafeteria</div>
+            </a>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <nav class="nav" id="mainNav">
+                <a href="index.html">Home</a>
+                <a href="src/pages/customer/menu.html">Menu</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#features">Features</a>
+
+                <div class="auth-buttons">
+                    <a href="src/pages/common/login.html" class="btn btn-outline">Login</a>
+                    <a href="src/pages/common/register.html" class="btn btn-primary">Register</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+ <!-- ============================================================ -->
+    <!-- HERO SECTION -->
+    <!-- ============================================================ -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>
+                    Order Food <br />
+                    <span class="highlight">Smarter, Faster, Better</span>
+                </h1>
+                <p>
+                    ዘመናዊው የካፊቴሪያ አገልግሎት — ምግቦን በቀላሉ ይዝዙ፣ ክፍያ በቀላሉ ይፈጽሙ - በእውነተኛ ጊዜም ትዕዛዝዎን ይከታተሉ።
+                    <br />
+                    <span style="font-size:15px; color:#6b7280;">
+                        Modern cafeteria service — order food easily, Make payments easily., and track your order in real-time.
+                    </span>
+                </p>
+                <div class="hero-buttons">
+                    <a href="src/pages/common/register.html" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Get Started
+                    </a>
+                    <a href="src/pages/customer/menu.html" class="btn btn-success">
+                        <i class="fas fa-utensils"></i> View Menu
+                    </a>
+                </div>
+            </div>
+
+           <div class="hero-image">
+    <img src="public/assets/images/logo.jpg" alt="Smart Cafeteria" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+</div>
+        </div>
+
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- HOW IT WORKS -->
+    <!-- ============================================================ -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">
+                በሶስት ቀላል ደረጃዎች ምግብዎን ያዝዙ / Order your food in 3 easy steps
+            </p>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon"><i class="fas fa-utensils"></i></div>
+                    <h3>Browse Menu</h3>
+                    <p>የተለያዩ ምግቦችን ከምድብ ጋር ይመልከቱ / Explore diverse food items by category</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon"><i class="fas fa-shopping-cart"></i></div>
+                    <h3>Order & Pay</h3>
+                    <p>የሚፈልጉትን ምግብ ወደ ካርት ያክሉ እና ክፍያ ያስመስሉ / Add to cart and simulate payment</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                    <h3>Track & Collect</h3>
+                    <p>በእውነተኛ ጊዜ ትዕዛዝዎን ይከታተሉ እና ይቀበሉ / Track in real-time and collect your meal</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- MENU PREVIEW -->
+    <!-- ============================================================ -->
+    <section class="menu-preview" id="menu-preview">
+        <div class="container">
+            <h2 class="section-title">Popular Menu Items</h2>
+            <p class="section-subtitle">
+                በጣም ተወዳጅ የሆኑ ምግቦቻችንን ይመልከቱ / Check out our most popular dishes
+            </p>
+
+            <div class="menu-grid" id="menuPreviewGrid">
+                <!-- Menu items will be injected by JavaScript -->
+            </div>
+
+            <div style="text-align:center; margin-top:40px;">
+                <a href="src/pages/customer/menu.html" class="btn btn-primary">
+                    <i class="fas fa-utensils"></i> View Full Menu
+                </a>
+            </div>
+        </div>
+    </section>
+ <!-- ============================================================ -->
+    <!-- FEATURES -->
+    <!-- ============================================================ -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose Us?</h2>
+            <p class="section-subtitle">
+                ስርዓታችንን ልዩ የሚያደርጉት ባህሪያት / Features that make our system special
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-clock"></i></div>
+                    <h4>No More Queues</h4>
+                    <p>ረጅም ወረፋ ሳይጠብቁ ምግብ ያዝዙ / Order food without waiting in long queues</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <h4>Order Anywhere</h4>
+                    <p>ከየትኛውም ቦታ በቀላሉ ምግብ ያዝዙ / Order conveniently from anywhere</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-bell"></i></div>
+                    <h4>Real-Time Updates</h4>
+                    <p>የትዕዛዝዎን ሁኔታ በእውነተኛ ጊዜ ይከታተሉ / Track your order status in real-time</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-credit-card"></i></div>
+                    <h4>Easy Payment</h4>
+                    <p>በCBE Birr እና TeleBirr ክፍያ ያስመስሉ / Simulate payment with CBE Birr &amp; TeleBirr</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-history"></i></div>
+                    <h4>Order History</h4>
+                    <p>ያለፉትን ትዕዛዞችዎን በቀላሉ ይመልከቱ / View your complete order history</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                    <h4>Smart Reports</h4>
+                    <p>ለአስተዳዳሪዎች ዝርዝር ሪፖርቶች / Detailed reports for administrators</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TESTIMONIALS -->
+    <!-- ============================================================ -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">What Our Users Say</h2>
+            <p class="section-subtitle">
+                ተጠቃሚዎቻችን ስለ ስርዓታችን ያላቸው አስተያየት / Feedback from our users
+            </p>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p>"ይህ ስርዓት በካፊቴሪያ ውስጥ ረጅም ጊዜ ከመጠበቅ አድኖኛል! በቀላሉ ምግብ አዝዣለሁ እና ዝግጁ በሚሆን ጊዜ ማሳወቂያ አገኛለሁ።"</p>
+                    <div class="author">Kidus Birhanu</div>
+                    <div class="role">Customer</div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p>"የኩሽና ዳሽቦርዱ በጣም ምቹ ነው! ትዕዛዞችን በቀላሉ ማየት እና ሁኔታቸውን ማዘመን እችላለሁ።"</p>
+                    <div class="author">Sintayehu Begashaw</div>
+                    <div class="role">Kitchen Staff</div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+ <p>"የአስተዳደር ፓነሉ ሁሉንም ነገር ለመቆጣጠር ያስችላል። ሪፖርቶች በጣም ጠቃሚ ናቸው!"</p>
+                    <div class="author">Wondesen Gemechu</div>
+                    <div class="role">Administrator</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FOOTER -->
+    <!-- ============================================================ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">
+                        <i class="fas fa-utensils"></i> Smart<span>Cafeteria</span>
+                    </div>
+                    <p>
+                        ዘመናዊ የካፊቴሪያ አገልግሎት — Modern cafeteria ordering system
+                        that makes food ordering fast, simple, and efficient.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="src/pages/customer/menu.html">Menu</a>
+                    <a href="src/pages/common/login.html">Login</a>
+                    <a href="src/pages/common/register.html">Register</a>
+                </div>
+
+                <div>
+                    <h4>Roles</h4>
+                    <a href="src/pages/customer/menu.html">Customer</a>
+                    <a href="src/pages/kitchen/dashboard.html">Kitchen</a>
+                    <a href="src/pages/admin/dashboard.html">Admin</a>
+                </div>
+
+                <div>
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i> info@smartcafeteria.com</p>
+                    <p><i class="fas fa-phone"></i> +251 912 345 678</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Debre Berhan, Ethiopia</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>
+                    &copy; 2026 <strong>Smart Cafeteria Ordering System</strong>.
+                    Developed by
+                    <span class="developed-by">
+                        Kidus Birhanu (Arbaminch University),
+                        Sintayehu Begashaw (Dredewa University) &
+                        Wondesen Gemechu (Debre Tabor University)
+                    </span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================================ -->
+    <script>
+        // ===== Mobile Menu Toggle =====
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('mainNav').classList.toggle('open');
+        });
+
+        // ===== Menu Data (24 items across 5 categories) =====
+        const menuData = [
+            // --- Breakfast ---
+            { id: 1, name: 'ፓስታ በዳቦ / Pasta with Bread', category: 'Breakfast', price: 75, icon: '🍝' },
+            { id: 2, name: 'ፓስታ በእንጀራ / Pasta with Injera', category: 'Breakfast', price: 80, icon: '🍝' },
+            { id: 3, name: 'ፍርፍር / Firfir', category: 'Breakfast', price: 70, icon: '🍛' },
+            { id: 4, name: 'እንቁላል / Egg', category: 'Breakfast', price: 80, icon: '🍳' },
+            { id: 5, name: 'እንቁላል ፍርፍር / Scrambled Egg', category: 'Breakfast', price: 90, icon: '🍳' },
+            { id: 6, name: 'እንቁላል ስልስ / Omelette', category: 'Breakfast', price: 90, icon: '🍳' },
+ // --- Main Meals ---
+            { id: 7, name: 'ፓስታ በአትክልት / Pasta with Vegetables', category: 'Main Meals', price: 75, icon: '🍝' },
+            { id: 8, name: 'ሽሮ ፈሰስ / Shiro Feses', category: 'Main Meals', price: 75, icon: '🍲' },
+            { id: 9, name: 'ቲማቲም ስልስ / Tomato Sauce', category: 'Main Meals', price: 70, icon: '🍅' },
+            { id: 10, name: 'አይብ በቅቤ / Cheese with Butter', category: 'Main Meals', price: 100, icon: '🧀' },
+            { id: 11, name: 'ቀይ ወጥ / Red Stew', category: 'Main Meals', price: 180, icon: '🥘' },
+            { id: 12, name: 'የስጋ ጥብስ / Grilled Meat', category: 'Main Meals', price: 250, icon: '🥩' },
+            { id: 13, name: 'እንቁላል በስጋ / Egg with Meat', category: 'Main Meals', price: 180, icon: '🍳' },
+            { id: 14, name: 'ጎመን በስጋ / Cabbage with Meat', category: 'Main Meals', price: 160, icon: '🥬' },
+            { id: 15, name: 'አትክልት በስጋ / Vegetables with Meat', category: 'Main Meals', price: 160, icon: '🥗' },
+
+            // --- Fasting Meals ---
+            { id: 16, name: 'ምስር ኖርማል / Lentil Stew', category: 'Fasting Meals', price: 80, icon: '🍲' },
+            { id: 17, name: 'ፉል የጾም በዳቦ / Ful with Bread', category: 'Fasting Meals', price: 80, icon: '🫘' },
+            { id: 18, name: 'የጾም ሳንዱች / Fasting Sandwich', category: 'Fasting Meals', price: 50, icon: '🥪' },
+            { id: 19, name: 'በየዓይነት (5 ዓይነት) / Mixed (5 types)', category: 'Fasting Meals', price: 80, icon: '🥗' },
+
+            // --- Beverages ---
+            { id: 20, name: 'ጁስ / Juice', category: 'Beverages', price: 55, icon: '🧃' },
+            { id: 21, name: 'ውሃ / Water', category: 'Beverages', price: 30, icon: '💧' },
+            { id: 22, name: 'ለስላሳ / Soft Drink', category: 'Beverages', price: 70, icon: '🥤' },
+
+            // --- Snacks ---
+            { id: 23, name: 'አቮካዶ በእንጀራ / Avocado with Injera', category: 'Snacks', price: 85, icon: '🥑' },
+            { id: 24, name: 'የስጋ ሳንዱች / Meat Sandwich', category: 'Snacks', price: 100, icon: '🥪' },
+        ];
+
+        // ===== Render Menu Preview (first 6 items) =====
+        function renderMenuPreview() {
+            const grid = document.getElementById('menuPreviewGrid');
+            if (!grid) return;
+
+            // Show first 6 items
+            const previewItems = menuData.slice(0, 6);
+
+            grid.innerHTML = previewItems.map(item => 
+                <div class="menu-card">
+                    <div class="menu-img">${item.icon}</div>
+                    <div class="menu-body">
+                        <span class="menu-category">${item.category}</span>
+                        <h4>${item.name}</h4>
+                        <div class="menu-price">${item.price} ብር</div>
+                    </div>
+                </div>
+            ).join('');
+        }
+
+        // ===== Run on page load =====
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMenuPreview();
+        });
+    </script>
+</body>
+</html>
