@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - TasteEthio Cafeteria</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+    <link rel="stylesheet" href="/frontend/src/css/menu.css">
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <header class="navbar-header">
+        <div class="nav-container">
+            <div class="nav-left-group">
+                <a href="menu.html" class="btn-back-home">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Menu</span>
+                </a>
+                <a href="menu.html" class="brand-logo">
+                    <i class="fa-solid fa-utensils"></i> TasteEthio
+                </a>
+            </div>
+
+            <div class="header-actions">
+                <a href="order-history.html" class="nav-link-item">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>History</span>
+                </a>
+                <a href="cart.html" class="cart-btn">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="cart-badge" id="cart-badge-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container profile-layout">
+
+        <!-- Left Column: User Summary Card & Navigation Links -->
+        <aside class="profile-sidebar">
+            <div class="profile-card">
+                <div class="avatar-wrapper">
+                    <img id="avatar-preview" src="https://via.placeholder.com/100" alt="Customer Avatar" class="profile-avatar">
+                    <label for="avatar-upload" class="avatar-edit-btn" title="Change Avatar">
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+                    <input type="file" id="avatar-upload" accept="image/*" style="display:none;">
+                </div>
+                <h3 id="sidebar-user-name">Abebe Kebede</h3>
+                <p id="sidebar-user-phone">+251 91 123 4567</p>
+                <span class="member-badge"><i class="fa-solid fa-medal"></i> Cafeteria Member</span>
+            </div>
+
+            <!-- Quick Navigation Menu -->
+            <nav class="profile-nav">
+                <a href="profile.html" class="profile-nav-item active">
+                    <i class="fa-solid fa-user-gear"></i> Account Settings
+                </a>
+                <a href="order-history.html" class="profile-nav-item">
+                    <i class="fa-solid fa-receipt"></i> Order History
+                </a>
+                <a href="notifications.html" class="profile-nav-item">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                </a>
+                <a href="feedback.html" class="profile-nav-item">
+                    <i class="fa-solid fa-comment-dots"></i> Feedback & Reviews
+                </a>
+                <a href="../common/login.html" id="logout-btn" class="profile-nav-item logout">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Right Column: Editable Account Details Form -->
+        <section class="profile-content">
+            <div class="content-header">
+                <h2><i class="fa-solid fa-sliders"></i> Account Details</h2>
+                <p>Manage your contact details and default dining preferences for faster checkout.</p>
+            </div>
+
+            <form id="profile-form" class="profile-form">
+
+                <!-- Alert Message Container -->
+                <div id="profile-alert" class="alert-box" style="display:none;"></div>
+
+                <div class="form-section">
+                    <h4>Personal Details</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="customer-name">Full Name *</label>
+                            <input type="text" id="customer-name" required placeholder="e.g. Abebe Kebede">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customer-phone">Phone Number *</label>
+                            <input type="tel" id="customer-phone" required placeholder="0911234567">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customer-email">Email Address</label>
+                            <input type="email" id="customer-email" placeholder="abebe@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="preferred-language">Language Preference</label>
+                            <select id="preferred-language">
+                                <option value="en">English</option>
+                                <option value="am">አማርኛ (Amharic)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="form-divider">
+
+                <div class="form-section">
+                    <h4>Default Checkout Preferences</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="default-dining-type">Preferred Order Type</label>
+                            <select id="default-dining-type">
+                                <option value="dine-in">Dine-In (Cafeteria Table)</option>
+                                <option value="takeaway">Takeaway / Express Pick-up</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="default-table-number">Default Table / Office #</label>
+                            <input type="text" id="default-table-number" placeholder="e.g. Table 12 or Block B-201">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-save">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+    </main>
+
+    <script src="/frontend/src/js/profile.js" defer></script>
+</body>
+</html>

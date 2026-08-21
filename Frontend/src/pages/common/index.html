@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Cafeteria | Authentic Cuisine</title>
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+    <link rel="stylesheet" href="/frontend/src/css/responsive.css">
+    <link rel="icon" type="image/x-icon" href="/Frontend/public/assets/images/favicon.ico">
+    <style>
+        .logo-img-nav {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            vertical-align: middle;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+    <header class="navbar">
+        <div class="container navbar-content">
+            <a href="/Frontend/src/index.html" class="logo">
+                <img src="/Frontend/public/assets/images/logo1.jpg" alt="Smart Cafeteria Logo" class="logo-img-nav" onerror="this.src='/Frontend/public/assets/images/logo.jpg';">
+                Smart<span>Cafeteria</span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="/Frontend/src/index.html" class="active">Home</a>
+                <a href="#specials">Today's Specials</a>
+                <a href="/Frontend/src/pages/common/login.html" class="btn btn-outline">Login</a>
+                <a href="/Frontend/src/pages/common/register.html" class="btn btn-primary">Register</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- ================= HERO SECTION ================= -->
+        <section class="hero">
+            <div class="container hero-content">
+                
+                <div class="hero-text">
+                    <div class="hero-badge">
+                        <span class="badge-dot"></span> Fresh Meals & Drinks • 100% Cashless
+                    </div>
+
+                    <h1>
+                        Smart Cafeteria Ordering,
+                        <span>Simple, Fast & Convenient</span>
+                    </h1>
+
+                    <p>
+                        Browse our digital menu, choose your favorite cafeteria meals and beverages, place your order online,
+                        and pay digitally with TeleBirr, CBE Birr, or mobile banking. Track your order status
+                        in real time and collect your freshly prepared meal without waiting in long lines.
+                    </p>
+
+                    <div class="hero-buttons">
+                        <a href="/Frontend/src/pages/common/register.html" class="btn btn-primary btn-large">
+                            Explore Menu 🍲
+                        </a>
+                        <a href="/Frontend/src/pages/common/login.html" class="btn btn-secondary btn-large">
+                            Track Order 📍
+                        </a>
+                    </div>
+
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <strong>10-15 Min</strong>
+                            <span>Avg Prep Time</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <strong>100% Fresh</strong>
+                            <span>Daily Fresh Meals</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <strong>100% Digital</strong>
+                            <span>TeleBirr / CBE / Bank Transfer</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+             
+        </section>
+
+        <!-- ================= TODAY'S CAFETERIA FAVORITES ================= -->
+        <section id="specials" class="specials-section">
+            <div class="container">
+                <div class="section-heading">
+                    <span>Popular Selections</span>
+                    <h2>Today's Cafeteria Favorites</h2>
+                    <p>Prepared fresh every morning with quality ingredients.</p>
+                </div>
+
+                <div class="dishes-grid">
+                  
+                    <!-- Dish 1 -->
+                    <div class="dish-card">
+                        <div class="dish-image-wrap">
+                            <img src="/Frontend/public/assets/images/food/breakfast/pasta-with-bread.jpg" alt="Pasta with Bread" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
+                            <span class="dish-badge">Breakfast</span>
+                        </div>
+                        <div class="dish-body">
+                            <h3>Pasta with Bread (ፓስታ በዳቦ)</h3>
+                            <p>Delicious warm pasta served with freshly baked bread.</p>
+                            <div class="dish-footer">
+                                <span class="dish-price">75 ETB</span>
+                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dish 2 -->
+                    <div class="dish-card">
+                        <div class="dish-image-wrap">
+                            <img src="/Frontend/public/assets/images/food/breakfast/pasta-with-injera.jpg" alt="Pasta with Injera" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
+                            <span class="dish-badge">Breakfast</span>
+                        </div>
+                        <div class="dish-body">
+                            <h3>Pasta with Injera (ፓስታ በእንጀራ)</h3>
+                            <p>Freshly prepared pasta served with soft Injera.</p>
+                            <div class="dish-footer">
+                                <span class="dish-price">80 ETB</span>
+                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dish 3 -->
+                    <div class="dish-card">
+                        <div class="dish-image-wrap">
+                            <img src="/Frontend/public/assets/images/food/breakfast/firfir.jpeg" alt="Firfir" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
+                            <span class="dish-badge">Breakfast</span>
+                        </div>
+                        <div class="dish-body">
+                            <h3>Firfir (ፍርፍር)</h3>
+                            <p>Traditional spiced Injera firfir cooked with savory sauce and spices.</p>
+                            <div class="dish-footer">
+                                <span class="dish-price">70 ETB</span>
+                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dish 4 -->
+                    <div class="dish-card">
+                        <div class="dish-image-wrap">
+                            <img src="/Frontend/public/assets/images/food/fasting/lentil-stew.jpeg" alt="Lentil Stew" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
+                            <span class="dish-badge vegan">100% Vegan</span>
+                        </div>
+                        <div class="dish-body">
+                            <h3>Lentil Stew / Misir Wat (ምስር ወጥ)</h3>
+                            <p>Slow-cooked spicy red lentil stew served hot with fresh Injera.</p>
+                            <div class="dish-footer">
+                                <span class="dish-price">80 ETB</span>
+                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dish 5 -->
+                    <div class="dish-card">
+                        <div class="dish-image-wrap">
+                            <img src="/Frontend/public/assets/images/food/fasting/ful-with-bread.jpg" alt="Ful with Bread" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
+                            <span class="dish-badge vegan">Popular</span>
+                        </div>
+                        <div class="dish-body">
+                            <h3>Ful with Bread (ፉል በዳቦ)</h3>
+                            <p>Warm fava beans stewed with herbs, vegetable oil, and fresh bread.</p>
+                            <div class="dish-footer">
+                                <span class="dish-price">80 ETB</span>
+                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dish 6 -->
+                    <div class="dish-card">
+                        <div class="dish-image-wrap">
+                            <img src="/Frontend/public/assets/images/food/beverages/juice.jpeg" alt="Juice" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
+                            <span class="dish-badge coffee">Beverage</span>
+                        </div>
+                        <div class="dish-body">
+                            <h3>Fresh Juice (ጁስ)</h3>
+                            <p>Cold, freshly squeezed natural fruit juice served chilled.</p>
+                            <div class="dish-footer">
+                                <span class="dish-price">60 ETB</span>
+                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= CASHLESS HOW IT WORKS ================= -->
+        <section class="features">
+            <div class="container">
+                <div class="section-heading">
+                    <span>100% Digital Payments</span>
+                    <h2>Fast & Seamless Cashless Ordering</h2>
+                    <p>Designed to save your time. Order online and pick up your hot meal without handling cash.</p>
+                </div>
+
+                <div class="feature-grid">
+
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>1. Choose Your Meal</h3>
+                        <p>Browse our digital menu on your phone, customize stews, and add your favorite items.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">💳</div>
+                        <h3>2. Cashless Payment</h3>
+                        <p>Pay instantly using TeleBirr, CBE Birr, or your preferred mobile bank app.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🔔</div>
+                        <h3>3. Live Tracking</h3>
+                        <p>Receive real-time notification alerts as the kitchen prepares and plates your order.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🍽️</div>
+                        <h3>4. Show Code & Collect</h3>
+                        <p>Show your digital order receipt code at the pickup counter and enjoy your fresh meal!</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <h3>Smart<span>Cafeteria</span></h3>
+                <p>Bringing modern digital convenience to your daily cafeteria dining experience.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="/Frontend/src/index.html">Home</a>
+                <a href="/Frontend/src/pages/common/register.html">Full Menu</a>
+                <a href="/Frontend/src/pages/common/login.html">Customer Login</a>
+                <a href="/Frontend/src/pages/common/register.html">Create Account</a>
+            </div>
+
+            <div class="footer-payments">
+                <h4>Cashless Payments Only</h4>
+                <div class="footer-pay-tags">
+                    <span class="pay-badge telebirr">TeleBirr</span>
+                    <span class="pay-badge cbe">CBE Birr</span>
+                    <span class="pay-badge bank">Mobile Banking</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>Smart Cafeteria Ordering System. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="/components/navbar.js"></script>
+
+</body>
+</html>git status

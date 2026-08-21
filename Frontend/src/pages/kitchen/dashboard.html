@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Display System - Smart Cafeteria</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Shared Stylesheets -->
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+    <link rel="stylesheet" href="/frontend/src/css/admin.css">
+    <link rel="stylesheet" href="/frontend/src/css/kitchen.css">
+
+    <!-- Role Authorization Check -->
+    <script>
+        const role = localStorage.getItem('userRole');
+        if (!role || (role !== 'ADMIN' && role !== 'KITCHEN')) {
+            alert('Access denied! Kitchen staff and Admins only.');
+            window.location.href = '/pages/common/login.html';
+        }
+    </script>
+
+    <style>
+        .kds-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1f2937;
+            color: #ffffff;
+            padding: 16px 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .kds-header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .kds-header-title h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 700;
+        }
+        .kds-badge {
+            background-color: var(--primary, #f97316);
+            color: #ffffff;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .kds-nav-btn {
+            background-color: #374151;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.2s ease;
+        }
+        .kds-nav-btn:hover {
+            background-color: #4b5563;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 16px 20px;
+            border-left: 5px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .stat-card.pending { border-left-color: #f59e0b; }
+        .stat-card.preparing { border-left-color: #3b82f6; }
+        .stat-card.ready { border-left-color: #10b981; }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #111827;
+            margin-top: 4px;
+        }
+        .section-title-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .refresh-indicator {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        #kitchenTicketsGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .ticket-actions-group {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            margin-top: 12px;
+        }
+        .ticket-actions-group button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .ticket-actions-group button:hover {
+            opacity: 0.9;
+        }
+        .btn-cancel {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+        .btn-advance {
+            background-color: #10b981;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <!-- KITCHEN NAVIGATION HEADER -->
+    <header class="kds-header">
+        <div class="kds-header-title">
+            <i class="fa-solid fa-fire-burner fa-xl"></i>
+            <h1>Kitchen Display System</h1>
+            <span class="kds-badge" id="stationBadge">Station 1</span>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <a href="orders.html" class="kds-nav-btn">
+                <i class="fa-solid fa-list-check"></i> Manage Full Queue
+            </a>
+            <button id="logoutBtn" class="kds-nav-btn" style="border:none; cursor:pointer;" title="Logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="admin-main" style="padding: 24px;">
+
+        <!-- LIVE METRICS ROW -->
+        <div class="stats-grid">
+            <div class="stat-card pending">
+                <div class="stat-info">
+                    <div class="stat-label">Pending Kitchen</div>
+                    <div class="stat-number" id="pendingCount">0</div>
+                </div>
+            </div>
+            <div class="stat-card preparing">
+                <div class="stat-info">
+                    <div class="stat-label">In Preparation</div>
+                    <div class="stat-number" id="preparingCount">0</div>
+                </div>
+            </div>
+            <div class="stat-card ready">
+                <div class="stat-info">
+                    <div class="stat-label">Ready For Pickup</div>
+                    <div class="stat-number" id="readyCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION HEADER & REFRESH STATUS -->
+        <div class="section-title-bar">
+            <h2>Live Order Tickets</h2>
+            <div class="refresh-indicator">
+                <i class="fa-solid fa-rotate-right fa-spin"></i> Live Sync Active
+            </div>
+        </div>
+
+        <!-- LIVE TICKETS CONTAINER -->
+        <div id="kitchenTicketsGrid">
+            <!-- Dynamic Ticket Cards Injected via kitchen.js -->
+        </div>
+
+    </main>
+
+    <!-- Audio Element for Order Alerts -->
+    <audio id="orderNotificationSound" src="/assets/sounds/new-order.mp3" preload="auto"></audio>
+
+    <!-- JavaScript Dependencies -->
+    <script src="/frontend/src/js/api.js"></script>
+    <script src="/frontend/src/js/auth.js"></script>
+    <script src="/Frontend/src/pages/kitchen/kitchen.js"></script>
+</body>
+</html>

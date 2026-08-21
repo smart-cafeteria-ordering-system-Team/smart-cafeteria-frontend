@@ -1,0 +1,12 @@
+# ================================================================
+# .htaccess - Apache Server Configuration
+# ================================================================
+# This file is EMPTY for now.
+# It will be filled when deploying to Apache servers.
+#
+# Future content may include:
+#   - URL redirects
+#   - Custom error pages
+#   - Security rules
+#   - Caching settings
+# ================================================================
