@@ -1,275 +1,678 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Cafeteria | Authentic Cuisine</title>
-    <link rel="stylesheet" href="/frontend/src/css/style.css">
-    <link rel="stylesheet" href="/frontend/src/css/responsive.css">
-    <link rel="icon" type="image/x-icon" href="/Frontend/public/assets/images/favicon.ico">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Cafeteria Ordering System</title>
+    <!-- ===== Google Font: Poppins ===== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    />
+    <!-- ===== Font Awesome Icons (v6) ===== -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <!-- ===== Bootstrap CSS (Required for Carousel) ===== -->
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+        rel="stylesheet"
+    />
+    <!-- ===== Internal CSS ===== -->
     <style>
-        .logo-img-nav {
-            height: 40px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f7f7;
+            color: #1a1a2e;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+        /* ===== Header & Navigation ===== */
+        .header {
+            background: #1A1A2E;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        /* ===== Logo Image Styling (Online Link) ===== */
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 20px;
+            gap: 10px;
+        }
+        .logo img {
+            height: 48px;
             width: auto;
             object-fit: contain;
-            vertical-align: middle;
-            border-radius: 4px;
+            border-radius: 6px;
+        }
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        .nav a {
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+        .nav a:hover {
+            color: #3b82f6;
+        }
+        .nav .auth-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        /* ===== Buttons ===== */
+        .btn-custom {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            color: #ffffff;
+        }
+        .btn-outline-custom {
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        .btn-outline-custom:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+        /* ===== Banner Carousel Styling (0.5s interval) ===== */
+        .promo-banner {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin: 40px auto;
+        }
+        .banner-img {
+            height: 420px;
+            object-fit: cover;
+            filter: brightness(0.8);
+            transition: transform 0.5s ease;
+        }
+        .carousel-item:hover .banner-img {
+            transform: scale(1.02);
+        }
+        /* ===== Common Sections & Cards ===== */
+        .how-it-works, .features, .menu-preview {
+            padding: 80px 0;
+            width: 100%;
+        }
+        .how-it-works, .features {
+            background: #f1f5f9;
+        }
+        .menu-preview {
+            background: #ffffff;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .section-subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 16px;
+            margin-bottom: 50px;
+            font-weight: 400;
+        }
+        .steps-grid, .menu-grid, .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        .step-card, .feature-card {
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .step-card:hover, .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e1;
+        }
+        .step-card .step-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            line-height: 50px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .step-card .step-icon, .feature-card .feature-icon {
+            font-size: 38px;
+            color: #2563eb;
+            margin-bottom: 20px;
+        }
+        .step-card h3, .feature-card h4 {
+            font-size: 19px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+        .step-card p, .feature-card p {
+            color: #64748b;
+            font-size: 14px;
+        }
+        /* ===== Menu Cards Styling ===== */
+        .menu-card {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        .menu-card .menu-img {
+            height: 210px;
+            width: 100%;
+            overflow: hidden;
+            background: #e2e8f0;
+        }
+        .menu-card .menu-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .menu-card:hover .menu-img img {
+            transform: scale(1.08);
+        }
+        .menu-card .menu-body {
+            padding: 24px;
+        }
+        .menu-card .menu-body h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+        }
+        .menu-card .menu-body .menu-category {
+            font-size: 12px;
+            color: #2563eb;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .menu-card .menu-body .menu-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #16a34a;
+            margin-top: 12px;
+        }
+        /* ===== Footer ===== */
+        .footer {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 60px 0 30px;
+            width: 100%;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer h4 {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .footer p, .footer a {
+            color: #94a3b8;
+            font-size: 14px;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 8px;
+            transition: color 0.2s;
+        }
+        .footer a:hover {
+            color: #ffffff;
+        }
+        .footer .footer-logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .footer .footer-logo span {
+            color: #3b82f6;
+        }
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 25px;
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+        }
+        /* ===== Mobile Toggle Button ===== */
+        .menu-toggle {
+            display: none;
+            font-size: 24px;
+            background: none;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 5px;
+        }
+        /* ===== Responsive Media Queries ===== */
+        @media (max-width: 992px) {
+            .steps-grid,
+            .menu-grid,
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .nav {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: #1A1A2E;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0;
+                padding: 0 30px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+                border-radius: 0 0 16px 16px;
+                
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease;
+            }
+            .nav.open {
+                max-height: 450px;
+                opacity: 1;
+                padding: 20px 30px 25px 30px;
+            }
+            .nav a {
+                padding: 12px 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                width: 100%;
+            }
+            .nav .auth-buttons {
+                width: 100%;
+                flex-direction: row;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            .nav .auth-buttons a {
+                flex: 1;
+                text-align: center;
+                border-bottom: none;
+            }
+            .banner-img {
+                height: 250px;
+            }
+            .steps-grid,
+            .menu-grid,
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .logo img {
+                height: 40px;
+            }
         }
     </style>
 </head>
 <body>
-
-    <!-- ================= NAVBAR ================= -->
-    <header class="navbar">
-        <div class="container navbar-content">
-            <a href="/Frontend/src/index.html" class="logo">
-                <img src="/Frontend/public/assets/images/logo1.jpg" alt="Smart Cafeteria Logo" class="logo-img-nav" onerror="this.src='/Frontend/public/assets/images/logo.jpg';">
-                Smart<span>Cafeteria</span>
+    <!-- ================= HEADER ================= -->
+    <header class="header">
+        <div class="container">
+            <!-- Online Logo Link Inserted Here -->
+            <a href="index.html" class="logo"> 
+                <img src="/Frontend/public/assets/images/logo.jpg" style="width: 100px; height:auto " alt="Smart Cafeteria Logo"> Smart Cafeteria
             </a>
-
-            <nav class="nav-links">
-                <a href="/Frontend/src/index.html" class="active">Home</a>
-                <a href="#specials">Today's Specials</a>
-                <a href="/Frontend/src/pages/common/login.html" class="btn btn-outline">Login</a>
-                <a href="/Frontend/src/pages/common/register.html" class="btn btn-primary">Register</a>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav class="nav" id="mainNav">
+                <a href="index.html">Home</a>
+                <a href="/Frontend/src/pages/common/register.html">Menu</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#features">Features</a>
+                <div class="auth-buttons">
+                    <a href="/Frontend/src/pages/common/login.html" class="btn-custom btn-outline-custom">Login</a>
+                    <a href="/Frontend/src/pages/common/register.html" class="btn-custom btn-primary-custom">Register</a>
+                </div>
             </nav>
         </div>
     </header>
-
-    <main>
-        <!-- ================= HERO SECTION ================= -->
-        <section class="hero">
-            <div class="container hero-content">
-                
-                <div class="hero-text">
-                    <div class="hero-badge">
-                        <span class="badge-dot"></span> Fresh Meals & Drinks • 100% Cashless
-                    </div>
-
-                    <h1>
-                        Smart Cafeteria Ordering,
-                        <span>Simple, Fast & Convenient</span>
-                    </h1>
-
-                    <p>
-                        Browse our digital menu, choose your favorite cafeteria meals and beverages, place your order online,
-                        and pay digitally with TeleBirr, CBE Birr, or mobile banking. Track your order status
-                        in real time and collect your freshly prepared meal without waiting in long lines.
-                    </p>
-
-                    <div class="hero-buttons">
-                        <a href="/Frontend/src/pages/common/register.html" class="btn btn-primary btn-large">
-                            Explore Menu 🍲
-                        </a>
-                        <a href="/Frontend/src/pages/common/login.html" class="btn btn-secondary btn-large">
-                            Track Order 📍
-                        </a>
-                    </div>
-
-                    <div class="hero-stats">
-                        <div class="stat-item">
-                            <strong>10-15 Min</strong>
-                            <span>Avg Prep Time</span>
-                        </div>
-                        <div class="stat-divider"></div>
-                        <div class="stat-item">
-                            <strong>100% Fresh</strong>
-                            <span>Daily Fresh Meals</span>
-                        </div>
-                        <div class="stat-divider"></div>
-                        <div class="stat-item">
-                            <strong>100% Digital</strong>
-                            <span>TeleBirr / CBE / Bank Transfer</span>
-                        </div>
-                    </div>
-                </div>
-
+    <!-- ================= BANNER CAROUSEL SECTION ================= -->
+    <div class="container">
+        <!-- Banner Carousel with 1s (1500ms) interval -->
+        <div id="promoCarousel" class="carousel slide promo-banner" data-bs-ride="carousel" data-bs-interval="1500">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="2"></button>
             </div>
-             
-        </section>
-
-        <!-- ================= TODAY'S CAFETERIA FAVORITES ================= -->
-        <section id="specials" class="specials-section">
-            <div class="container">
-                <div class="section-heading">
-                    <span>Popular Selections</span>
-                    <h2>Today's Cafeteria Favorites</h2>
-                    <p>Prepared fresh every morning with quality ingredients.</p>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80" class="d-block w-100 banner-img" alt="Special Combo">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold text-warning">Special Breakfast Deals</h2>
+                        <p class="fs-5">Get up to 20% off on traditional breakfast combos every morning!</p>
+                    </div>
                 </div>
-
-                <div class="dishes-grid">
-                  
-                    <!-- Dish 1 -->
-                    <div class="dish-card">
-                        <div class="dish-image-wrap">
-                            <img src="/Frontend/public/assets/images/food/breakfast/pasta-with-bread.jpg" alt="Pasta with Bread" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
-                            <span class="dish-badge">Breakfast</span>
-                        </div>
-                        <div class="dish-body">
-                            <h3>Pasta with Bread (ፓስታ በዳቦ)</h3>
-                            <p>Delicious warm pasta served with freshly baked bread.</p>
-                            <div class="dish-footer">
-                                <span class="dish-price">75 ETB</span>
-                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
-                            </div>
-                        </div>
+                <div class="carousel-item">
+                    <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80" class="d-block w-100 banner-img" alt="Fresh Meals">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold text-warning">Fresh & Spicy Lunch Delights</h2>
+                        <p class="fs-5">Authentic Shiro, Siga Firfir, and fresh salads prepared daily.</p>
                     </div>
-
-                    <!-- Dish 2 -->
-                    <div class="dish-card">
-                        <div class="dish-image-wrap">
-                            <img src="/Frontend/public/assets/images/food/breakfast/pasta-with-injera.jpg" alt="Pasta with Injera" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
-                            <span class="dish-badge">Breakfast</span>
-                        </div>
-                        <div class="dish-body">
-                            <h3>Pasta with Injera (ፓስታ በእንጀራ)</h3>
-                            <p>Freshly prepared pasta served with soft Injera.</p>
-                            <div class="dish-footer">
-                                <span class="dish-price">80 ETB</span>
-                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
-                            </div>
-                        </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80" class="d-block w-100 banner-img" alt="Craft Beverages">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold text-warning">Fresh Juices & Roasted Coffee</h2>
+                        <p class="fs-5">Pair your meal with premium Macchiato or Layered Sprice Juice.</p>
                     </div>
-
-                    <!-- Dish 3 -->
-                    <div class="dish-card">
-                        <div class="dish-image-wrap">
-                            <img src="/Frontend/public/assets/images/food/breakfast/firfir.jpeg" alt="Firfir" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
-                            <span class="dish-badge">Breakfast</span>
-                        </div>
-                        <div class="dish-body">
-                            <h3>Firfir (ፍርፍር)</h3>
-                            <p>Traditional spiced Injera firfir cooked with savory sauce and spices.</p>
-                            <div class="dish-footer">
-                                <span class="dish-price">70 ETB</span>
-                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dish 4 -->
-                    <div class="dish-card">
-                        <div class="dish-image-wrap">
-                            <img src="/Frontend/public/assets/images/food/fasting/lentil-stew.jpeg" alt="Lentil Stew" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
-                            <span class="dish-badge vegan">100% Vegan</span>
-                        </div>
-                        <div class="dish-body">
-                            <h3>Lentil Stew / Misir Wat (ምስር ወጥ)</h3>
-                            <p>Slow-cooked spicy red lentil stew served hot with fresh Injera.</p>
-                            <div class="dish-footer">
-                                <span class="dish-price">80 ETB</span>
-                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dish 5 -->
-                    <div class="dish-card">
-                        <div class="dish-image-wrap">
-                            <img src="/Frontend/public/assets/images/food/fasting/ful-with-bread.jpg" alt="Ful with Bread" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
-                            <span class="dish-badge vegan">Popular</span>
-                        </div>
-                        <div class="dish-body">
-                            <h3>Ful with Bread (ፉል በዳቦ)</h3>
-                            <p>Warm fava beans stewed with herbs, vegetable oil, and fresh bread.</p>
-                            <div class="dish-footer">
-                                <span class="dish-price">80 ETB</span>
-                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dish 6 -->
-                    <div class="dish-card">
-                        <div class="dish-image-wrap">
-                            <img src="/Frontend/public/assets/images/food/beverages/juice.jpeg" alt="Juice" onerror="this.src='/Frontend/public/assets/images/logo1.jpg';">
-                            <span class="dish-badge coffee">Beverage</span>
-                        </div>
-                        <div class="dish-body">
-                            <h3>Fresh Juice (ጁስ)</h3>
-                            <p>Cold, freshly squeezed natural fruit juice served chilled.</p>
-                            <div class="dish-footer">
-                                <span class="dish-price">60 ETB</span>
-                                <a href="/Frontend/src/pages/common/register.html" class="btn btn-outline btn-sm">+ Add to Cart</a>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
-        </section>
-
-        <!-- ================= CASHLESS HOW IT WORKS ================= -->
-        <section class="features">
-            <div class="container">
-                <div class="section-heading">
-                    <span>100% Digital Payments</span>
-                    <h2>Fast & Seamless Cashless Ordering</h2>
-                    <p>Designed to save your time. Order online and pick up your hot meal without handling cash.</p>
+            <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    </div>
+    <!-- ================= HOW IT WORKS ================= -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">በሶስት ቀላል ደረጃዎች ምግብዎን ያዝዙ</p>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon"><i class="fas fa-utensils"></i></div>
+                    <h3>Browse Menu</h3>
+                    <p>የተለያዩ ምግቦችን ከምድብ ጋር ይመልከቱ</p>
                 </div>
-
-                <div class="feature-grid">
-
-                    <div class="feature-card">
-                        <div class="feature-icon">📱</div>
-                        <h3>1. Choose Your Meal</h3>
-                        <p>Browse our digital menu on your phone, customize stews, and add your favorite items.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">💳</div>
-                        <h3>2. Cashless Payment</h3>
-                        <p>Pay instantly using TeleBirr, CBE Birr, or your preferred mobile bank app.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">🔔</div>
-                        <h3>3. Live Tracking</h3>
-                        <p>Receive real-time notification alerts as the kitchen prepares and plates your order.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">🍽️</div>
-                        <h3>4. Show Code & Collect</h3>
-                        <p>Show your digital order receipt code at the pickup counter and enjoy your fresh meal!</p>
-                    </div>
-
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon"><i class="fas fa-shopping-cart"></i></div>
+                    <h3>Order & Pay</h3>
+                    <p>ምግብ ወደ ካርት ይጨምሩ እና በTeleBirr ወይም CBE Birr ክፍያ ያስመስሉ</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                    <h3>Track & Collect</h3>
+                    <p>በእውነተኛ ጊዜ ትዕዛዝዎን ይከታተሉ እና ይቀበሉ</p>
                 </div>
             </div>
-        </section>
-    </main>
-
+        </div>
+    </section>
+    <!-- ================= MENU PREVIEW ================= -->
+    <section class="menu-preview" id="menu-preview">
+        <div class="container">
+            <h2 class="section-title">Popular Menu Items</h2>
+            <p class="section-subtitle">በጣም ተወዳጅ የሆኑ ምግቦቻችንን ይመልከቱ</p>
+            <div class="menu-grid" id="menuPreviewGrid">
+                <!-- Injected via JavaScript -->
+            </div>
+            <div style="text-align:center; margin-top:40px;">
+                <a href="/Frontend/src/pages/common/register.html" class="btn-custom btn-primary-custom">
+                    <i class="fas fa-utensils"></i> View Full Menu
+                </a>
+            </div>
+        </div>
+    </section>
+    <!-- ================= FEATURES ================= -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose Us?</h2>
+            <p class="section-subtitle">ስርዓታችንን ልዩ የሚያደርጉት ባህሪያት</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-clock"></i></div>
+                    <h4>No More Queues</h4>
+                    <p>ረጅም ወረፋ ሳይጠብቁ ምግብ ያዝዙ</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <h4>Order Anywhere</h4>
+                    <p>ከየትኛውም ቦታ በቀላሉ ምግብ ያዝዙ</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-bell"></i></div>
+                    <h4>Real-Time Updates</h4>
+                    <p>የትዕዛዝ ሁኔታን በእውነተኛ ጊዜ ይከታተሉ</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-credit-card"></i></div>
+                    <h4>Easy Payment</h4>
+                    <p>በCBE Birr እና TeleBirr ክፍያ ማስመሰል</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-history"></i></div>
+                    <h4>Order History</h4>
+                    <p>ያለፉትን ትዕዛዞች መመልከት</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                    <h4>Smart Reports</h4>
+                    <p>ለአስተዳዳሪዎች ዝርዝር ሪፖርቶች</p>
+                </div>
+            </div>
+        </div>
+    </section>
     <!-- ================= FOOTER ================= -->
     <footer class="footer">
-        <div class="container footer-content">
-            <div class="footer-brand">
-                <h3>Smart<span>Cafeteria</span></h3>
-                <p>Bringing modern digital convenience to your daily cafeteria dining experience.</p>
-            </div>
-
-            <div class="footer-links">
-                <h4>Quick Links</h4>
-                <a href="/Frontend/src/index.html">Home</a>
-                <a href="/Frontend/src/pages/common/register.html">Full Menu</a>
-                <a href="/Frontend/src/pages/common/login.html">Customer Login</a>
-                <a href="/Frontend/src/pages/common/register.html">Create Account</a>
-            </div>
-
-            <div class="footer-payments">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">
+                        <i class="fas fa-utensils text-primary"></i> Smart<span>Cafeteria</span>
+                    </div>
+                    <p>ዘመናዊ የካፊቴሪያ ማዘዣ ስርዓት — Debre Berhan University student project.</p>
+                </div>
+                <div>
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="src/pages/customer/menu.html">Menu</a>
+                    <a href="src/pages/common/login.html">Login</a>
+                    <a href="src/pages/common/register.html">Register</a>
+                </div>
+                <div>
+                    <h4>Project Team</h4>
+                    <p>Kidus Birhanu</p>
+                    <p>Sintayehu Begashaw</p>
+                    <p>Wondesen Gemechu</p>
+                </div>
+                <div class="footer-payments">
                 <h4>Cashless Payments Only</h4>
                 <div class="footer-pay-tags">
-                    <span class="pay-badge telebirr">TeleBirr</span>
-                    <span class="pay-badge cbe">CBE Birr</span>
+                    <span class="pay-badge telebirr">TeleBirr</span><br>
+                    <span class="pay-badge cbe">CBE Birr</span><br>
                     <span class="pay-badge bank">Mobile Banking</span>
                 </div>
             </div>
-        </div>
-
-        <div class="footer-bottom">
-            <p>Smart Cafeteria Ordering System. All rights reserved.</p>
+                <div>
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Debre Berhan, Ethiopia</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 <strong>Smart Cafeteria Ordering System</strong>. All rights reserved.</p>
+            </div>
         </div>
     </footer>
-    <script src="/components/navbar.js"></script>
-
+    <!-- ================= BOOTSTRAP JS ================= -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        // Navbar Toggle & Icon Switcher
+        const menuToggle = document.getElementById('menuToggle');
+        const mainNav = document.getElementById('mainNav');
+        menuToggle.addEventListener('click', function() {
+            mainNav.classList.toggle('open');
+            const icon = menuToggle.querySelector('i');
+            if (mainNav.classList.contains('open')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            } else {
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        });
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!menuToggle.contains(event.target) && !mainNav.contains(event.target)) {
+                mainNav.classList.remove('open');
+                const icon = menuToggle.querySelector('i');
+                if(icon) {
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+        // Menu Data
+        const menuData = [
+            { 
+                id: 1, 
+                name: 'cabbage-with-meat', 
+                category: 'Main Meals', 
+                price: 250, 
+                image: '/Frontend/public/assets/images/food/main-meals/cabbage-with-meat.jpeg' 
+            },
+            { 
+                id: 2, 
+                name: 'Pasta with Vegetables', 
+                category: 'Main Meals', 
+                price: 90, 
+                image: '/Frontend/public/assets/images/food/main-meals/pasta-with-vegetables.jpeg' 
+            },
+            { 
+                id: 3, 
+                name: 'የስጋ ጥብስ / Special Tibs', 
+                category: 'Main Meals', 
+                price: 280, 
+                image: '/Frontend/public/assets/images/food/main-meals/grilled-meat.jpeg' 
+            },
+            { 
+                id: 4, 
+                name: 'ቀይ ወጥ / Key Wat', 
+                category: 'Main Meals', 
+                price: 180, 
+                image: '/Frontend/public/assets/images/food/main-meals/red-stew.jpeg' 
+            },
+            { 
+                id: 5, 
+                name: 'shiro-feses', 
+                category: 'Main Meals', 
+                price: 85, 
+                image: '/Frontend/public/assets/images/food/main-meals/shiro-feses.jpg' 
+            },
+            { 
+                id: 6, 
+                name: 'አቮካዶ ጁስ / Special Avocado', 
+                category: 'Beverages', 
+                price: 90, 
+                image: '/Frontend/public/assets/images/food/beverages/juice.jpeg' 
+            }
+        ];
+        function renderMenuPreview() {
+            const grid = document.getElementById('menuPreviewGrid');
+            if (!grid) return;
+            grid.innerHTML = menuData.map(item => `
+                <div class="menu-card">
+                    <div class="menu-img">
+                        <img src="${item.image}" alt="${item.name}">
+                    </div>
+                    <div class="menu-body">
+                        <span class="menu-category">${item.category}</span>
+                        <h4>${item.name}</h4>
+                        <div class="menu-price">${item.price} ብር</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        document.addEventListener('DOMContentLoaded', renderMenuPreview);
+    </script>
 </body>
-</html>git status
+</html>
