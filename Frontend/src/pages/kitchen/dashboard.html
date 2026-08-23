@@ -15,11 +15,28 @@
 
     <!-- Role Authorization Check -->
     <script>
-        const role = localStorage.getItem('userRole');
-        if (!role || (role !== 'ADMIN' && role !== 'KITCHEN')) {
-            alert('Access denied! Kitchen staff and Admins only.');
-            window.location.href = '/pages/common/login.html';
-        }
+        const userRole = localStorage.getItem('userRole');
+const role = localStorage.getItem('role');
+
+/*
+ * Allow:
+ * STAFF
+ * KITCHEN_STAFF
+ * ADMIN
+ */
+const isKitchenStaff =
+    userRole === 'STAFF' 
+    userRole === 'KITCHEN_STAFF' 
+    role === 'KITCHEN_STAFF';
+
+const isAdmin =
+    userRole === 'ADMIN' ||
+    role === 'ADMIN';
+
+if (!isKitchenStaff && !isAdmin) {
+    alert('Access denied. Kitchen staff and Admins only.');
+    window.location.href = '../common/login.html';
+}
     </script>
 
     <style>
