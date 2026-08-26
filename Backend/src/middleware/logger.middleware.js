@@ -1,0 +1,13 @@
+import { logger } from '../utils/logger.js';
+
+export const requestLogger = (req, res, next) => {
+    const start = Date.now();
+    
+    // Once the request finishes, calculate response time and log it
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        logger.info(`${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`);
+    });
+
+    next();
+};
