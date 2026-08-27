@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Smart Cafeteria Ordering System
  * File: frontend/src/js/order-cancellation.js
@@ -53,3 +54,6 @@ function initializeCancellation() {
         }
     });
 }
+=======
+// This Folder is Empty!
+>>>>>>> c9275e6e95495801102644943b7daafcf9e40368
