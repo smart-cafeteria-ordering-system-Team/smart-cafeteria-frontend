@@ -1,17 +1,40 @@
+// utils/socket.js
+
 import { logger } from './logger.js';
 
 let ioInstance = null;
 
-// Attach Socket.io server instance globally
+// Store the Socket.io server instance
 export const initSocket = (io) => {
+    if (!io) {
+        throw new Error('Socket.io instance is required');
+    }
+
     ioInstance = io;
-    logger.info('Socket utility initialized');
+
+    logger.info('Socket.io initialized');
 };
 
-// Emits an event to a specific room or to all connected clients
-export const emitSocketEvent = (room, eventName, payload) => {
+// Get the Socket.io instance when needed
+export const getSocket = () => {
     if (!ioInstance) {
-        logger.warn('Socket.io instance not initialized, skipping broadcast');
+        throw new Error('Socket.io has not been initialized');
+    }
+
+    return ioInstance;
+};
+
+// Emit an event to a room or all connected clients
+export const emitSocketEvent = (
+    room,
+    eventName,
+    payload
+) => {
+    if (!ioInstance) {
+        logger.warn(
+            'Socket.io is not initialized; event was not emitted'
+        );
+
         return false;
     }
 
@@ -20,6 +43,6 @@ export const emitSocketEvent = (room, eventName, payload) => {
     } else {
         ioInstance.emit(eventName, payload);
     }
-    
+
     return true;
 };

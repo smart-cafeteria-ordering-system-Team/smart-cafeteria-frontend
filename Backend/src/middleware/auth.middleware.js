@@ -1,16 +1,75 @@
+// middleware/auth.middleware.js
+
+import jwt from 'jsonwebtoken';
+
+/**
+ * Authenticate user using JWT access token.
+ *
+ * Expected header:
+ * Authorization: Bearer <token>
+ */
 export const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    try {
+        const authHeader = req.headers.authorization;
 
-    if (!token) {
-        return res.status(401).json({ success: false, message: 'Access token required' });
+        // No Authorization header
+        if (!authHeader) {
+            return res.status(401).json({
+                success: false,
+                message: 'Access token required'
+            });
+        }
+
+        // Check Bearer format
+        const [scheme, token] = authHeader.split(' ');
+
+        if (scheme !== 'Bearer' || !token) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid authorization format'
+            });
+        }
+
+        // Verify JWT
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+        // Attach authenticated user information to request
+        req.user = {
+            id: decoded.id,
+            name: decoded.name,
+            email: decoded.email,
+            role: decoded.role
+        };
+
+        next();
+
+    } catch (error) {
+
+        // Token expired
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                success: false,
+                message: 'Access token expired'
+            });
+        }
+
+        // Invalid token
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(403).json({
+                success: false,
+                message: 'Invalid access token'
+            });
+        }
+
+        // Unexpected error
+        console.error('Authentication middleware error:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Authentication failed'
+        });
     }
-
-    // Mock token verification (Replace with jwt.verify if using jsonwebtoken)
-    if (token === 'mock-jwt-token') {
-        req.user = { id: 'u1', name: 'Kidus Birhanu', role: 'customer' };
-        return next();
-    }
-
-    return res.status(403).json({ success: false, message: 'Invalid or expired token' });
 };

@@ -1,26 +1,39 @@
 import { logger } from '../utils/logger.js';
 
 export const registerOrderHandlers = (io, socket) => {
-    // Join a specific order room to listen for status changes
+
+    // Customer joins their order room to receive real-time updates
     socket.on('order:join', (orderId) => {
-        socket.join(`order_${orderId}`);
-        logger.info(`Socket ${socket.id} joined room order_${orderId}`);
-    });
+        if (!orderId) {
+            return;
+        }
 
-    // Leave an order room
-    socket.on('order:leave', (orderId) => {
-        socket.leave(`order_${orderId}`);
-        logger.info(`Socket ${socket.id} left room order_${orderId}`);
-    });
+        const room = `order:${orderId}`;
 
-    // Kitchen staff broadcasts updated order status to customer
-    socket.on('order:status_update', (data) => {
-        const { orderId, status } = data;
-        io.to(`order_${orderId}`).emit('order:status_changed', {
+        socket.join(room);
+
+        logger.info('Socket joined order room', {
+            socketId: socket.id,
+            userId: socket.user?.id,
             orderId,
-            status,
-            updatedAt: new Date()
+            room
         });
-        logger.info(`Broadcasted status '${status}' for order ${orderId}`);
+    });
+
+    // Customer leaves the order room
+    socket.on('order:leave', (orderId) => {
+        if (!orderId) {
+            return;
+        }
+
+        const room = `order:${orderId}`;
+
+        socket.leave(room);
+
+        logger.info('Socket left order room', {
+            socketId: socket.id,
+            userId: socket.user?.id,
+            orderId
+        });
     });
 };

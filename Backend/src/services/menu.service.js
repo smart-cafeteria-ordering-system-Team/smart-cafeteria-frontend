@@ -1,42 +1,63 @@
-// Sample backend data store
-const menuItems = [
-    { id: 'item_1', name: 'Special Doro Wat', category: 'Lunch', price: 250, isAvailable: true },
-    { id: 'item_2', name: 'Shiro Tagino', category: 'Lunch', price: 120, isAvailable: true }
-];
+import Menu from '../models/Menu.js';
 
 export const getAllMenuItems = async (filters = {}) => {
-    let result = [...menuItems];
+    const query = {};
 
     if (filters.category) {
-        result = result.filter(item => item.category.toLowerCase() === filters.category.toLowerCase());
-    }
-    if (filters.availableOnly) {
-        result = result.filter(item => item.isAvailable === true);
+        query.category = {
+            $regex: `^${filters.category.trim()}$`,
+            $options: 'i'
+        };
     }
 
-    return result;
+    if (filters.availableOnly === true) {
+        query.isAvailable = true;
+    }
+
+    return await Menu.find(query)
+        .sort({ createdAt: -1 });
 };
+
 
 export const createMenuItem = async (itemData) => {
-    const newItem = {
-        id: `item_${Date.now()}`,
-        name: itemData.name,
-        category: itemData.category,
-        price: itemData.price,
-        isAvailable: itemData.isAvailable ?? true,
-        createdAt: new Date()
-    };
+    const existingItem = await Menu.findOne({
+        name: itemData.name.trim()
+    });
 
-    menuItems.push(newItem);
-    return newItem;
+    if (existingItem) {
+        const error = new Error(
+            'A menu item with this name already exists'
+        );
+        error.statusCode = 409;
+        throw error;
+    }
+
+    const menuItem = await Menu.create({
+        name: itemData.name.trim(),
+        category: itemData.category.trim(),
+        price: itemData.price,
+        isAvailable: itemData.isAvailable ?? true
+    });
+
+    return menuItem;
 };
 
-export const updateItemAvailability = async (itemId, isAvailable) => {
-    const item = menuItems.find(i => i.id === itemId);
+
+export const updateItemAvailability = async (
+    itemId,
+    isAvailable
+) => {
+    const item = await Menu.findById(itemId);
+
     if (!item) {
-        throw { status: 404, message: 'Menu item not found' };
+        const error = new Error('Menu item not found');
+        error.statusCode = 404;
+        throw error;
     }
 
     item.isAvailable = isAvailable;
+
+    await item.save();
+
     return item;
 };

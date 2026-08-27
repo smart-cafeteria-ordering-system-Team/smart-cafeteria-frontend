@@ -1,15 +1,36 @@
+// validators/menu.validator.js
+
 export const validateMenuItemInput = (data) => {
     const errors = {};
 
-    if (!data.name || data.name.trim() === '') {
+    // Name
+    const name = data.name?.trim();
+
+    if (!name) {
         errors.name = 'Menu item name is required';
+    } else if (name.length > 100) {
+        errors.name = 'Menu item name cannot exceed 100 characters';
     }
 
-    if (!data.category || data.category.trim() === '') {
+    // Category
+    const category = data.category?.trim();
+
+    if (!category) {
         errors.category = 'Category is required';
+    } else if (category.length > 50) {
+        errors.category = 'Category cannot exceed 50 characters';
     }
 
-    if (data.price === undefined || data.price === null || isNaN(data.price) || Number(data.price) <= 0) {
+    // Price
+    const price = Number(data.price);
+
+    if (
+        data.price === undefined ||
+        data.price === null ||
+        data.price === '' ||
+        !Number.isFinite(price) ||
+        price <= 0
+    ) {
         errors.price = 'Price must be a number greater than 0';
     }
 

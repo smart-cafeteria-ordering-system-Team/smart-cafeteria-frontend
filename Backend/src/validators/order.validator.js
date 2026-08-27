@@ -1,11 +1,31 @@
+// validators/order.validator.js
+
 export const validateOrderInput = (data) => {
     const errors = {};
 
-    if (!data.items || !Array.isArray(data.items) || data.items.length === 0) {
+    // Items
+    if (
+        !Array.isArray(data.items) ||
+        data.items.length === 0
+    ) {
         errors.items = 'Cart cannot be empty';
-    }
-    if (!data.totalPrice || data.totalPrice <= 0) {
-        errors.totalPrice = 'Invalid total order amount';
+    } else {
+        data.items.forEach((item, index) => {
+            if (!item.itemId || String(item.itemId).trim() === '') {
+                errors[`items.${index}.itemId`] =
+                    'Menu item ID is required';
+            }
+
+            const quantity = Number(item.quantity);
+
+            if (
+                !Number.isInteger(quantity) ||
+                quantity < 1
+            ) {
+                errors[`items.${index}.quantity`] =
+                    'Quantity must be a positive integer';
+            }
+        });
     }
 
     return {

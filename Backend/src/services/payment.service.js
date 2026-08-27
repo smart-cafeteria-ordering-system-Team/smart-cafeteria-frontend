@@ -1,34 +1,64 @@
-import { updateOrderStatus } from './order.service.js';
-import { ORDER_STATUS } from '../utils/constants.js';
+import Payment from '../models/Payment.js';
+import Order from '../models/Order.js';
 
-const payments = [];
+export const processPayment = async (
+    orderId,
+    userId,
+    paymentMethod
+) => {
+    const order = await Order.findOne({
+        _id: orderId,
+        userId
+    });
 
-export const processPayment = async (orderId, amount, paymentMethod) => {
-    if (!orderId || amount <= 0) {
-        throw { status: 400, message: 'Invalid payment parameters' };
+    if (!order) {
+        const error = new Error('Order not found');
+        error.statusCode = 404;
+        throw error;
     }
 
-    const transaction = {
-        transactionId: `TXN-${Date.now()}`,
-        orderId,
-        amount,
-        paymentMethod, // e.g., 'telebirr', 'card', 'cash'
+    if (order.status === 'CANCELLED') {
+        const error = new Error(
+            'Cannot pay for a cancelled order'
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const existingPayment = await Payment.findOne({
+        orderId: order._id,
+        status: 'SUCCESS'
+    });
+
+    if (existingPayment) {
+        const error = new Error(
+            'Order has already been paid'
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const allowedMethods = [
+        'telebirr',
+        'cbe'
+    ];
+
+    if (!allowedMethods.includes(paymentMethod)) {
+        const error = new Error(
+            'Invalid payment method'
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const transaction = await Payment.create({
+        orderId: order._id,
+        userId: order.userId,
+        amount: order.totalAmount,
+        paymentMethod,
         status: 'SUCCESS',
-        timestamp: new Date()
-    };
-
-    payments.push(transaction);
-
-    // Update corresponding order status
-    await updateOrderStatus(orderId, ORDER_STATUS.PENDING);
+        isSimulation: true
+    });
 
     return transaction;
-};
-
-export const getPaymentDetails = async (transactionId) => {
-    const payment = payments.find(p => p.transactionId === transactionId);
-    if (!payment) {
-        throw { status: 404, message: 'Payment record not found' };
-    }
-    return payment;
 };

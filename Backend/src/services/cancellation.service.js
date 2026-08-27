@@ -1,26 +1,59 @@
-import { updateOrderStatus } from './order.service.js';
+import Order from '../models/Order.js';
 import { ORDER_STATUS } from '../utils/constants.js';
 
-const cancellations = [];
+export const requestCancellation = async (
+    orderId,
+    userId,
+    reason
+) => {
+    const order = await Order.findById(orderId);
 
-export const requestCancellation = async (orderId, reason, currentOrderStatus) => {
-    // Prevent cancelling orders already prepared or completed
-    if (currentOrderStatus === ORDER_STATUS.READY || currentOrderStatus === ORDER_STATUS.COMPLETED) {
-        throw { status: 400, message: 'Cannot cancel order once it is ready or completed' };
+    if (!order) {
+        const error = new Error('Order not found');
+        error.statusCode = 404;
+        throw error;
     }
 
-    const cancellationRecord = {
-        id: `cncl_${Date.now()}`,
-        orderId,
-        reason,
-        status: 'APPROVED',
+    // Make sure this customer owns the order
+    if (order.customerId.toString() !== userId.toString()) {
+        const error = new Error(
+            'You do not have permission to cancel this order'
+        );
+        error.statusCode = 403;
+        throw error;
+    }
+
+    // Prevent cancellation after the allowed stage
+    if (
+        order.status === ORDER_STATUS.READY ||
+        order.status === ORDER_STATUS.COMPLETED
+    ) {
+        const error = new Error(
+            'Cannot cancel order once it is ready or completed'
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (order.status === ORDER_STATUS.CANCELLED) {
+        const error = new Error('Order is already cancelled');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    order.status = ORDER_STATUS.CANCELLED;
+
+    // Store cancellation information on the order
+    order.cancellation = {
+        reason: reason?.trim(),
         requestedAt: new Date()
     };
 
-    cancellations.push(cancellationRecord);
-    
-    // Update main order status
-    await updateOrderStatus(orderId, ORDER_STATUS.CANCELLED);
+    await order.save();
 
-    return cancellationRecord;
+    return {
+        orderId: order._id,
+        status: order.status,
+        cancellation: order.cancellation
+    };
 };

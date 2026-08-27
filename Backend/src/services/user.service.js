@@ -1,56 +1,72 @@
-// Mock user database collection
-const users = [
-    {
-        id: 'usr_1',
-        fullName: 'Kidus Birhanu',
-        email: 'kidus@example.com',
-        role: 'customer',
-        createdAt: new Date('2026-01-15')
-    }
-];
+import User from '../models/User.js';
 
-// Fetch a single user profile by ID
 export const getUserById = async (userId) => {
-    const user = users.find(u => u.id === userId);
+    const user = await User.findById(userId);
+
     if (!user) {
-        throw { status: 404, message: 'User profile not found' };
-    }
-    
-    // Omit sensitive data before returning
-    const { password, ...userProfile } = user;
-    return userProfile;
-};
-
-// Update existing user profile details
-export const updateUserProfile = async (userId, updateData) => {
-    const userIndex = users.findIndex(u => u.id === userId);
-    if (userIndex === -1) {
-        throw { status: 404, message: 'User profile not found' };
+        const error = new Error('User profile not found');
+        error.statusCode = 404;
+        throw error;
     }
 
-    const currentUser = users[userIndex];
-    
-    // Apply allowed updates
-    const updatedUser = {
-        ...currentUser,
-        fullName: updateData.fullName || currentUser.fullName,
-        email: updateData.email || currentUser.email,
-        updatedAt: new Date()
-    };
-
-    users[userIndex] = updatedUser;
-    
-    const { password, ...userWithoutPassword } = updatedUser;
-    return userWithoutPassword;
+    return user;
 };
 
-// Fetch all registered users (Admin only)
+
+export const updateUserProfile = async (
+    userId,
+    updateData
+) => {
+    const user = await User.findById(userId);
+
+    if (!user) {
+        const error = new Error('User profile not found');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (updateData.fullName !== undefined) {
+        user.fullName = updateData.fullName.trim();
+    }
+
+    if (updateData.email !== undefined) {
+        const email = updateData.email
+            .trim()
+            .toLowerCase();
+
+        const existingUser = await User.findOne({
+            email,
+            _id: { $ne: userId }
+        });
+
+        if (existingUser) {
+            const error = new Error(
+                'Email is already in use'
+            );
+            error.statusCode = 409;
+            throw error;
+        }
+
+        user.email = email;
+    }
+
+    if (updateData.phone !== undefined) {
+        user.phone = updateData.phone.trim();
+    }
+
+    await user.save();
+
+    return user;
+};
+
+
 export const getAllUsers = async (roleFilter) => {
-    let result = [...users];
+    const filter = {};
 
     if (roleFilter) {
-        result = result.filter(u => u.role === roleFilter);
+        filter.role = roleFilter;
     }
 
-    return result.map(({ password, ...userProfile }) => userProfile);
+    return await User.find(filter)
+        .sort({ createdAt: -1 });
 };

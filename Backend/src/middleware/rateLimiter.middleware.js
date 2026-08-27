@@ -1,28 +1,43 @@
-const requestCounts = new Map(); // Stores IP request timestamps
+// middleware/rateLimiter.middleware.js
 
-export const rateLimiter = (options = { windowMs: 15 * 60 * 1000, maxRequests: 100 }) => {
+const requestCounts = new Map();
+
+/**
+ * Simple in-memory rate limiter.
+ *
+ * @param {Object} options
+ * @param {number} options.windowMs
+ * @param {number} options.maxRequests
+ */
+export const rateLimiter = ({
+    windowMs = 15 * 60 * 1000,
+    maxRequests = 100
+} = {}) => {
     return (req, res, next) => {
-        const clientIp = req.ip || req.headers['x-forwarded-for'] || 'unknown_ip';
+        const clientIp = req.ip || 'unknown';
+
         const currentTime = Date.now();
 
-        if (!requestCounts.has(clientIp)) {
-            requestCounts.set(clientIp, []);
-        }
+        let timestamps = requestCounts.get(clientIp) || [];
 
-        const timestamps = requestCounts.get(clientIp);
-        
-        // Filter out timestamps outside the current window
-        const validTimestamps = timestamps.filter(time => currentTime - time < options.windowMs);
+        // Remove expired timestamps
+        timestamps = timestamps.filter(
+            timestamp => currentTime - timestamp < windowMs
+        );
 
-        if (validTimestamps.length >= options.maxRequests) {
+        // Request limit reached
+        if (timestamps.length >= maxRequests) {
             return res.status(429).json({
                 success: false,
-                message: 'Too many requests from this IP, please try again later.'
+                message: 'Too many requests. Please try again later.'
             });
         }
 
-        validTimestamps.push(currentTime);
-        requestCounts.set(clientIp, validTimestamps);
+        // Record current request
+        timestamps.push(currentTime);
+
+        requestCounts.set(clientIp, timestamps);
+
         next();
     };
 };

@@ -1,44 +1,66 @@
+import Order from '../models/Order.js';
+import Cart from '../models/Cart.js';
+import Menu from '../models/Menu.js';
 import { ORDER_STATUS } from '../utils/constants.js';
 import { generateOrderId } from '../utils/formatters.js';
-import { validateOrderInput } from '../validators/order.validator.js';
 
-const orders = [];
+export const createOrder = async (userId) => {
+    const cart = await Cart.findOne({ userId });
 
-export const createOrder = async (userId, orderData) => {
-    const validation = validateOrderInput(orderData);
-    if (!validation.isValid) {
-        throw { status: 400, message: 'Invalid order payload', errors: validation.errors };
+    if (!cart || cart.items.length === 0) {
+        const error = new Error('Cart is empty');
+        error.statusCode = 400;
+        throw error;
     }
 
-    const newOrder = {
-        orderId: generateOrderId(),
+    const orderItems = [];
+    let totalAmount = 0;
+
+    for (const cartItem of cart.items) {
+        const menuItem = await Menu.findById(
+            cartItem.menuItemId
+        );
+
+        if (!menuItem) {
+            const error = new Error(
+                'One or more menu items no longer exist'
+            );
+            error.statusCode = 400;
+            throw error;
+        }
+
+        if (!menuItem.isAvailable) {
+            const error = new Error(
+                `${menuItem.name} is currently unavailable`
+            );
+            error.statusCode = 400;
+            throw error;
+        }
+
+        const subtotal =
+            menuItem.price * cartItem.quantity;
+
+        orderItems.push({
+            menuItemId: menuItem._id,
+            name: menuItem.name,
+            price: menuItem.price,
+            quantity: cartItem.quantity,
+            subtotal
+        });
+
+        totalAmount += subtotal;
+    }
+
+    const order = await Order.create({
+        orderNumber: generateOrderId(),
         userId,
-        items: orderData.items,
-        totalPrice: orderData.totalPrice,
-        status: ORDER_STATUS.PENDING,
-        createdAt: new Date()
-    };
+        items: orderItems,
+        totalAmount,
+        status: ORDER_STATUS.PENDING
+    });
 
-    orders.push(newOrder);
-    return newOrder;
-};
+    cart.items = [];
+    await cart.save();
 
-export const getOrdersByUser = async (userId) => {
-    return orders.filter(order => order.userId === userId);
-};
-
-export const updateOrderStatus = async (orderId, newStatus) => {
-    const validStatuses = Object.values(ORDER_STATUS);
-    if (!validStatuses.includes(newStatus)) {
-        throw { status: 400, message: 'Invalid status update' };
-    }
-
-    const order = orders.find(o => o.orderId === orderId);
-    if (!order) {
-        throw { status: 404, message: 'Order not found' };
-    }
-
-    order.status = newStatus;
-    order.updatedAt = new Date();
     return order;
 };

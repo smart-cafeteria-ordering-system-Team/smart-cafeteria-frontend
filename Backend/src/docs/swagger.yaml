@@ -1,45 +1,261 @@
 openapi: 3.0.0
+
 info:
   title: Smart Cafeteria Ordering System API
-  description: Backend RESTful API documentation for authentication, food menu management, and order status updates.
+  description: |
+    RESTful API for the Smart Cafeteria Ordering System.
+    The API supports authentication, menu management, cart management,
+    food ordering, payment simulation, feedback, user management,
+    kitchen order processing, notifications, and reports.
   version: 1.0.0
+
 servers:
   - url: http://localhost:5000/api
-    description: Development Server
+    description: Local Development Server
+
+tags:
+  - name: Authentication
+    description: User registration and authentication
+  - name: Menu
+    description: Cafeteria menu operations
+  - name: Cart
+    description: Shopping cart operations
+  - name: Orders
+    description: Customer order operations
+  - name: Kitchen
+    description: Kitchen order processing
+  - name: Payment
+    description: Simulated payment operations
+  - name: Feedback
+    description: Customer feedback operations
+  - name: Users
+    description: User profile and administration
+  - name: Notifications
+    description: User notifications
+  - name: Reports
+    description: Administrative reports
 
 paths:
+
+  # =========================
+  # AUTHENTICATION
+  # =========================
+
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new customer
+      description: Creates a new customer account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Customer registered successfully
+        '400':
+          description: Invalid registration data
+        '409':
+          description: Email already registered
+
   /auth/login:
     post:
-      summary: User Login
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticates a user and returns a JWT access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid input
+        '401':
+          description: Invalid email or password
+
+  /auth/profile:
+    get:
+      tags:
+        - Authentication
+      summary: Get authenticated user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+        '401':
+          description: Authentication required
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+        '401':
+          description: Authentication required
+
+  # =========================
+  # MENU
+  # =========================
+
+  /menu:
+    get:
+      tags:
+        - Menu
+      summary: Get cafeteria menu
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          example: Lunch
+        - name: availableOnly
+          in: query
+          required: false
+          schema:
+            type: boolean
+          example: true
+      responses:
+        '200':
+          description: Menu items retrieved successfully
+
+    post:
+      tags:
+        - Menu
+      summary: Create a menu item
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuItemRequest'
+      responses:
+        '201':
+          description: Menu item created
+        '400':
+          description: Invalid menu item
+        '401':
+          description: Authentication required
+        '403':
+          description: Admin access required
+
+  /menu/{itemId}:
+    get:
+      tags:
+        - Menu
+      summary: Get a menu item
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Menu item retrieved
+        '404':
+          description: Menu item not found
+
+    put:
+      tags:
+        - Menu
+      summary: Update a menu item
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuItemRequest'
+      responses:
+        '200':
+          description: Menu item updated
+        '401':
+          description: Authentication required
+        '403':
+          description: Admin access required
+        '404':
+          description: Menu item not found
+
+  /menu/{itemId}/availability:
+    patch:
+      tags:
+        - Menu
+      summary: Update menu item availability
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - isAvailable
               properties:
-                email:
-                  type: string
-                  example: user@example.com
-                password:
-                  type: string
-                  example: password123
+                isAvailable:
+                  type: boolean
+                  example: true
       responses:
         '200':
-          description: Successful authentication
-        '400':
-          description: Invalid input
+          description: Availability updated
+        '404':
+          description: Menu item not found
 
-  /menu:
+  # =========================
+  # CART
+  # =========================
+
+  /cart:
     get:
-      summary: Fetch Menu Items
+      tags:
+        - Cart
+      summary: Get current user's cart
+      security:
+        - BearerAuth: []
       responses:
         '200':
-          description: Returns array of food items
+          description: Cart retrieved successfully
+        '401':
+          description: Authentication required
 
-  /orders:
     post:
-      summary: Place Order
+      tags:
+        - Cart
+      summary: Add an item to cart
       security:
         - BearerAuth: []
       requestBody:
@@ -48,18 +264,625 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - itemId
+                - quantity
               properties:
-                items:
-                  type: array
-                totalPrice:
-                  type: number
+                itemId:
+                  type: string
+                  example: item_101
+                quantity:
+                  type: integer
+                  minimum: 1
+                  example: 2
+      responses:
+        '200':
+          description: Item added to cart
+        '400':
+          description: Invalid quantity or unavailable item
+        '404':
+          description: Menu item not found
+
+    delete:
+      tags:
+        - Cart
+      summary: Clear current user's cart
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Cart cleared successfully
+        '401':
+          description: Authentication required
+
+  /cart/{itemId}:
+    put:
+      tags:
+        - Cart
+      summary: Update cart item quantity
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quantity
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                  example: 3
+      responses:
+        '200':
+          description: Cart item updated
+        '404':
+          description: Cart item not found
+
+    delete:
+      tags:
+        - Cart
+      summary: Remove an item from cart
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Item removed from cart
+        '404':
+          description: Cart item not found
+
+  # =========================
+  # ORDERS
+  # =========================
+
+  /orders:
+    post:
+      tags:
+        - Orders
+      summary: Create a new order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
       responses:
         '201':
           description: Order created successfully
+        '400':
+          description: Invalid order
+        '401':
+          description: Authentication required
+
+    get:
+      tags:
+        - Orders
+      summary: Get current user's orders
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Orders retrieved successfully
+        '401':
+          description: Authentication required
+
+  /orders/{orderId}:
+    get:
+      tags:
+        - Orders
+      summary: Get order details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order retrieved successfully
+        '404':
+          description: Order not found
+
+  /orders/{orderId}/cancel:
+    post:
+      tags:
+        - Orders
+      summary: Cancel an order
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  maxLength: 500
+                  example: Ordered the wrong food
+      responses:
+        '200':
+          description: Order cancelled successfully
+        '400':
+          description: Order cannot be cancelled
+        '403':
+          description: User does not own this order
+        '404':
+          description: Order not found
+
+  /orders/{orderId}/status:
+    patch:
+      tags:
+        - Orders
+      summary: Update order status
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - pending
+                    - preparing
+                    - ready
+                    - completed
+                    - cancelled
+                  example: preparing
+      responses:
+        '200':
+          description: Order status updated
+        '400':
+          description: Invalid order status
+        '404':
+          description: Order not found
+
+  # =========================
+  # KITCHEN
+  # =========================
+
+  /kitchen/orders:
+    get:
+      tags:
+        - Kitchen
+      summary: Get kitchen order queue
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Kitchen queue retrieved
+        '401':
+          description: Authentication required
+        '403':
+          description: Kitchen access required
+
+  # =========================
+  # PAYMENT
+  # =========================
+
+  /payment:
+    post:
+      tags:
+        - Payment
+      summary: Process simulated payment
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: Payment processed successfully
+        '400':
+          description: Invalid payment information
+        '404':
+          description: Order not found
+
+  /payment/{transactionId}:
+    get:
+      tags:
+        - Payment
+      summary: Get payment details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment details retrieved
+        '404':
+          description: Payment record not found
+
+  # =========================
+  # FEEDBACK
+  # =========================
+
+  /feedback:
+    post:
+      tags:
+        - Feedback
+      summary: Submit order feedback
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackRequest'
+      responses:
+        '201':
+          description: Feedback submitted
+        '400':
+          description: Invalid feedback
+
+  /feedback/order/{orderId}:
+    get:
+      tags:
+        - Feedback
+      summary: Get feedback for an order
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feedback retrieved
+        '404':
+          description: Feedback not found
+
+  # =========================
+  # USERS
+  # =========================
+
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user profile
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User profile retrieved
+        '403':
+          description: Access denied
+        '404':
+          description: User not found
+
+    put:
+      tags:
+        - Users
+      summary: Update user profile
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+        '400':
+          description: Invalid profile data
+        '404':
+          description: User not found
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: role
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - customer
+              - kitchen
+              - admin
+      responses:
+        '200':
+          description: Users retrieved successfully
+        '403':
+          description: Admin access required
+
+  # =========================
+  # NOTIFICATIONS
+  # =========================
+
+  /notifications:
+    get:
+      tags:
+        - Notifications
+      summary: Get current user's notifications
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Notifications retrieved
+        '401':
+          description: Authentication required
+
+  # =========================
+  # REPORTS
+  # =========================
+
+  /reports/sales:
+    get:
+      tags:
+        - Reports
+      summary: Generate sales report
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Sales report generated
+        '403':
+          description: Admin access required
 
 components:
+
+  # =========================
+  # SECURITY
+  # =========================
+
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  # =========================
+  # SCHEMAS
+  # =========================
+
+  schemas:
+
+    RegisterRequest:
+      type: object
+      required:
+        - fullName
+        - email
+        - password
+      properties:
+        fullName:
+          type: string
+          example: Sintayehu Begashaw
+        email:
+          type: string
+          format: email
+          example: sintayehu@example.com
+        phone:
+          type: string
+          example: "0912345678"
+        password:
+          type: string
+          format: password
+          example: password123
+        confirmPassword:
+          type: string
+          format: password
+          example: password123
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+            user:
+              $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: usr_123
+        fullName:
+          type: string
+          example: Sintayehu Begashaw
+        email:
+          type: string
+          format: email
+          example: sintayehu@example.com
+        phone:
+          type: string
+          example: "0912345678"
+        role:
+          type: string
+          enum:
+            - customer
+            - kitchen
+            - admin
+          example: customer
+        createdAt:
+          type: string
+          format: date-time
+
+    MenuItemRequest:
+      type: object
+      required:
+        - name
+        - category
+        - price
+      properties:
+        name:
+          type: string
+          example: Special Doro Wat
+        category:
+          type: string
+          example: Lunch
+        price:
+          type: number
+          minimum: 0
+          example: 250
+        isAvailable:
+          type: boolean
+          example: true
+
+    CreateOrderRequest:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required:
+              - itemId
+              - quantity
+            properties:
+              itemId:
+                type: string
+                example: item_101
+              quantity:
+                type: integer
+                minimum: 1
+                example: 2
+
+    PaymentRequest:
+      type: object
+      required:
+        - orderId
+        - amount
+        - paymentMethod
+      properties:
+        orderId:
+          type: string
+          example: ORD-123456
+        amount:
+          type: number
+          minimum: 0
+          example: 500
+        paymentMethod:
+          type: string
+          enum:
+            - telebirr
+            - cbe_birr
+            - card
+            - cash
+          example: telebirr
+
+    FeedbackRequest:
+      type: object
+      required:
+        - orderId
+        - rating
+      properties:
+        orderId:
+          type: string
+          example: ORD-123456
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          maxLength: 500
+          example: The food was excellent.
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+          example: Sintayehu Begashaw
+        email:
+          type: string
+          format: email
+          example: sintayehu@example.com
+        phone:
+          type: string
+          example: "0912345678"

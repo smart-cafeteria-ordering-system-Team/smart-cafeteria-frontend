@@ -1,41 +1,92 @@
-import { validateRegisterInput } from '../validators/auth.validator.js';
+// services/auth.service.js
 
-// In-memory user store for backend testing
-const users = [];
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
 export const registerUser = async (userData) => {
-    const validation = validateRegisterInput(userData);
-    if (!validation.isValid) {
-        throw { status: 400, message: 'Validation failed', errors: validation.errors };
-    }
+    const email = userData.email.trim().toLowerCase();
 
-    const existingUser = users.find(u => u.email === userData.email);
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+
     if (existingUser) {
-        throw { status: 409, message: 'Email already registered' };
+        const error = new Error('Email already registered');
+        error.statusCode = 409;
+        throw error;
     }
 
-    const newUser = {
-        id: `usr_${Date.now()}`,
-        fullName: userData.fullName,
-        email: userData.email,
-        password: userData.password, // In production, hash this using bcrypt
-        role: userData.role || 'customer',
-        createdAt: new Date()
-    };
+    // Hash password
+    const hashedPassword = await bcrypt.hash(userData.password, 12);
 
-    users.push(newUser);
-    const { password, ...userWithoutPassword } = newUser;
-    return userWithoutPassword;
+    // Public registration always creates a customer
+    const newUser = await User.create({
+        fullName: userData.fullName.trim(),
+        email,
+        phone: userData.phone?.trim(),
+        password: hashedPassword,
+        role: 'customer'
+    });
+
+    return {
+        id: newUser._id,
+        fullName: newUser.fullName,
+        email: newUser.email,
+        phone: newUser.phone,
+        role: newUser.role,
+        createdAt: newUser.createdAt
+    };
 };
 
+
 export const loginUser = async (email, password) => {
-    const user = users.find(u => u.email === email && u.password === password);
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Find user
+    const user = await User.findOne({
+        email: normalizedEmail
+    });
+
     if (!user) {
-        throw { status: 401, message: 'Invalid email or password' };
+        const error = new Error('Invalid email or password');
+        error.statusCode = 401;
+        throw error;
     }
 
-    const token = 'mock-jwt-token';
-    const { password: _, ...userWithoutPassword } = user;
+    // Compare password with hashed password
+    const passwordMatches = await bcrypt.compare(
+        password,
+        user.password
+    );
 
-    return { user: userWithoutPassword, token };
+    if (!passwordMatches) {
+        const error = new Error('Invalid email or password');
+        error.statusCode = 401;
+        throw error;
+    }
+
+    // Create JWT
+    const token = jwt.sign(
+        {
+            id: user._id.toString(),
+            name: user.fullName,
+            email: user.email,
+            role: user.role
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+        }
+    );
+
+    return {
+        user: {
+            id: user._id,
+            fullName: user.fullName,
+            email: user.email,
+            phone: user.phone,
+            role: user.role
+        },
+        token
+    };
 };

@@ -1,3 +1,5 @@
+// socket/index.js
+
 import { Server } from 'socket.io';
 import { logger } from '../utils/logger.js';
 import { initSocket } from '../utils/socket.js';
@@ -7,23 +9,29 @@ import { registerNotificationHandlers } from './notification.socket.js';
 export const setupSocketIO = (server) => {
     const io = new Server(server, {
         cors: {
-            origin: '*',
+            origin: process.env.FRONTEND_URL,
             methods: ['GET', 'POST']
         }
     });
 
-    // Save global socket instance in utils
+    // Store Socket.io instance
     initSocket(io);
 
     io.on('connection', (socket) => {
-        logger.info(`New client connected: ${socket.id}`);
+        logger.info('Socket client connected', {
+            socketId: socket.id,
+            userId: socket.user?.id,
+            role: socket.user?.role
+        });
 
-        // Register feature handlers
         registerOrderHandlers(io, socket);
         registerNotificationHandlers(io, socket);
 
-        socket.on('disconnect', () => {
-            logger.info(`Client disconnected: ${socket.id}`);
+        socket.on('disconnect', (reason) => {
+            logger.info('Socket client disconnected', {
+                socketId: socket.id,
+                reason
+            });
         });
     });
 

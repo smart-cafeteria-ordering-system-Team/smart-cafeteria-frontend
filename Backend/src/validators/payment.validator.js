@@ -1,17 +1,29 @@
+// validators/payment.validator.js
+
 export const validatePaymentInput = (data) => {
     const errors = {};
 
-    if (!data.orderId || data.orderId.trim() === '') {
+    // Order ID
+    const orderId = data.orderId?.trim();
+
+    if (!orderId) {
         errors.orderId = 'Order ID is required for payment';
     }
 
-    if (!data.amount || isNaN(data.amount) || Number(data.amount) <= 0) {
-        errors.amount = 'Valid payment amount is required';
-    }
+    // Payment method
+    const paymentMethod = data.paymentMethod?.trim().toLowerCase();
 
-    const validMethods = ['telebirr', 'card', 'cash', 'cbe_birr'];
-    if (!data.paymentMethod || !validMethods.includes(data.paymentMethod.toLowerCase())) {
-        errors.paymentMethod = 'Invalid or unsupported payment method';
+    const validMethods = [
+        'telebirr',
+        'cbe_birr',
+        'cash'
+    ];
+
+    if (!paymentMethod) {
+        errors.paymentMethod = 'Payment method is required';
+    } else if (!validMethods.includes(paymentMethod)) {
+        errors.paymentMethod =
+            'Invalid or unsupported payment method';
     }
 
     return {

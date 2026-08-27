@@ -1,3 +1,5 @@
+// utils/logger.js
+
 const LOG_LEVELS = {
     INFO: 'INFO',
     WARN: 'WARN',
@@ -6,17 +8,45 @@ const LOG_LEVELS = {
 
 const formatMessage = (level, message) => {
     const timestamp = new Date().toISOString();
+
     return `[${timestamp}] [${level}]: ${message}`;
 };
 
+const formatMeta = (meta) => {
+    if (!meta) {
+        return '';
+    }
+
+    if (meta instanceof Error) {
+        return meta.stack || meta.message;
+    }
+
+    try {
+        return JSON.stringify(meta);
+    } catch {
+        return '[Unable to serialize log metadata]';
+    }
+};
+
 export const logger = {
-    info: (message, meta = '') => {
-        console.log(formatMessage(LOG_LEVELS.INFO, message), meta ? JSON.stringify(meta) : '');
+    info: (message, meta = null) => {
+        console.log(
+            formatMessage(LOG_LEVELS.INFO, message),
+            formatMeta(meta)
+        );
     },
-    warn: (message, meta = '') => {
-        console.warn(formatMessage(LOG_LEVELS.WARN, message), meta ? JSON.stringify(meta) : '');
+
+    warn: (message, meta = null) => {
+        console.warn(
+            formatMessage(LOG_LEVELS.WARN, message),
+            formatMeta(meta)
+        );
     },
+
     error: (message, errorDetails = null) => {
-        console.error(formatMessage(LOG_LEVELS.ERROR, message), errorDetails || '');
+        console.error(
+            formatMessage(LOG_LEVELS.ERROR, message),
+            formatMeta(errorDetails)
+        );
     }
 };

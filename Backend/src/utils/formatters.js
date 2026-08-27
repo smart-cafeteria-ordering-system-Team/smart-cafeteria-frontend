@@ -1,9 +1,19 @@
-// Formats price values cleanly
+// utils/formatters.js
+
 export const formatCurrency = (amount) => {
-    return `${Number(amount).toFixed(2)} ETB`;
+    const numericAmount = Number(amount);
+
+    if (!Number.isFinite(numericAmount)) {
+        return '0.00 ETB';
+    }
+
+    return `${numericAmount.toFixed(2)} ETB`;
 };
 
-// Generates readable order tracking IDs
 export const generateOrderId = () => {
-    return `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
+    const randomNumber = Math.floor(
+        100000 + Math.random() * 900000
+    );
+
+    return `ORD-${randomNumber}`;
 };

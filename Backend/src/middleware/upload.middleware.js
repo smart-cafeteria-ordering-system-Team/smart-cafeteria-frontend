@@ -1,6 +1,17 @@
-export const uploadMiddleware = (allowedTypes = ['image/jpeg', 'image/png', 'image/webp']) => {
+// middleware/upload.middleware.js
+
+const DEFAULT_ALLOWED_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/webp'
+];
+
+export const uploadMiddleware = (
+    allowedTypes = DEFAULT_ALLOWED_TYPES
+) => {
     return (req, res, next) => {
-        // In Express with Multer, req.file or req.files holds uploaded file details
+
+        // Check whether Multer received a file
         if (!req.file) {
             return res.status(400).json({
                 success: false,
@@ -8,10 +19,12 @@ export const uploadMiddleware = (allowedTypes = ['image/jpeg', 'image/png', 'ima
             });
         }
 
+        // Validate MIME type
         if (!allowedTypes.includes(req.file.mimetype)) {
             return res.status(400).json({
                 success: false,
-                message: `Invalid file type. Allowed formats: ${allowedTypes.join(', ')}`
+                message: 'Invalid file type',
+                allowedTypes
             });
         }
 
