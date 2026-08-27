@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Smart Cafeteria</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Admin CSS stylesheet -->
+    <link rel="stylesheet" href="/frontend/src/css/admin.css">
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+
+    <!-- Auth Guard Check -->
+    <script>
+        const role = localStorage.getItem('userRole');
+        if (!role || role !== 'ADMIN') {
+            alert('Access denied! Admins only.');
+           window.location.href = '/Frontend/src/pages/common/login.html';
+        }
+    </script>
+</head>
+<body class="admin-body">
+
+    <!-- TOP NAVBAR -->
+    <header class="admin-navbar">
+        <div class="nav-left">
+            <button id="sidebarToggle" class="btn-icon" aria-label="Toggle Sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="brand-logo">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Smart Cafeteria <small>Admin</small></span>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <div class="nav-item dropdown">
+                <button class="btn-icon" id="notificationBtn" title="Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge-dot" id="notifBadge"></span>
+                </button>
+            </div>
+            
+            <div class="user-profile-menu">
+                <div class="avatar" id="adminAvatar">A</div>
+                <div class="user-info">
+                    <strong id="adminNameDisplay">Admin User</strong>
+                    <small>Administrator</small>
+                </div>
+                <button id="logoutBtn" class="btn-logout-icon" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- WRAPPER: SIDEBAR + MAIN CONTENT -->
+    <div class="admin-container">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <nav class="sidebar-nav">
+                <div class="sidebar-group">
+                    <span class="group-title">MAIN</span>
+                    <a href="dashboard.html" class="sidebar-link">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-group">
+                    <span class="group-title">MANAGEMENT</span>
+                    <a href="users.html" class="sidebar-link active">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="menu.html" class="sidebar-link">
+                        <i class="fa-solid fa-bowl-food"></i>
+                        <span>Menu</span>
+                    </a>
+                    <a href="categories.html" class="sidebar-link">
+                        <i class="fa-solid fa-list"></i>
+                        <span>Categories</span>
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="payments.html" class="sidebar-link">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                    <a href="cancellations.html" class="sidebar-link">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                        <span>cancellations</span>
+                        <span class="sidebar-badge" id="sidebarRefundBadge">0</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-group">
+                    <span class="group-title">ANALYTICS & SYSTEM</span>
+                    <a href="feedback.html" class="sidebar-link">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Feedback</span>
+                    </a>
+                    <a href="reports.html" class="sidebar-link">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Reports</span>
+                    </a>
+                    <a href="settings.html" class="sidebar-link">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="admin-main">
+            
+            <div class="page-header">
+                <div>
+                    <h1>User Management</h1>
+                    <p class="subtitle">View, edit, create, and manage cafeteria users and permissions.</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" id="openAddUserModalBtn">
+                        <i class="fa-solid fa-user-plus"></i> Add New User
+                    </button>
+                </div>
+            </div>
+
+            <!-- METRIC CARDS GRID -->
+            <section class="metrics-grid">
+                <div class="metric-card">
+                    <div class="card-icon bg-blue">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Total Users</span>
+                        <h2 id="metricTotalUsers">0</h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-green">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Active Students</span>
+                        <h2 id="metricActiveStudents">0</h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-orange">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Staff / Kitchen</span>
+                        <h2 id="metricStaff">0</h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-red">
+                        <i class="fa-solid fa-user-slash"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Blocked Users</span>
+                        <h2 id="metricBlockedUsers">0</h2>
+                    </div>
+                </div>
+            </section>
+
+            <!-- USERS TABLE CONTAINER -->
+            <section class="dashboard-card full-width">
+                <div class="card-header table-header-actions">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="userSearchInput" placeholder="Search by name, email, or ID...">
+                    </div>
+                    <div class="filter-group">
+                        <select id="roleFilter" class="form-select">
+                            <option value="">All Roles</option>
+                            <option value="STUDENT">Student</option>
+                            <option value="STAFF">Staff</option>
+                            <option value="ADMIN">Admin</option>
+                        </select>
+                        <select id="statusFilter" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="BLOCKED">Blocked</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Dynamic Render -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-container" id="paginationControls">
+                    <!-- Pagination JS Controls -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ADD/EDIT USER MODAL -->
+    <div class="modal-overlay" id="userModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New User</h3>
+                <button class="btn-close" id="closeUserModalBtn">&times;</button>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="userName">Full Name</label>
+                        <input type="text" id="userName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">Email Address</label>
+                        <input type="email" id="userEmail" class="form-control" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userRole">Role</label>
+                            <select id="userRole" class="form-select" required>
+                                <option value="STUDENT">Student</option>
+                                <option value="STAFF">Staff</option>
+                                <option value="ADMIN">Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="userBalance">Initial Wallet Balance (ETB)</label>
+                            <input type="number" id="userBalance" class="form-control" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelUserModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveUserBtn">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="/frontend/src/js/admin.js"></script>
+    <script src="/frontend/src/js/users.js"></script>
+    <script src="/Frontend/src/components/sidebar.js"></script>
+
+</body>
+</html>

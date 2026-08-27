@@ -1,0 +1,764 @@
+<!-- ================================================================
+     SMART CAFETERIA ORDERING SYSTEM - CANCELLED ORDER ITEM VIEW
+     ================================================================
+     Reusable template for displaying cancelled orders.
+     Used in: admin/cancellations.html
+     ================================================================ -->
+
+<div class="cancel-item" data-id="{{id}}">
+
+    <!-- Header -->
+    <div class="ci-header">
+
+        <div class="ci-order-wrap">
+            <div class="ci-order-icon">
+                <i class="fas fa-receipt" aria-hidden="true"></i>
+            </div>
+
+            <div class="ci-order-info">
+                <span class="ci-order">Order #{{orderId}}</span>
+
+                <span class="ci-status {{status}}">
+                    {{status}}
+                </span>
+            </div>
+        </div>
+
+        <div class="ci-date">
+            <i class="far fa-calendar-alt" aria-hidden="true"></i>
+            <span>{{createdAt}}</span>
+        </div>
+
+    </div>
+
+    <!-- Body -->
+    <div class="ci-body">
+
+        <div class="ci-detail">
+            <div class="ci-detail-icon reason-icon">
+                <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+            </div>
+
+            <div class="ci-detail-content">
+                <span class="ci-label">Reason</span>
+                <span class="ci-value">{{reasonLabel}}</span>
+            </div>
+        </div>
+
+        {{#if details}}
+        <div class="ci-detail">
+
+            <div class="ci-detail-icon details-icon">
+                <i class="fas fa-align-left" aria-hidden="true"></i>
+            </div>
+
+            <div class="ci-detail-content">
+                <span class="ci-label">Details</span>
+                <span class="ci-value">{{details}}</span>
+            </div>
+
+        </div>
+        {{/if}}
+
+        {{#if resolutionNote}}
+        <div class="ci-resolution">
+
+            <div class="resolution-icon">
+                <i class="fas fa-note-sticky" aria-hidden="true"></i>
+            </div>
+
+            <div>
+                <span class="resolution-label">Resolution Note</span>
+                <p>{{resolutionNote}}</p>
+            </div>
+
+        </div>
+        {{/if}}
+
+    </div>
+
+    <!-- Actions (Admin only - if pending) -->
+    {{#if_eq status 'pending'}}
+    <div class="ci-actions">
+
+        <button
+            type="button"
+            class="btn-sm btn-sm-approve-cancel"
+            data-id="{{id}"
+            title="Approve cancellation"
+        >
+            <i class="fas fa-check" aria-hidden="true"></i>
+            <span>Approve</span>
+        </button>
+
+        <button
+            type="button"
+            class="btn-sm btn-sm-reject-cancel"
+            data-id="{{id}}"
+            title="Reject cancellation"
+        >
+            <i class="fas fa-xmark" aria-hidden="true"></i>
+            <span>Reject</span>
+        </button>
+
+    </div>
+    {{/if_eq}}
+
+</div>
+
+
+<style>
+/* ================================================================
+   CANCELLED ORDER CARD
+   ================================================================ */
+
+.cancel-item {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.98),
+            rgba(248,250,252,0.98)
+        );
+
+    border: 1px solid rgba(226,232,240,0.95);
+    border-radius: 20px;
+
+    padding: 20px;
+
+    box-shadow:
+        0 10px 30px rgba(15,23,42,0.06),
+        0 2px 8px rgba(15,23,42,0.04);
+
+    overflow: hidden;
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
+
+    font-family: 'Poppins', sans-serif;
+}
+
+
+/* Decorative top glow */
+.cancel-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 4px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #2563eb,
+            #7c3aed,
+            #ec4899,
+            #f59e0b
+        );
+
+    opacity: 0.9;
+}
+
+
+/* Hover */
+.cancel-item:hover {
+    transform: translateY(-4px);
+
+    border-color: rgba(37,99,235,0.18);
+
+    box-shadow:
+        0 18px 45px rgba(15,23,42,0.10),
+        0 5px 15px rgba(37,99,235,0.08);
+}
+
+
+/* ================================================================
+   HEADER
+   ================================================================ */
+
+.cancel-item .ci-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid rgba(226,232,240,0.9);
+}
+
+
+/* Order left section */
+.ci-order-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 0;
+}
+
+
+/* Order icon */
+.ci-order-icon {
+    width: 44px;
+    height: 44px;
+
+    flex: 0 0 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eff6ff,
+            #dbeafe
+        );
+
+    color: #2563eb;
+
+    font-size: 18px;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(37,99,235,0.08);
+}
+
+
+.ci-order-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+    min-width: 0;
+}
+
+
+/* Order number */
+.cancel-item .ci-header .ci-order {
+    font-size: 16px;
+    font-weight: 800;
+
+    color: #0f172a;
+
+    letter-spacing: -0.01em;
+
+    white-space: nowrap;
+}
+
+
+/* ================================================================
+   STATUS
+   ================================================================ */
+
+.cancel-item .ci-header .ci-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 25px;
+
+    padding: 4px 11px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+    line-height: 1;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+
+    white-space: nowrap;
+}
+
+
+/* Pending */
+.ci-status.pending {
+    background: #fff7ed;
+    color: #c2410c;
+
+    border: 1px solid #fed7aa;
+}
+
+
+/* Approved */
+.ci-status.approved {
+    background: #ecfdf5;
+    color: #047857;
+
+    border: 1px solid #a7f3d0;
+}
+
+
+/* Rejected */
+.ci-status.rejected {
+    background: #fef2f2;
+    color: #b91c1c;
+
+    border: 1px solid #fecaca;
+}
+
+
+/* Date */
+.cancel-item .ci-header .ci-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    color: #64748b;
+
+    white-space: nowrap;
+}
+
+.cancel-item .ci-header .ci-date i {
+    color: #94a3b8;
+}
+
+
+/* ================================================================
+   BODY
+   ================================================================ */
+
+.cancel-item .ci-body {
+    margin: 16px 0 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    font-size: 14px;
+    color: #475569;
+}
+
+
+/* Detail row */
+.ci-detail {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 11px;
+
+    padding: 11px 12px;
+
+    border-radius: 12px;
+
+    background: rgba(248,250,252,0.85);
+
+    border: 1px solid rgba(226,232,240,0.7);
+}
+
+
+.ci-detail-icon {
+    width: 32px;
+    height: 32px;
+
+    flex: 0 0 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+}
+
+
+.reason-icon {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+
+.details-icon {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+
+.ci-detail-content {
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+
+    min-width: 0;
+}
+
+
+.ci-label {
+    font-size: 10px;
+
+    font-weight: 800;
+
+    color: #94a3b8;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.07em;
+}
+
+
+.ci-value {
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    font-weight: 500;
+
+    color: #334155;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ================================================================
+   RESOLUTION NOTE
+   ================================================================ */
+
+.ci-resolution {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 11px;
+
+    padding: 12px 14px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f0fdf4,
+            #ecfdf5
+        );
+
+    border: 1px solid #bbf7d0;
+}
+
+
+.resolution-icon {
+    width: 32px;
+    height: 32px;
+
+    flex: 0 0 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #dcfce7;
+
+    color: #16a34a;
+
+    font-size: 13px;
+}
+
+
+.resolution-label {
+    display: block;
+
+    margin-bottom: 3px;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    color: #15803d;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.07em;
+}
+
+
+.ci-resolution p {
+    margin: 0;
+
+    color: #365314;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ================================================================
+   ACTIONS
+   ================================================================ */
+
+.cancel-item .ci-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+    margin-top: 16px;
+
+    padding-top: 15px;
+
+    border-top: 1px solid rgba(226,232,240,0.9);
+}
+
+
+.cancel-item .ci-actions .btn-sm {
+    min-height: 38px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 8px 17px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    font-family: 'Poppins', sans-serif;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.cancel-item .ci-actions .btn-sm:hover {
+    transform: translateY(-2px);
+}
+
+
+.cancel-item .ci-actions .btn-sm:active {
+    transform: translateY(0);
+}
+
+
+/* Approve */
+.btn-sm-approve-cancel {
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #16a34a
+        );
+
+    color: #fff;
+
+    box-shadow:
+        0 6px 16px rgba(22,163,74,0.20);
+}
+
+
+.btn-sm-approve-cancel:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #16a34a,
+            #15803d
+        );
+
+    box-shadow:
+        0 9px 22px rgba(22,163,74,0.28);
+}
+
+
+/* Reject */
+.btn-sm-reject-cancel {
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #dc2626
+        );
+
+    color: #fff;
+
+    box-shadow:
+        0 6px 16px rgba(220,38,38,0.18);
+}
+
+
+.btn-sm-reject-cancel:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #dc2626,
+            #b91c1c
+        );
+
+    box-shadow:
+        0 9px 22px rgba(220,38,38,0.25);
+}
+
+
+/* ================================================================
+   FOCUS / ACCESSIBILITY
+   ================================================================ */
+
+.cancel-item .ci-actions .btn-sm:focus-visible {
+    outline: 3px solid rgba(37,99,235,0.25);
+
+    outline-offset: 2px;
+}
+
+
+/* ================================================================
+   TABLET
+   ================================================================ */
+
+@media (max-width: 768px) {
+
+    .cancel-item {
+        padding: 17px;
+        border-radius: 17px;
+    }
+
+    .cancel-item .ci-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .cancel-item .ci-header .ci-date {
+        padding-left: 56px;
+    }
+
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 520px) {
+
+    .cancel-item {
+        padding: 15px;
+
+        border-radius: 15px;
+    }
+
+    .ci-order-icon {
+        width: 39px;
+        height: 39px;
+
+        flex-basis: 39px;
+
+        border-radius: 11px;
+
+        font-size: 16px;
+    }
+
+    .cancel-item .ci-header .ci-order {
+        font-size: 14px;
+    }
+
+    .cancel-item .ci-header .ci-date {
+        padding-left: 0;
+
+        font-size: 11px;
+    }
+
+    .cancel-item .ci-body {
+        font-size: 13px;
+    }
+
+    .ci-detail {
+        padding: 10px;
+    }
+
+    .ci-detail-icon,
+    .resolution-icon {
+        width: 29px;
+        height: 29px;
+
+        flex-basis: 29px;
+    }
+
+    .ci-value,
+    .ci-resolution p {
+        font-size: 12px;
+    }
+
+    .cancel-item .ci-actions {
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+
+        width: 100%;
+    }
+
+    .cancel-item .ci-actions .btn-sm {
+        width: 100%;
+        padding: 9px 10px;
+    }
+
+}
+
+
+/* ================================================================
+   VERY SMALL SCREENS
+   ================================================================ */
+
+@media (max-width: 360px) {
+
+    .cancel-item {
+        padding: 12px;
+    }
+
+    .ci-order-wrap {
+        gap: 8px;
+    }
+
+    .ci-order-info {
+        gap: 6px;
+    }
+
+    .cancel-item .ci-header .ci-order {
+        font-size: 13px;
+    }
+
+    .cancel-item .ci-header .ci-status {
+        font-size: 9px;
+        padding: 4px 8px;
+    }
+
+    .cancel-item .ci-actions {
+        grid-template-columns: 1fr;
+    }
+
+}
+</style>

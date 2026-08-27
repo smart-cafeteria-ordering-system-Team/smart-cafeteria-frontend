@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History - Cafeteria Menu</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="menu.html" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Back to Menu
+            </a>
+            <h2><i class="fa-solid fa-clock-rotate-left"></i> Order History</h2>
+            <div class="user-nav-links">
+                <a href="profile.html" class="nav-icon-link" title="Profile"><i class="fa-solid fa-user"></i></a>
+                <a href="notifications.html" class="nav-icon-link" title="Notifications"><i class="fa-solid fa-bell"></i></a>
+                <a href="feedback.html" class="nav-icon-link" title="Feedback"><i class="fa-solid fa-comment-dots"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container history-layout">
+
+        <!-- Filters & Search Bar -->
+        <section class="history-controls">
+            <div class="history-filter-btns">
+                <button class="history-tab active" data-filter="all">All Orders</button>
+                <button class="history-tab" data-filter="Completed">Completed</button>
+                <button class="history-tab" data-filter="Pending">In Progress / Pending</button>
+                <button class="history-tab" data-filter="Cancelled">Cancelled</button>
+            </div>
+            <button id="clear-history-btn" class="btn btn-sm btn-outline-danger">
+                <i class="fa-solid fa-trash-can"></i> Clear History
+            </button>
+        </section>
+
+        <!-- Dynamic Orders List Container -->
+        <section id="orders-history-list" class="orders-history-container">
+            <!-- Dynamically populated via order-history.js -->
+        </section>
+
+    </main>
+
+    <!-- Connect Script -->
+    <script src="/frontend/src/js/order-history.js" defer></script>
+</body>
+</html>

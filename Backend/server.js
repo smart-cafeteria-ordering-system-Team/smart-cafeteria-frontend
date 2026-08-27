@@ -1,4 +1,13 @@
 <<<<<<< HEAD
+const app = require("./app");
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
+=======
+<<<<<<< HEAD
 /**
  * ================================================================
  * SMART CAFETERIA ORDERING SYSTEM
@@ -181,3 +190,4 @@ app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
 });
 >>>>>>> c9275e6e95495801102644943b7daafcf9e40368
+>>>>>>> c5f9e0ff7ba8f512b6233b62b7c7421911f0c320

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration - Smart Cafeteria</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <style>
+        /* =========================
+           GLOBAL RESET & BASE STYLES
+           ========================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #0f172a; /* Modern dark background */
+            display: flex;
+            justify-content: center;   /* Centers form horizontally */
+            align-items: center;       /* Centers form vertically */
+            margin: 0;
+            padding: 20px;
+            color: #ffffff;
+            position: relative;
+        }
+
+        /* =========================
+           TOP HOME NAVIGATION
+           ========================= */
+        .top-home-logo {
+            position: absolute;
+            top: 24px;
+            left: 32px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            opacity: 0.85;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-home-logo:hover {
+            opacity: 1;
+            transform: translateX(-2px);
+        }
+
+        /* =========================
+           CONTAINER & CARD WRAPPER
+           ========================= */
+        .main-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 40px; /* Accounts for top-left logo on small screens */
+        }
+
+        .register-card {
+            width: 100%;
+            max-width: 600px;
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .register-card h1 {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #ffffff;
+        }
+
+        /* =========================
+           FORM GRID & INPUTS
+           ========================= */
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .form-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 18px;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            font-weight: 400;
+        }
+
+        .form-group label span {
+            color: #ff2a5f;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 44px;
+            padding: 0 14px;
+            background: #ffffff;
+            border: 1.5px solid transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            color: #0f172a;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8;
+        }
+
+        .form-group input:focus {
+            border-color: #ff2a5f;
+            box-shadow: 0 0 0 3px rgba(255, 42, 95, 0.2);
+        }
+
+        /* =========================
+           MESSAGES & TEXT
+           ========================= */
+        .message {
+            display: none;
+            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid #22c55e;
+            color: #86efac;
+        }
+
+        .terms-text {
+            font-size: 12px;
+            color: #94a3b8;
+            margin: 16px 0 20px;
+            line-height: 1.5;
+        }
+
+        .terms-text span {
+            color: #ff2a5f;
+        }
+
+        /* =========================
+           BUTTON & FOOTER LINKS
+           ========================= */
+        .submit-btn {
+            width: 100%;
+            background: #ff2a5f;
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .submit-btn:hover {
+            background: #e02050;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .footer-link {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .footer-link a {
+            color: #ff2a5f;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .back-home a {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .back-home a:hover {
+            color: #ffffff;
+        }
+
+        /* =========================
+           RESPONSIVE (MOBILE)
+           ========================= */
+        @media (max-width: 580px) {
+            body {
+                padding-top: 60px;
+            }
+
+            .top-home-logo {
+                top: 16px;
+                left: 20px;
+            }
+
+            .register-card {
+                padding: 24px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP-LEFT HOME NAVIGATION -->
+    <a href="index.html" class="top-home-logo">
+        Smart Cafeteria
+    </a>
+
+    <!-- MAIN FORM AREA -->
+    <main class="main-container">
+        <div class="register-card">
+            <h1>Registration</h1>
+
+            <div id="errorMsg" class="message error-message"></div>
+            <div id="successMsg" class="message success-message"></div>
+
+            <form id="registerForm" novalidate>
+                
+                <!-- FULL NAME -->
+                <div class="form-group">
+                    <label for="fullName">Full Name <span>*</span></label>
+                    <input type="text" id="fullName" placeholder="Enter your full name" required>
+                </div>
+
+                <!-- ROW 1: Phone (Left) & Email (Right) -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Phone <span>*</span></label>
+                        <input type="tel" id="phone" placeholder="09XXXXXXXX or 07XXXXXXXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email <span>*</span></label>
+                        <input type="email" id="email" placeholder="Email address" required>
+                    </div>
+                </div>
+
+                <!-- ROW 2: Password & Confirm Password -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Password <span>*</span></label>
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password <span>*</span></label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                    </div>
+                </div>
+
+                <!-- TERMS TEXT -->
+                <p class="terms-text">
+                    All fields with <span>*</span> are mandatory.
+                </p>
+
+                <!-- SUBMIT BUTTON -->
+                <button type="submit" class="submit-btn" id="submitBtn">Register</button>
+
+                <!-- LOGIN LINK -->
+                <p class="footer-link">
+                    Already registered? <a href="login.html">Login</a>
+                </p>
+
+                <!-- BACK TO HOME LINK -->
+                <p class="back-home">
+                    <a href="index.html">← Back to Home Page</a>
+                </p>
+
+            </form>
+        </div>
+    </main>
+
+    <!-- VALIDATION SCRIPT -->
+    <script>
+        const form = document.getElementById('registerForm');
+        const errorMsg = document.getElementById('errorMsg');
+        const successMsg = document.getElementById('successMsg');
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Ethiopian Phone pattern (09... or 07...)
+            const phonePattern = /^(09|07)[0-9]{8}$/;
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!fullName) return showError('Full Name is required.');
+            if (fullName.length < 2) return showError('Please enter a valid Full Name.');
+            if (!phone) return showError('Phone number is required.');
+            if (!phonePattern.test(phone)) return showError('Enter a valid phone number (09... or 07...).');
+            if (!email) return showError('Email address is required.');
+            if (!emailPattern.test(email)) return showError('Enter a valid email address.');
+            if (!password) return showError('Password is required.');
+            if (password.length < 6) return showError('Password must be at least 6 characters.');
+            if (password !== confirmPassword) return showError('Passwords do not match.');
+
+            showSuccess('Registration successful! Redirecting...');
+            form.reset();
+
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+        });
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+        }
+
+        function showSuccess(msg) {
+            successMsg.textContent = msg;
+            successMsg.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

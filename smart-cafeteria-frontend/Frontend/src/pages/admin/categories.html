@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Management - Smart Cafeteria</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Admin CSS stylesheet -->
+    <link rel="stylesheet" href="/frontend/src/css/admin.css">
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+
+    <!-- Auth Guard Check -->
+    <script>
+        const role = localStorage.getItem('userRole');
+        if (!role || role !== 'ADMIN') {
+            alert('Access denied! Admins only.');
+            window.location.href = '/Frontend/src/pages/common/login.html';
+        }
+    </script>
+</head>
+<body class="admin-body">
+
+    <!-- TOP NAVBAR -->
+    <header class="admin-navbar">
+        <div class="nav-left">
+            <button id="sidebarToggle" class="btn-icon" aria-label="Toggle Sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="brand-logo">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Smart Cafeteria <small>Admin</small></span>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <div class="nav-item dropdown">
+                <button class="btn-icon" id="notificationBtn" title="Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge-dot" id="notifBadge"></span>
+                </button>
+            </div>
+            
+            <div class="user-profile-menu">
+                <div class="avatar" id="adminAvatar">A</div>
+                <div class="user-info">
+                    <strong id="adminNameDisplay">Admin User</strong>
+                    <small>Administrator</small>
+                </div>
+                <button id="logoutBtn" class="btn-logout-icon" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- WRAPPER: SIDEBAR + MAIN CONTENT -->
+    <div class="admin-container">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <nav class="sidebar-nav">
+                <div class="sidebar-group">
+                    <span class="group-title">MAIN</span>
+                    <a href="dashboard.html" class="sidebar-link">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-group">
+                    <span class="group-title">MANAGEMENT</span>
+                    <a href="users.html" class="sidebar-link">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="menu.html" class="sidebar-link">
+                        <i class="fa-solid fa-bowl-food"></i>
+                        <span>Menu</span>
+                    </a>
+                    <a href="categories.html" class="sidebar-link active">
+                        <i class="fa-solid fa-list"></i>
+                        <span>Categories</span>
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="payments.html" class="sidebar-link">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                    <a href="cancellations.html" class="sidebar-link">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                        <span>cancellations</span>
+                        <span class="sidebar-badge" id="sidebarRefundBadge">0</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-group">
+                    <span class="group-title">ANALYTICS & SYSTEM</span>
+                    <a href="feedback.html" class="sidebar-link">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Feedback</span>
+                    </a>
+                    <a href="reports.html" class="sidebar-link">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Reports</span>
+                    </a>
+                    <a href="settings.html" class="sidebar-link">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="admin-main">
+            
+            <div class="page-header">
+                <div>
+                    <h1>Category Management</h1>
+                    <p class="subtitle">Organize and structure food categories for menu management.</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" id="openAddCategoryModalBtn">
+                        <i class="fa-solid fa-plus"></i> Add New Category
+                    </button>
+                </div>
+            </div>
+
+            <!-- METRIC CARDS GRID -->
+            <section class="metrics-grid">
+                <div class="metric-card">
+                    <div class="card-icon bg-blue">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Total Categories</span>
+                        <h2 id="metricTotalCategories">0</h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-green">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Active Categories</span>
+                        <h2 id="metricActiveCategories">0</h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-orange">
+                        <i class="fa-solid fa-bowl-food"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Total Linked Items</span>
+                        <h2 id="metricTotalLinkedItems">0</h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-red">
+                        <i class="fa-solid fa-eye-slash"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Inactive Categories</span>
+                        <h2 id="metricInactiveCategories">0</h2>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CATEGORIES TABLE CONTAINER -->
+            <section class="dashboard-card full-width">
+                <div class="card-header table-header-actions">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="categorySearchInput" placeholder="Search by category name or ID...">
+                    </div>
+                    <div class="filter-group">
+                        <select id="categoryStatusFilter" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Category ID</th>
+                                <th>Category Name</th>
+                                <th>Description</th>
+                                <th>Total Items</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryTableBody">
+                            <!-- Dynamic Render -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-container" id="categoryPaginationControls">
+                    <!-- Pagination Controls -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ADD/EDIT CATEGORY MODAL -->
+    <div class="modal-overlay" id="categoryModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="categoryModalTitle">Add New Category</h3>
+                <button class="btn-close" id="closeCategoryModalBtn">&times;</button>
+            </div>
+            <form id="categoryForm">
+                <input type="hidden" id="categoryId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="categoryName">Category Name</label>
+                        <input type="text" id="categoryName" class="form-control" placeholder="e.g. Traditional Dishes" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoryDescription">Description</label>
+                        <textarea id="categoryDescription" class="form-control" rows="3" placeholder="Brief description of this category..."></textarea>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label class="switch-label">
+                            <input type="checkbox" id="categoryIsActive" checked>
+                            <span>Active / Visible on Menu</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelCategoryModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveCategoryBtn">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="/frontend/src/js/admin.js"></script>
+    <script src="/frontend/src/js/categories.js"></script>
+    <script src="/Frontend/src/components/sidebar.js"></script>
+
+</body>
+</html>

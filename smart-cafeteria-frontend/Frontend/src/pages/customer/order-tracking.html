@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status - Cafeteria Menu</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+    
+
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="menu.html" class="btn-back">
+                <i class="fa-solid fa-utensils"></i> Back to Menu
+            </a>
+            <h2><i class="fa-solid fa-receipt"></i> Live Order Tracker</h2>
+            <div class="user-nav-links">
+                <a href="order-history.html" class="nav-icon-link" title="Order History"><i class="fa-solid fa-clock-rotate-left"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container status-layout">
+
+        <!-- Status Header Card -->
+        <section class="status-banner" id="status-banner-card">
+            <div class="status-badge-icon" id="status-badge-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h1 id="status-heading">Order Tracker</h1>
+            <p class="order-number-display">Order ID: <span id="display-order-id">#ET-0000</span></p>
+            <p class="status-subtext" id="status-subtext">We have sent your order directly to the kitchen counter.</p>
+        </section>
+
+        <!-- Kitchen Status Timeline -->
+        <section class="status-card" id="timeline-section">
+            <h3><i class="fa-solid fa-fire-burner"></i> Live Kitchen Tracker</h3>
+            
+            <div class="status-timeline">
+                <div class="timeline-step step-received active" id="step-1">
+                    <div class="step-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <div class="step-label">
+                        <strong>Order Received</strong>
+                        <small>Kitchen notified</small>
+                    </div>
+                </div>
+
+                <div class="timeline-line" id="line-1"></div>
+
+                <div class="timeline-step step-preparing" id="step-2">
+                    <div class="step-icon"><i class="fa-solid fa-fire-burner"></i></div>
+                    <div class="step-label">
+                        <strong>Preparing</strong>
+                        <small>Chef is cooking</small>
+                    </div>
+                </div>
+
+                <div class="timeline-line" id="line-2"></div>
+
+                <div class="timeline-step step-ready" id="step-3">
+                    <div class="step-icon"><i class="fa-solid fa-bell-concierge"></i></div>
+                    <div class="step-label">
+                        <strong>Ready</strong>
+                        <small>Serving to table</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order Receipt Details -->
+        <section class="receipt-card">
+            <h3><i class="fa-solid fa-file-invoice"></i> Order Receipt</h3>
+            <hr class="divider">
+
+            <!-- Customer & Service Information Grid -->
+            <div class="receipt-info-grid">
+                <div>
+                    <span class="info-label">Customer Name:</span>
+                    <strong id="receipt-name">-</strong>
+                </div>
+                <div>
+                    <span class="info-label">Phone Number:</span>
+                    <strong id="receipt-phone">-</strong>
+                </div>
+                <div>
+                    <span class="info-label">Dining Option:</span>
+                    <strong id="receipt-dining-type">-</strong>
+                </div>
+                <div>
+                    <span class="info-label">Table Number:</span>
+                    <strong id="receipt-table">-</strong>
+                </div>
+                <div>
+                    <span class="info-label">Payment Method:</span>
+                    <strong id="receipt-payment">-</strong>
+                </div>
+                <div>
+                    <span class="info-label">Order Date & Time:</span>
+                    <strong id="receipt-time">-</strong>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- Ordered Items List -->
+            <h4>Items Ordered</h4>
+            <div id="receipt-items-list" class="receipt-items-container">
+                <!-- Dynamically rendered -->
+            </div>
+
+            <hr class="divider">
+
+            <!-- Financial Summary -->
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span><strong id="receipt-subtotal">0</strong> <small>ETB</small></span>
+            </div>
+            <div class="summary-row">
+                <span>Service Fee</span>
+                <span><strong id="receipt-service-fee">20</strong> <small>ETB</small></span>
+            </div>
+            <hr class="divider">
+            <div class="summary-row total-row">
+                <span>Total Amount Paid / Due</span>
+                <span><strong id="receipt-total">0</strong> <small>ETB</small></span>
+            </div>
+
+            <!-- Action Buttons Container -->
+            <div class="receipt-actions" style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="menu.html" class="btn btn-primary" style="flex: 1;">
+                    <i class="fa-solid fa-plus"></i> Order More Food
+                </a>
+                
+                <!-- Cancel Button container -->
+                <div id="cancel-btn-wrapper" style="flex: 1;">Cancel order</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Connect Script -->
+    <script src="/frontend/src/js/order-status.js" defer></script>
+    <script src="/frontend/src/js/order-history.js" defer></script>
+
+</body>
+</html>

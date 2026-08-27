@@ -1,3 +1,24 @@
+<<<<<<< HEAD
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.*
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Temporary files
+*.tmp
+=======
 # ================================================================
 # SMART CAFETERIA ORDERING SYSTEM
 # BACKEND GITIGNORE
@@ -65,3 +86,4 @@ test-results/
 
 # Local configuration
 config.local.js
+>>>>>>> c5f9e0ff7ba8f512b6233b62b7c7421911f0c320
