@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const categoryButtons =
         document.querySelectorAll(".category-pill");
 
-    const foodCards =
+    const foodCards = 
         document.querySelectorAll(".food-card");
 
     const resultsCount =

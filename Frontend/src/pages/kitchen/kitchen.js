@@ -66,6 +66,7 @@ const KDS = {
                 this.filterButtons.forEach(b => b.classList.remove('active'));
                 targetBtn.classList.add('active');
 
+
                 // Read filter status (e.g., "all", "Pending", "Preparing", "Ready", "Cancelled")
                 this.currentFilter = targetBtn.getAttribute('data-status') || targetBtn.innerText.trim();
                 
@@ -178,6 +179,7 @@ const KDS = {
 
     startTimer() {
         setInterval(() => {
+            
             const timerElements = document.querySelectorAll('.elapsed-timer');
             timerElements.forEach(el => {
                 const createdAt = el.dataset.created;
