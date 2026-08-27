@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Smart Cafeteria</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Admin CSS stylesheet -->
+    <link rel="stylesheet" href="/frontend/src/css/admin.css">
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+
+    <!-- Auth Guard Check -->
+    <script>
+        const role = localStorage.getItem('userRole');
+        if (!role || role !== 'ADMIN') {
+            alert('Access denied! Admins only.');
+           window.location.href = '/Frontend/src/pages/common/login.html';
+        }
+    </script>
+</head>
+<body class="admin-body">
+
+    <!-- TOP NAVBAR -->
+    <header class="admin-navbar">
+        <div class="nav-left">
+            <button id="sidebarToggle" class="btn-icon" aria-label="Toggle Sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="brand-logo">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Smart Cafeteria <small>Admin</small></span>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <div class="nav-item dropdown">
+                <button class="btn-icon" id="notificationBtn" title="Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge-dot" id="notifBadge"></span>
+                </button>
+            </div>
+            
+            <div class="user-profile-menu">
+                <div class="avatar" id="adminAvatar">A</div>
+                <div class="user-info">
+                    <strong id="adminNameDisplay">Admin User</strong>
+                    <small>Administrator</small>
+                </div>
+                <button id="logoutBtn" class="btn-logout-icon" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- WRAPPER: SIDEBAR + MAIN CONTENT -->
+    <div class="admin-container">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <nav class="sidebar-nav">
+                <div class="sidebar-group">
+                    <span class="group-title">MAIN</span>
+                    <a href="dashboard.html" class="sidebar-link">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-group">
+                    <span class="group-title">MANAGEMENT</span>
+                    <a href="users.html" class="sidebar-link">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="menu.html" class="sidebar-link">
+                        <i class="fa-solid fa-bowl-food"></i>
+                        <span>Menu</span>
+                    </a>
+                    <a href="categories.html" class="sidebar-link">
+                        <i class="fa-solid fa-list"></i>
+                        <span>Categories</span>
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="payments.html" class="sidebar-link">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                    <a href="cancellations.html" class="sidebar-link">
+                        <i class="fa-solid fa-ban"></i>
+                        <span>Cancellations</span>
+                        <span class="sidebar-badge" id="sidebarCancellationBadge">0</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-group">
+                    <span class="group-title">ANALYTICS & SYSTEM</span>
+                    <a href="feedback.html" class="sidebar-link">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Feedback</span>
+                    </a>
+                    <a href="reports.html" class="sidebar-link active">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Reports</span>
+                    </a>
+                    <a href="settings.html" class="sidebar-link">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="admin-main">
+            
+            <div class="page-header">
+                <div>
+                    <h1>Reports</h1>
+                    <p class="subtitle">Generate and view reports</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" id="exportCsvBtn">
+                        <i class="fa-solid fa-file-csv"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- METRIC CARDS GRID -->
+            <section class="metrics-grid">
+                <div class="metric-card">
+                    <div class="card-icon bg-blue">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Daily Orders</span>
+                        <h2 id="metricReportOrders">0</h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-green">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Sales</span>
+                        <h2 id="metricReportSales">0 <small>ETB</small></h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-orange">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Popular Items</span>
+                        <h2 id="metricReportPopular">0</h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-red">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Payments</span>
+                        <h2 id="metricReportPayments">0 <small>ETB</small></h2>
+                    </div>
+                </div>
+            </section>
+
+            <!-- REPORT FILTERS & GENERATION CONTAINER -->
+            <section class="dashboard-card full-width">
+                <div class="card-header table-header-actions">
+                    <div class="filter-group date-filter-group">
+                        <div class="form-group inline-group">
+                            <label for="reportTypeSelect">Report Type:</label>
+                            <select id="reportTypeSelect" class="form-select">
+                                <option value="daily_orders">Daily Orders</option>
+                                <option value="sales">Sales</option>
+                                <option value="popular_items">Popular Items</option>
+                                <option value="payments">Payments</option>
+                            </select>
+                        </div>
+                        <div class="form-group inline-group">
+                            <label for="fromDate">From:</label>
+                            <input type="date" id="fromDate" class="form-control">
+                        </div>
+                        <div class="form-group inline-group">
+                            <label for="toDate">To:</label>
+                            <input type="date" id="toDate" class="form-control">
+                        </div>
+                        <button class="btn btn-primary" id="generateReportBtn">
+                            <i class="fa-solid fa-filter"></i> Generate
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead id="reportTableHead">
+                            <tr>
+                                <th>Date</th>
+                                <th>Report Category</th>
+                                <th>Metric Name</th>
+                                <th>Total Quantity</th>
+                                <th>Total Value (ETB)</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsTableBody">
+                            <!-- Dynamic Render -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-container" id="reportPaginationControls">
+                    <!-- Pagination Controls -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="/frontend/src/js/admin.js"></script>
+    <script src="/frontend/src/js/reports.js"></script>
+    <script src="/Frontend/src/components/sidebar.js"></script>
+
+</body>
+</html>

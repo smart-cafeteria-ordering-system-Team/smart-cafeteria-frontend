@@ -1,0 +1,2288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - Ethiopian Cafeteria & Restaurant</title>
+
+    <!-- AUTHENTICATION GUARD SCRIPT -->
+    <script>
+        (function() {
+            const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+            if (isLoggedIn !== "true") {
+                alert("Please log in or create an account to view the menu.");
+                window.location.href = "login.html";
+            }
+        })();
+    </script>
+
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="/frontend/src/css/menu.css">
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+    <link rel="stylesheet" href="../../src/css/components.css">
+    <link rel="stylesheet" href="../../src/css/responsive.css">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+<!-- =========================================================
+     TOP NAVIGATION HEADER
+========================================================= -->
+<header class="navbar-header">
+
+    <div class="nav-container">
+
+        <!-- Left Side -->
+        <div class="nav-left-group">
+
+            <a href="../common/index.html"
+               class="btn-back-home"
+               title="Back to Home Page">
+
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Home</span>
+
+            </a>
+
+            <a href="menu.html" class="brand-logo">
+
+                <i class="fa-solid fa-utensils"></i>
+                Smart
+
+            </a>
+
+        </div>
+
+
+        <!-- Search Bar Header -->
+        <div class="search-box-header">
+
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+
+            <input
+                type="text"
+                id="menu-search-input"
+                placeholder="Search food, coffee, cakes..."
+            >
+
+        </div>
+
+
+        <!-- Header Action Buttons -->
+        <div class="header-actions">
+
+            <!-- Track Order -->
+            <a href="order-tracking.html"
+               class="nav-link-track"
+               title="Track Live Order">
+
+                <i class="fa-solid fa-location-crosshairs"></i>
+                <span>Track Order</span>
+
+            </a>
+
+
+            <!-- Order History -->
+            <a href="order-history.html"
+               class="nav-link-item"
+               title="View Order History">
+
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>History</span>
+
+            </a>
+
+
+            <!-- Shopping Cart -->
+            <a href="cart.html"
+               class="cart-btn"
+               aria-label="View Shopping Cart">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+                <span class="cart-badge"
+                      id="cart-badge-count">
+                    0
+                </span>
+
+            </a>
+
+
+            <!-- User Profile -->
+            <div class="user-profile-menu">
+
+                <button
+                    class="user-profile-btn"
+                    id="user-menu-btn"
+                    aria-haspopup="true">
+
+                    <img
+                        src="../../public/assets/images/avatar-placeholder.png"
+                        alt="User Profile"
+                        class="avatar-img"
+                        onerror="this.src='https://via.placeholder.com/40'"
+                    >
+
+                    <span class="user-name">
+                        Abebe K.
+                    </span>
+
+                    <i class="fa-solid fa-chevron-down"></i>
+
+                </button>
+
+
+                <!-- Dropdown Menu -->
+                <div class="dropdown-menu"
+                     id="user-dropdown-menu">
+
+                    <a href="profile.html">
+                        <i class="fa-solid fa-user"></i>
+                        My Profile
+                    </a>
+
+                    <a href="order-tracking.html">
+                        <i class="fa-solid fa-spinner"></i>
+                        Track Active Order
+                    </a>
+
+                    <a href="order-history.html">
+                        <i class="fa-solid fa-receipt"></i>
+                        Order History
+                    </a>
+
+                    <a href="notifications.html">
+                        <i class="fa-solid fa-bell"></i>
+                        Notifications
+                    </a>
+
+                    <a href="feedback.html">
+                        <i class="fa-solid fa-comment-dots"></i>
+                        Feedback
+                    </a>
+
+                    <hr>
+
+                    <a href="../common/login.html"
+                       class="logout-link">
+
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        Logout
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     MAIN MENU
+========================================================= -->
+<main class="menu-main container">
+
+
+    <!-- =====================================================
+         HERO BANNER
+    ====================================================== -->
+    <section class="menu-hero-banner">
+
+        <div class="hero-content">
+
+            <h1>
+                Ethiopian Food, Coffee & Pastry
+            </h1>
+
+            <p>
+                Authentic traditional meals, freshly brewed Ethiopian coffee,
+                and delicious bakery cakes.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SEARCH AND CATEGORY FILTERS
+    ====================================================== -->
+    <section class="filter-controls">
+
+
+        <!-- Mobile Search -->
+        <div class="search-box-mobile">
+
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+
+            <input
+                type="text"
+                id="mobile-search-input"
+                placeholder="Search menu items..."
+            >
+
+        </div>
+
+
+        <!-- Category Pills -->
+        <div class="category-pills"
+             id="category-tabs-container">
+
+
+            <!-- ALL -->
+            <button
+                type="button"
+                class="category-pill active"
+                data-category="all">
+
+                <i class="fa-solid fa-border-all"></i>
+                All
+
+            </button>
+
+
+            <!-- BREAKFAST -->
+            <button
+                type="button"
+                class="category-pill"
+                data-category="breakfast">
+
+                <i class="fa-solid fa-sun"></i>
+                Breakfast
+
+            </button>
+
+
+            <!-- MAIN MEALS -->
+            <button
+                type="button"
+                class="category-pill"
+                data-category="mains">
+
+                <i class="fa-solid fa-bowl-food"></i>
+                Main Meals
+
+            </button>
+
+
+            <!-- FASTING MEALS -->
+            <button
+                type="button"
+                class="category-pill"
+                data-category="fasting">
+
+                <i class="fa-solid fa-leaf"></i>
+                Fasting Meals
+
+            </button>
+
+
+            <!-- BEVERAGES -->
+            <button
+                type="button"
+                class="category-pill"
+                data-category="beverages">
+
+                <i class="fa-solid fa-glass-water"></i>
+                Beverages
+
+            </button>
+
+
+            <!-- SNACKS -->
+            <button
+                type="button"
+                class="category-pill"
+                data-category="snacks">
+
+                <i class="fa-solid fa-cookie-bite"></i>
+                Snacks
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MENU STATUS / SORT
+    ====================================================== -->
+    <div class="menu-status-bar">
+
+        <span id="results-count"
+              class="results-text">
+
+            Showing 24 of 24 items
+
+        </span>
+
+
+        <div class="sort-selector">
+
+            <label for="price-sort">
+                <i class="fa-solid fa-sort"></i>
+                Sort by:
+            </label>
+
+            <select id="price-sort">
+
+                <option value="recommended">
+                    Name
+                </option>
+
+                <option value="low-to-high">
+                    Price: Low to High
+                </option>
+
+                <option value="high-to-low">
+                    Price: High to Low
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FOOD GRID
+    ====================================================== -->
+    <section class="food-grid"
+             id="food-grid-container">
+
+
+        <!-- =================================================
+             1. AVOCADO WITH INJERA
+        ================================================== -->
+        <article class="food-card"
+                 data-category="snacks"
+                 data-id="101">
+
+            <div class="food-card-image">
+
+                <img
+                    src="/Frontend/public/assets/images/food/snacks/Avocado with injera.jpg"
+                    alt="Avocado with Injera "
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Avocado+with+Injera'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Avocado with Injera /አቡካዶ በእንጀራ
+                    </h3>
+
+                    <span class="food-price">
+                        85 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Fresh avocado served with injera
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=101"
+                           class="btn btn-icon-secondary"
+                           title="View Details">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="101"
+                            data-name="Avocado with Injera"
+                            data-price="85">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             2. CABBAGE WITH MEAT
+        ================================================== -->
+        <article class="food-card"
+                 data-category="mains"
+                 data-id="102">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/main-meals/cabbage-with-meat.jpeg"
+                    alt="Cabbage with Meat"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Cabbage+with+Meat'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Cabbage with Meat /ጎመን በሥጋ
+                    </h3>
+
+                    <span class="food-price">
+                        160 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Cabbage cooked with meat and spices
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=102"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="102"
+                            data-name="Cabbage with Meat"
+                            data-price="160">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             3. CHEESE WITH BUTTER
+        ================================================== -->
+        <article class="food-card"
+                 data-category="mains"
+                 data-id="103">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/main-meals/cheese-with-butter.jpeg"
+                    alt="Cheese with Butter"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Cheese+with+Butter'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Cheese with Butter /አይብ በቅቤ
+                    </h3>
+
+                    <span class="food-price">
+                        100 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Fresh cheese served with butter and bread
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=103"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="103"
+                            data-name="Cheese with Butter"
+                            data-price="100">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             4. EGG
+        ================================================== -->
+        <!--<article class="food-card"
+                 data-category="breakfast"
+                 data-id="104">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/breakfast/omelett(Enkulal sils).jpeg"
+                    alt="Egg"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Egg'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Egg
+                    </h3>
+
+                    <span class="food-price">
+                        80 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Fried or boiled egg served with bread
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=104"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="104"
+                            data-name="Egg"
+                            data-price="80">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>-->
+
+
+        <!-- =================================================
+             5. EGG WITH MEAT
+        ================================================== -->
+        <article class="food-card"
+                 data-category="mains"
+                 data-id="105">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/main-meals/egg-with-meat.jpg"
+                    alt="Egg with Meat"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Egg+with+Meat'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Egg with Meat /እንቁላል በሥጋ
+                    </h3>
+
+                    <span class="food-price">
+                        180 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Egg served with meat stew
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=105"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="105"
+                            data-name="Egg with Meat"
+                            data-price="180">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             6. FASTING SANDWICH
+        ================================================== -->
+        <article class="food-card"
+                 data-category="fasting"
+                 data-id="106">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food//snacks/meat-sandwich.jpg"
+                    alt="Fasting Sandwich"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Fasting+Sandwich'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Fasting Sandwich /የጾም ሳንድዊች
+                    </h3>
+
+                    <span class="food-price">
+                        50 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Vegetarian sandwich with vegetables
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=106"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="106"
+                            data-name="Fasting Sandwich"
+                            data-price="50">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             7. FIRFIR
+        ================================================== -->
+        <article class="food-card"
+                 data-category="breakfast"
+                 data-id="107">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/breakfast/firfir.jpeg"
+                    alt="Firfir"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Firfir'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Firfir /ፍርፍር
+                    </h3>
+
+                    <span class="food-price">
+                        70 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Spiced torn injera with berbere sauce
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=107"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="107"
+                            data-name="Firfir"
+                            data-price="70">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             8. FUL WITH BREAD
+        ================================================== -->
+        <article class="food-card"
+                 data-category="fasting"
+                 data-id="108">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/fasting/ful with Bread (Fasting).jpg"
+                    alt="Ful with Bread"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Ful+with+Bread'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Ful with Bread /ፉል በዳቦ
+                    </h3>
+
+                    <span class="food-price">
+                        80 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Fasting ful served with bread
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=108"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="108"
+                            data-name="Ful with Bread"
+                            data-price="80">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             9. GRILLED MEAT
+        ================================================== -->
+        <article class="food-card"
+                 data-category="mains"
+                 data-id="109">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/main-meals/grilled-meat.jpeg"
+                    alt="Grilled Meat"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Grilled+Meat'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Grilled Meat /ሥጋ ጥብስ
+                    </h3>
+
+                    <span class="food-price">
+                        250 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Grilled meat served with vegetables
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=109"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="109"
+                            data-name="Grilled Meat"
+                            data-price="250">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             10. JUICE
+        ================================================== -->
+        <article class="food-card"
+                 data-category="beverages"
+                 data-id="110">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/beverages/juice.jpeg"
+                    alt="Juice"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Juice'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Juice /ጁስ
+                    </h3>
+
+                    <span class="food-price">
+                        55 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Fresh fruit juice
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=110"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="110"
+                            data-name="Juice"
+                            data-price="55">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             11. LENTIL STEW
+        ================================================== -->
+        <article class="food-card"
+                 data-category="fasting"
+                 data-id="111">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/fasting/lentil-stew.jpeg"
+                    alt="Lentil Stew"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Lentil+Stew'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Lentil Stew /ምስር ወጥ
+                    </h3>
+
+                    <span class="food-price">
+                        80 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Traditional lentil stew with spices
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=111"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="111"
+                            data-name="Lentil Stew"
+                            data-price="80">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             12. MEAT SANDWICH
+        ================================================== -->
+        <article class="food-card"
+                 data-category="snacks"
+                 data-id="112">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/snacks/meat-sandwich.jpg"
+                    alt="Meat Sandwich"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Meat+Sandwich'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Meat Sandwich /የሥጋ ሳንዱች
+                    </h3>
+
+                    <span class="food-price">
+                        100 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Sandwich with grilled meat and vegetables
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=112"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="112"
+                            data-name="Meat Sandwich"
+                            data-price="100">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             13. MIXED FASTING
+        ================================================== -->
+        <article class="food-card"
+                 data-category="fasting"
+                 data-id="113">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/fasting/mixed-fasting(yetsom Beyaynet).jpeg"
+                    alt="Mixed Fasting"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Mixed+Fasting'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Mixed Fasting /የጾም በየአይነት 
+                    </h3>
+
+                    <span class="food-price">
+                        80 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Mixed fasting meal with 5 items
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=113"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="113"
+                            data-name="Mixed Fasting"
+                            data-price="80">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             14. OMELETTE
+        ================================================== -->
+        <article class="food-card"
+                 data-category="breakfast"
+                 data-id="114">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/breakfast/omelett(Enkulal sils).jpeg"
+                    alt="Omelette"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Omelette'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Omelette /እንቁላል ስልስ 
+                    </h3>
+
+                    <span class="food-price">
+                        90 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Omelette with vegetables and cheese
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=114"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="114"
+                            data-name="Omelette"
+                            data-price="90">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             15. PASTA WITH BREAD
+        ================================================== -->
+        <article class="food-card"
+                 data-category="breakfast"
+                 data-id="115">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/breakfast/pasta-with-bread.jpg"
+                    alt="Pasta with Bread"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Pasta+with+Bread'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Pasta with Bread /ፓስታ በዳቦ
+                    </h3>
+
+                    <span class="food-price">
+                        75 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Delicious pasta served with fresh bread
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=115"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="115"
+                            data-name="Pasta with Bread"
+                            data-price="75">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             16. PASTA WITH INJERA
+        ================================================== -->
+        <article class="food-card"
+                 data-category="breakfast"
+                 data-id="116">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/breakfast/pasta-with-injera.jpg"
+                    alt="Pasta with Injera"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Pasta+with+Injera'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Pasta with Injera /ፓስታ በእንጀራ
+                    </h3>
+
+                    <span class="food-price">
+                        80 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Pasta served with traditional injera
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=116"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="116"
+                            data-name="Pasta with Injera"
+                            data-price="80">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             17. PASTA WITH VEGETABLES
+        ================================================== -->
+        <article class="food-card"
+                 data-category="mains"
+                 data-id="117">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/main-meals/pasta-with-vegetables.jpeg"
+                    alt="Pasta with Vegetables"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Pasta+with+Vegetables'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Pasta with Vegetables /ፓስታ በአትክልት 
+                    </h3>
+
+                    <span class="food-price">
+                        75 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Pasta with fresh mixed vegetables
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=117"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="117"
+                            data-name="Pasta with Vegetables"
+                            data-price="75">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             18. RED STEW
+        ================================================== -->
+        <article class="food-card"
+                 data-category="mains"
+                 data-id="118">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/main-meals/red-stew.jpeg"
+                    alt="Red Stew"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Red+Stew'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Red Stew /ቀይ ወጥ
+                    </h3>
+
+                    <span class="food-price">
+                        180 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Spicy beef stew with berbere sauce
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=118"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="118"
+                            data-name="Red Stew"
+                            data-price="180">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             19. SCRAMBLED EGG
+        ================================================== -->
+        <article class="food-card"
+                 data-category="breakfast"
+                 data-id="119">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/breakfast/scrambled-egg.jpeg"
+                    alt="Scrambled Egg"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Scrambled+Egg'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Scrambled Egg /እንቁላል ፍርፍር
+                    </h3>
+
+                    <span class="food-price">
+                        90 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Fluffy scrambled eggs with butter
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=119"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="119"
+                            data-name="Scrambled Egg"
+                            data-price="90">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             20. SHIRO FESES
+        ================================================== -->
+        <article class="food-card"
+                 data-category="mains"
+                 data-id="120">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/main-meals/shiro-feses.jpg"
+                    alt="Shiro Feses"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Shiro+Feses'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Shiro Feses /ሽሮ ፈሰስ
+                    </h3>
+
+                    <span class="food-price">
+                        75 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Traditional chickpea stew with spices
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=120"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="120"
+                            data-name="Shiro Feses"
+                            data-price="75">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             21. SOFT DRINK
+        ================================================== -->
+        <article class="food-card"
+                 data-category="beverages"
+                 data-id="121">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/beverages/soft-drink.jpeg"
+                    alt="Soft Drink"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Soft+Drink'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Soft Drink /የለስላሳ መጠጦች 
+                    </h3>
+
+                    <span class="food-price">
+                        70 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Carbonated soft drink
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=121"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="121"
+                            data-name="Soft Drink"
+                            data-price="70">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             22. TOMATO SAUCE
+        ================================================== -->
+        <article class="food-card"
+                 data-category="mains"
+                 data-id="122">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/main-meals/tomato-sauce.jpeg"
+                    alt="Tomato Sauce"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Tomato+Sauce'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Tomato Sauce /ቲማቲም ስልስ
+                    </h3>
+
+                    <span class="food-price">
+                        70 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Rich tomato sauce with spices
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=122"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="122"
+                            data-name="Tomato Sauce"
+                            data-price="70">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             23. VEGETABLES WITH MEAT
+        ================================================== -->
+        <article class="food-card"
+                 data-category="mains"
+                 data-id="123">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/main-meals/vegetables-with-meat.jpeg"
+                    alt="Vegetables with Meat"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Vegetables+with+Meat'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Vegetables with Meat /አትክልት በሥጋ
+                    </h3>
+
+                    <span class="food-price">
+                        160 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Mixed vegetables cooked with meat
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=123"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="123"
+                            data-name="Vegetables with Meat"
+                            data-price="160">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- =================================================
+             24. WATER
+        ================================================== -->
+        <article class="food-card"
+                 data-category="beverages"
+                 data-id="124">
+
+            <div class="food-card-image">
+
+                <img
+                    src="../../../public/assets/images/food/beverages/water.jpeg"
+                    alt="Water"
+                    onerror="this.src='https://via.placeholder.com/300x200?text=Water'"
+                >
+
+            </div>
+
+            <div class="food-card-body">
+
+                <div class="food-header">
+
+                    <h3 class="food-title">
+                        Water /ውሃ
+                    </h3>
+
+                    <span class="food-price">
+                        30 <small>ብር</small>
+                    </span>
+
+                </div>
+
+                <p class="food-description">
+                    Bottled water
+                </p>
+
+                <div class="food-card-footer">
+
+                    <span class="status-stock in-stock">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Available
+                    </span>
+
+                    <div class="card-actions">
+
+                        <a href="food-details.html?id=124"
+                           class="btn btn-icon-secondary">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+                        <button
+                            class="btn btn-primary add-to-cart-btn"
+                            data-id="124"
+                            data-name="Water"
+                            data-price="30">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+    </section>
+
+
+    <!-- =====================================================
+         EMPTY STATE
+    ====================================================== -->
+    <div class="empty-state hidden"
+         id="no-results">
+
+        <i class="fa-solid fa-utensils-slash"></i>
+
+        <h3>
+            No Food or Drink Items Found
+        </h3>
+
+        <p>
+            We couldn't find anything matching your search.
+            Try searching for food, beverages, or snacks!
+        </p>
+
+        <button
+            class="btn btn-secondary"
+            id="reset-search-btn">
+
+            Reset Filters
+
+        </button>
+
+    </div>
+
+</main>
+
+
+<!-- =========================================================
+     FLOATING MOBILE CART
+========================================================= -->
+<a href="cart.html"
+   class="floating-cart-btn"
+   aria-label="Cart">
+
+    <i class="fa-solid fa-basket-shopping"></i>
+
+    <span
+        class="floating-cart-count"
+        id="mobile-cart-badge">
+        0
+    </span>
+
+</a>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+<footer class="footer-section">
+
+    <div class="container footer-content">
+
+        <p>
+            &copy; 2026 TasteEthio Ordering System.
+            All Rights Reserved.
+        </p>
+
+        <div class="footer-links">
+
+            <a href="#">
+                Privacy Policy
+            </a>
+
+            <a href="#">
+                Terms of Service
+            </a>
+
+            <a href="feedback.html">
+                Feedback
+            </a>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+<script src="/frontend/src/js/menu.js"></script>
+<script src="/frontend/src/js/main.js"></script>
+<script src="/frontend/src/js/cart.js"></script>
+<script src="/frontend/src/js/active-order.js"></script>
+<script src="/frontend/src/js/order-history.js"></script>
+<script src="/frontend/src/js/profile.js"></script>
+<script src="/frontend/src/js/utils/storage.js"></script>
+<script src="/frontend/src/js/utils/formatters.js"></script>
+<script src="/components/navbar.js"></script>
+<script src="/frontend/src/js/categories.js"></script>
+
+
+<script>
+/* =========================================================
+   FIX: ADD TO CART
+   Keeps the existing menu unchanged and makes every
+   .add-to-cart-btn work with localStorage.
+   ========================================================= */
+document.addEventListener("DOMContentLoaded", function () {
+
+    const CART_KEY = "cart";
+
+    function getCart() {
+        try {
+            const savedCart = localStorage.getItem(CART_KEY);
+            const cart = savedCart ? JSON.parse(savedCart) : [];
+            return Array.isArray(cart) ? cart : [];
+        } catch (error) {
+            console.error("Could not read cart:", error);
+            return [];
+        }
+    }
+
+    function saveCart(cart) {
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+        /* Notify other pages/components that the cart changed */
+        window.dispatchEvent(new Event("cartUpdated"));
+    }
+
+    function updateCartBadges() {
+        const cart = getCart();
+        const totalQuantity = cart.reduce(function (total, item) {
+            return total + (Number(item.quantity) || 0);
+        }, 0);
+
+        const badge = document.getElementById("cart-badge-count");
+        const mobileBadge = document.getElementById("mobile-cart-badge");
+
+        if (badge) {
+            badge.textContent = totalQuantity;
+        }
+
+        if (mobileBadge) {
+            mobileBadge.textContent = totalQuantity;
+        }
+    }
+
+    function addItemToCart(button) {
+        const id = String(button.dataset.id || "").trim();
+        const name = String(button.dataset.name || "").trim();
+        const price = Number(button.dataset.price);
+
+        if (!id || !name || !Number.isFinite(price)) {
+            console.error("Invalid product data:", {
+                id: button.dataset.id,
+                name: button.dataset.name,
+                price: button.dataset.price
+            });
+            return;
+        }
+
+        const cart = getCart();
+
+        const existingItem = cart.find(function (item) {
+            return String(item.id) === id;
+        });
+
+        if (existingItem) {
+            existingItem.quantity = (Number(existingItem.quantity) || 0) + 1;
+        } else {
+            cart.push({
+                id: id,
+                name: name,
+                price: price,
+                quantity: 1
+            });
+        }
+
+        saveCart(cart);
+        updateCartBadges();
+
+        /* Small visual confirmation without changing the page design */
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fa-solid fa-check"></i> Added';
+        button.disabled = true;
+
+        setTimeout(function () {
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+        }, 700);
+    }
+
+    /*
+     * Event delegation is intentional:
+     * it still works if menu.js filters/rebuilds the food cards.
+     * Capture + stopImmediatePropagation prevents another cart
+     * handler from adding the same item twice.
+     */
+    document.addEventListener("click", function (event) {
+        const button = event.target.closest(".add-to-cart-btn");
+
+        if (!button) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        addItemToCart(button);
+    }, true);
+
+    updateCartBadges();
+
+    window.addEventListener("cartUpdated", updateCartBadges);
+    window.addEventListener("storage", updateCartBadges);
+});
+</script>
+
+</body>
+</html>

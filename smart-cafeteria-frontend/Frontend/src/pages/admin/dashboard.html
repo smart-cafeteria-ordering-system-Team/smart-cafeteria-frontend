@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Smart Cafeteria</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Admin CSS stylesheet -->
+    <link rel="stylesheet" href="/frontend/src/css/admin.css">
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+
+   
+</head>
+<body class="admin-body">
+
+    <!-- TOP NAVBAR -->
+    <header class="admin-navbar">
+        <div class="nav-left">
+            <button id="sidebarToggle" class="btn-icon" aria-label="Toggle Sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="brand-logo">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Smart Cafeteria <small>Admin</small></span>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <div class="nav-item dropdown">
+                <button class="btn-icon" id="notificationBtn" title="Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge-dot" id="notifBadge"></span>
+                </button>
+            </div>
+            
+            <div class="user-profile-menu">
+                <div class="avatar" id="adminAvatar">A</div>
+                <div class="user-info">
+                    <strong id="adminNameDisplay">Admin User</strong>
+                    <small>Administrator</small>
+                </div>
+                <button id="logoutBtn" class="btn-logout-icon" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- WRAPPER: SIDEBAR + MAIN CONTENT -->
+    <div class="admin-container">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <nav class="sidebar-nav">
+                <div class="sidebar-group">
+                    <span class="group-title">MAIN</span>
+                    <a href="dashboard.html" class="sidebar-link active">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-group">
+                    <span class="group-title">MANAGEMENT</span>
+                    <a href="users.html" class="sidebar-link">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="menu.html" class="sidebar-link">
+                        <i class="fa-solid fa-bowl-food"></i>
+                        <span>Menu</span>
+                    </a>
+                    <a href="categories.html" class="sidebar-link">
+                        <i class="fa-solid fa-list"></i>
+                        <span>Categories</span>
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>Orders</span>
+                    </a>
+                    <a href="payments.html" class="sidebar-link">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Payments</span>
+                    </a>
+                    <a href="cancellations.html" class="sidebar-link">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                        <span>cancellations</span>
+                        <span class="sidebar-badge" id="sidebarRefundBadge">0</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-group">
+                    <span class="group-title">ANALYTICS & SYSTEM</span>
+                    <a href="feedback.html" class="sidebar-link">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Feedback</span>
+                    </a>
+                    <a href="reports.html" class="sidebar-link">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Reports</span>
+                    </a>
+                    <a href="settings.html" class="sidebar-link">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN DASHBOARD CONTENT -->
+        <main class="admin-main">
+            
+            <div class="page-header">
+                <div>
+                    <h1>Dashboard Overview</h1>
+                    <p class="subtitle">Real-time status of your cafeteria system.</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" id="refreshMetricsBtn">
+                        <i class="fa-solid fa-rotate"></i> Refresh Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- METRIC CARDS GRID -->
+            <section class="metrics-grid">
+                <div class="metric-card">
+                    <div class="card-icon bg-blue">
+                        <i class="fa-solid fa-cash-register"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Today's Sales</span>
+                        <h2 id="metricSales">0 <small>ETB</small></h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-green">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Total Orders Today</span>
+                        <h2 id="metricOrders">0</h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-orange">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Pending Orders</span>
+                        <h2 id="metricPending">0</h2>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-icon bg-red">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </div>
+                    <div class="card-details">
+                        <span class="metric-title">Pending Refunds</span>
+                        <h2 id="metricRefunds">0</h2>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DASHBOARD TABLES GRID -->
+            <section class="dashboard-tables-grid">
+                
+                <!-- RECENT ORDERS CARD -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-list-check"></i> Recent Orders</h3>
+                        <a href="orders.html" class="link-btn">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Payment</th>
+                                    <th>Order Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentOrdersTableBody">
+                                <!-- Dynamic Render -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- POPULAR ITEMS SIDE CARD -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-fire"></i> Top Selling Foods</h3>
+                        <a href="menu.html" class="link-btn">Manage Menu</a>
+                    </div>
+                    <ul class="popular-list" id="popularFoodsList">
+                        <!-- Dynamic Render -->
+                    </ul>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="/frontend/src/js/admin.js"></script>
+    <script src="/Frontend/src/components/sidebar.js"></script>
+    
+</body>
+</html>

@@ -1,0 +1,587 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Smart Cafeteria</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        /* =========================
+           GLOBAL RESET
+        ========================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            color: #ffffff;
+            position: relative;
+        }
+
+        /* =========================
+           HOME LINK
+        ========================= */
+        .top-home-logo {
+            position: absolute;
+            top: 24px;
+            left: 32px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            opacity: 0.85;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-home-logo:hover {
+            opacity: 1;
+            transform: translateX(-2px);
+        }
+
+        /* =========================
+           MAIN CONTAINER
+        ========================= */
+        .main-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        /* =========================
+           LOGIN CARD
+        ========================= */
+        .login-card {
+            width: 100%;
+            max-width: 480px;
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .login-card h1 {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        /* =========================
+           FORM
+        ========================= */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .form-group label span {
+            color: #ff2a5f;
+        }
+
+        .forgot-link {
+            font-size: 12px;
+            color: #ff2a5f;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+            opacity: 0.9;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 44px;
+            padding: 0 14px;
+            background: #ffffff;
+            border: 1.5px solid transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            color: #0f172a;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8;
+        }
+
+        .form-group input:focus {
+            border-color: #ff2a5f;
+            box-shadow: 0 0 0 3px rgba(255, 42, 95, 0.2);
+        }
+
+        /* =========================
+           MESSAGES
+        ========================= */
+        .message {
+            display: none;
+            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid #22c55e;
+            color: #86efac;
+        }
+
+        /* =========================
+           BUTTON
+        ========================= */
+        .submit-btn {
+            width: 100%;
+            background: #ff2a5f;
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .submit-btn:hover {
+            background: #e02050;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* =========================
+           FOOTER LINKS
+        ========================= */
+        .footer-link {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .footer-link a {
+            color: #ff2a5f;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .back-home a {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .back-home a:hover {
+            color: #ffffff;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+        @media (max-width: 580px) {
+
+            body {
+                padding-top: 60px;
+            }
+
+            .top-home-logo {
+                top: 16px;
+                left: 20px;
+            }
+
+            .login-card {
+                padding: 28px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         HOME NAVIGATION
+    ========================= -->
+
+    <a href="/Frontend/src/pages/common/index.html" class="top-home-logo">
+        ← Smart Cafeteria
+    </a>
+
+
+    <!-- =========================
+         LOGIN FORM
+    ========================= -->
+
+    <main class="main-container">
+
+        <div class="login-card">
+
+            <h1>Login</h1>
+
+
+            <!-- ERROR MESSAGE -->
+            <div id="errorMsg" class="message error-message"></div>
+
+
+            <!-- SUCCESS MESSAGE -->
+            <div id="successMsg" class="message success-message"></div>
+
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" novalidate>
+
+                <!-- PHONE / EMAIL -->
+                <div class="form-group">
+
+                    <label for="identifier">
+                        Phone or Email <span>*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="identifier"
+                        placeholder="09XXXXXXXX or email@example.com"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- PASSWORD -->
+                <div class="form-group">
+
+                    <div class="label-row">
+
+                        <label for="password">
+                            Password <span>*</span>
+                        </label>
+
+                        <a href="#" class="forgot-link">
+                            Forgot?
+                        </a>
+
+                    </div>
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- LOGIN BUTTON -->
+                <button
+                    type="submit"
+                    class="submit-btn"
+                    id="submitBtn"
+                >
+                    Login
+                </button>
+
+
+                <!-- REGISTER -->
+                <p class="footer-link">
+
+                    Don't have an account?
+
+                    <a href="/Frontend/src/pages/common/register.html">
+                        Register
+                    </a>
+
+                </p>
+
+
+                <!-- BACK HOME -->
+                <p class="back-home">
+
+                    <a href="/Frontend/src/pages/common/index.html">
+                        ← Back to Home Page
+                    </a>
+
+                </p>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         LOGIN JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        const form = document.getElementById('loginForm');
+
+        const errorMsg = document.getElementById('errorMsg');
+
+        const successMsg = document.getElementById('successMsg');
+
+
+        /* =========================
+           LOGIN SUBMIT
+        ========================= */
+
+        form.addEventListener('submit', function (e) {
+
+            e.preventDefault();
+
+
+            // Hide old messages
+            errorMsg.style.display = 'none';
+
+            successMsg.style.display = 'none';
+
+
+            // Get values
+            const identifier =
+                document.getElementById('identifier').value.trim();
+
+            const password =
+                document.getElementById('password').value;
+
+
+            /* =========================
+               VALIDATION
+            ========================= */
+
+            if (!identifier) {
+
+                showError('Phone or Email is required.');
+
+                return;
+            }
+
+
+            if (!password) {
+
+                showError('Password is required.');
+
+                return;
+            }
+
+
+            /* =========================
+               DEFAULT CUSTOMER
+            ========================= */
+
+            let userRole = 'CUSTOMER';
+
+            let userName =
+                identifier.includes('@')
+                    ? identifier.split('@')[0]
+                    : identifier;
+
+            let redirectUrl =
+                '/Frontend/src/pages/customer/menu.html';
+
+
+            /* =========================
+               ADMIN ACCOUNT
+            ========================= */
+
+            if (
+                identifier === 'sintayehu@22.com' &&
+                password === '123456'
+            ) {
+
+                userRole = 'ADMIN';
+
+                userName = 'cent';
+
+                redirectUrl =
+                    '/Frontend/src/pages/admin/dashboard.html';
+            }
+
+
+            /* =========================
+               STAFF ACCOUNT
+            ========================= */
+
+            else if (
+                identifier === 'kitchen@caf.com' &&
+                password === '12345678'
+            ) {
+
+                userRole = 'STAFF';
+
+                userName = 'Sintayehu Begashaw';
+
+                redirectUrl =
+                    '/Frontend/src/pages/kitchen/dashboard.html';
+            }
+
+
+            /* =========================
+               CUSTOMER
+            ========================= */
+
+            else {
+
+                userRole = 'CUSTOMER';
+
+                redirectUrl =
+                    '/Frontend/src/pages/customer/menu.html';
+            }
+
+
+            /* =========================
+               SAVE LOGIN SESSION
+            ========================= */
+
+            localStorage.setItem(
+                'isLoggedIn',
+                'true'
+            );
+
+            localStorage.setItem(
+                'userRole',
+                userRole
+            );
+
+
+            /* =========================
+               SAVE USER PROFILE
+            ========================= */
+
+            const userProfile =
+                JSON.parse(
+                    localStorage.getItem('userProfile')
+                ) || {};
+
+
+            userProfile.name = userName;
+
+            userProfile.email = identifier;
+
+            userProfile.role = userRole;
+
+
+            localStorage.setItem(
+                'userProfile',
+                JSON.stringify(userProfile)
+            );
+
+
+            /* =========================
+               SUCCESS MESSAGE
+            ========================= */
+
+            showSuccess(
+                `Login successful! Redirecting to ${userRole.toLowerCase()} portal...`
+            );
+
+
+            // Clear form
+            form.reset();
+
+
+            /* =========================
+               REDIRECT
+            ========================= */
+
+            setTimeout(function () {
+
+                window.location.href = redirectUrl;
+
+            }, 1200);
+
+        });
+
+
+        /* =========================
+           ERROR MESSAGE
+        ========================= */
+
+        function showError(message) {
+
+            errorMsg.textContent = message;
+
+            errorMsg.style.display = 'block';
+        }
+
+
+        /* =========================
+           SUCCESS MESSAGE
+        ========================= */
+
+        function showSuccess(message) {
+
+            successMsg.textContent = message;
+
+            successMsg.style.display = 'block';
+        }
+
+    </script>
+
+</body>
+</html>
+```

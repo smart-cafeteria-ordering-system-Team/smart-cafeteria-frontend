@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Your Cart - Cafeteria Menu</title>
+
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Link your main stylesheet -->
+    <link rel="stylesheet" href="/frontend/src/css/style.css">
+    <link rel="stylesheet" href="/frontend/src/css/cart.css">
+
+    <!-- DO NOT DISPLAY FOOD IMAGES IN CART -->
+    <style>
+        .cart-container img,
+        .cart-items-section img,
+        .cart-item img,
+        .cart-food-image,
+        .food-image,
+        .item-image {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header / Navigation -->
+    <header class="navbar">
+        <div class="container nav-container">
+
+            <a href="menu.html" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Menu
+            </a>
+
+            <h2>
+                <i class="fa-solid fa-cart-shopping"></i>
+                My Food Cart
+            </h2>
+
+            <div></div>
+            <!-- Spacer for alignment -->
+
+        </div>
+    </header>
+
+
+    <header class="navbar">
+
+        <div class="container nav-container">
+
+            <a href="menu.html" class="logo">
+                Cafeteria Menu
+            </a>
+
+            <div class="nav-links">
+
+                <!-- Permanent link to order status page -->
+                <a href="order-tracking.html" class="nav-link-track">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Track Order
+                </a>
+
+                <a href="cart.html" class="nav-cart-btn">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="cart-count">0</span>
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main class="container cart-layout">
+
+        <!-- Left Column: Cart Items List -->
+        <section class="cart-items-section">
+
+            <div class="cart-header">
+
+                <h3>
+                    Order Items
+                    (<span id="cart-count">0</span>)
+                </h3>
+
+                <button
+                    id="clear-cart-btn"
+                    class="btn btn-sm btn-outline-danger"
+                    style="display:none;"
+                >
+                    <i class="fa-solid fa-trash"></i>
+                    Clear All
+                </button>
+
+            </div>
+
+
+            <!-- Dynamic Cart Items Container -->
+            <div id="cart-container" class="cart-container">
+                <!-- Javascript will inject cart items or empty state here -->
+            </div>
+
+        </section>
+
+
+        <!-- Right Column: Order Summary -->
+        <aside class="cart-summary-section">
+
+            <div class="summary-card">
+
+                <h3>Order Summary</h3>
+
+                <hr>
+
+
+                <div class="summary-row">
+
+                    <span>Subtotal</span>
+
+                    <span>
+                        <strong id="summary-subtotal">0</strong>
+                        <small>ETB</small>
+                    </span>
+
+                </div>
+
+
+                <div class="summary-row">
+
+                    <span>Service Fee</span>
+
+                    <span>
+                        <strong id="summary-service-fee">0</strong>
+                        <small>ETB</small>
+                    </span>
+
+                </div>
+
+
+                <hr class="divider">
+
+
+                <div class="summary-row total-row">
+
+                    <span>Total Amount</span>
+
+                    <span>
+                        <strong id="summary-total">0</strong>
+                        <small>ETB</small>
+                    </span>
+
+                </div>
+
+
+                <div class="summary-actions">
+
+                    <button
+                        id="checkout-btn"
+                        class="btn btn-primary btn-block"
+                        disabled
+                    >
+                        Proceed to Checkout
+                        <i class="fa-solid fa-credit-card"></i>
+                    </button>
+
+
+                    <a
+                        href="menu.html"
+                        class="btn btn-secondary btn-block"
+                    >
+                        Add More Food
+                    </a>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </main>
+
+
+    <!-- Connect cart.js -->
+    <script src="/frontend/src/js/menu.js"></script>
+
+    <script src="/frontend/src/js/main.js"></script>
+
+    <script src="/Frontend/src/js/cart.js"></script>
+
+    <script src="/frontend/src/js/active-order.js"></script>
+
+    <script src="/components/navbar.js"></script>
+
+</body>
+</html>
