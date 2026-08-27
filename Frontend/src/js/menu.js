@@ -1,4 +1,23 @@
+/**
+ * Menu JavaScript
+ * File: Frontend/src/js/menu.js
+ *
+ * Handles:
+ * - Category filtering
+ * - Search
+ * - Price sorting
+ * - Add to cart
+ * - Cart badge
+ */
+
 document.addEventListener("DOMContentLoaded", function () {
+
+    // =========================================================
+    // CART CONFIGURATION
+    // =========================================================
+
+    const CART_KEY = "smart_cafeteria_cart";
+
 
     // =========================================================
     // ELEMENTS
@@ -7,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const categoryButtons =
         document.querySelectorAll(".category-pill");
 
-    const foodCards = 
+    const foodCards =
         document.querySelectorAll(".food-card");
 
     const resultsCount =
@@ -30,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =========================================================
-    // CURRENT FILTER STATE
+    // FILTER STATE
     // =========================================================
 
     let currentCategory = "all";
@@ -39,20 +58,333 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =========================================================
-    // CHECK ELEMENTS
+    // CART FUNCTIONS
     // =========================================================
 
-    if (!categoryButtons.length) {
-        console.error("ERROR: Category buttons not found.");
+    function getCart() {
+
+        try {
+
+            const savedCart =
+                localStorage.getItem(CART_KEY);
+
+            if (!savedCart) {
+                return [];
+            }
+
+            const cart = JSON.parse(savedCart);
+
+            return Array.isArray(cart) ? cart : [];
+
+        } catch (error) {
+
+            console.error("Error reading cart:", error);
+
+            return [];
+        }
     }
 
-    if (!foodCards.length) {
-        console.error("ERROR: Food cards not found.");
+
+    function saveCart(cart) {
+
+        localStorage.setItem(
+            CART_KEY,
+            JSON.stringify(cart)
+        );
+
+        window.dispatchEvent(
+            new CustomEvent("cart:updated", {
+                detail: cart
+            })
+        );
+    }
+
+
+    function updateCartBadges() {
+
+        const cart = getCart();
+
+        const totalQuantity =
+            cart.reduce(function (total, item) {
+
+                return total +
+                    Number(item.quantity || 0);
+
+            }, 0);
+
+
+        // Different possible cart badges
+        const badges = document.querySelectorAll(
+            "#cart-count, #cart-badge-count, #mobile-cart-badge"
+        );
+
+
+        badges.forEach(function (badge) {
+
+            badge.textContent = totalQuantity;
+
+        });
     }
 
 
     // =========================================================
-    // GET CARD CATEGORY
+    // GET FOOD DATA FROM CARD
+    // =========================================================
+
+    function getFoodPrice(card) {
+
+        const priceElement =
+            card.querySelector(".food-price");
+
+        if (!priceElement) {
+            return 0;
+        }
+
+        const price =
+            parseFloat(
+                priceElement.textContent
+                    .replace(/[^\d.]/g, "")
+            );
+
+        return Number.isFinite(price)
+            ? price
+            : 0;
+    }
+
+
+    function getFoodId(card, button) {
+
+        // First try button data-id
+        if (button.dataset.id) {
+            return String(button.dataset.id);
+        }
+
+        // Then card data-id
+        if (card.dataset.id) {
+            return String(card.dataset.id);
+        }
+
+        // Then menuItemId
+        if (button.dataset.menuItemId) {
+            return String(button.dataset.menuItemId);
+        }
+
+        if (card.dataset.menuItemId) {
+            return String(card.dataset.menuItemId);
+        }
+
+        // Generate stable ID from name
+        const title =
+            card.querySelector(".food-title");
+
+        if (title) {
+
+            return title.textContent
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, "-")
+                .replace(/[^a-z0-9-]/g, "");
+
+        }
+
+        return "";
+    }
+
+
+    function getFoodName(card, button) {
+
+        if (button.dataset.name) {
+            return button.dataset.name.trim();
+        }
+
+        const title =
+            card.querySelector(".food-title");
+
+        return title
+            ? title.textContent.trim()
+            : "Unknown Food";
+    }
+
+
+    function getFoodImage(card, button) {
+
+        if (button.dataset.image) {
+            return button.dataset.image;
+        }
+
+        const image =
+            card.querySelector("img");
+
+        return image
+            ? image.src
+            : "";
+    }
+
+
+    // =========================================================
+    // ADD TO CART
+    // =========================================================
+
+    function addToCart(button) {
+
+        const card =
+            button.closest(".food-card");
+
+        if (!card) {
+
+            console.error(
+                "Food card not found."
+            );
+
+            return;
+        }
+
+
+        const id =
+            getFoodId(card, button);
+
+        const name =
+            getFoodName(card, button);
+
+        const price =
+            button.dataset.price
+                ? Number(button.dataset.price)
+                : getFoodPrice(card);
+
+        const image =
+            getFoodImage(card, button);
+
+
+        if (!id) {
+
+            console.error(
+                "Food ID not found.",
+                card
+            );
+
+            return;
+        }
+
+
+        if (!Number.isFinite(price)) {
+
+            console.error(
+                "Invalid food price:",
+                price
+            );
+
+            return;
+        }
+
+
+        let cart = getCart();
+
+
+        // Find existing item
+        const existingItem =
+            cart.find(function (item) {
+
+                return String(
+                    item.menuItemId
+                ) === String(id);
+
+            });
+
+
+        if (existingItem) {
+
+            existingItem.quantity =
+                Number(existingItem.quantity || 0) + 1;
+
+        } else {
+
+            cart.push({
+
+                menuItemId: id,
+
+                name: name,
+
+                price: price,
+
+                image: image,
+
+                quantity: 1
+
+            });
+        }
+
+
+        // Save
+        saveCart(cart);
+
+
+        // Update badge
+        updateCartBadges();
+
+
+        // Visual feedback
+        const originalHTML =
+            button.innerHTML;
+
+
+        button.innerHTML =
+            '<i class="fa-solid fa-check"></i> Added';
+
+        button.disabled = true;
+
+
+        setTimeout(function () {
+
+            button.innerHTML =
+                originalHTML;
+
+            button.disabled = false;
+
+        }, 700);
+
+
+        console.log(
+            "Added to cart:",
+            {
+                menuItemId: id,
+                name: name,
+                price: price,
+                quantity: 1
+            }
+        );
+    }
+
+
+    // =========================================================
+    // ADD TO CART CLICK
+    // =========================================================
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            const button =
+                event.target.closest(
+                    ".add-to-cart-btn, .add-to-cart, [data-add-to-cart]"
+                );
+
+
+            if (!button) {
+                return;
+            }
+
+
+            event.preventDefault();
+
+
+            addToCart(button);
+
+        }
+    );
+
+
+    // =========================================================
+    // CATEGORY FUNCTIONS
     // =========================================================
 
     function getCardCategories(card) {
@@ -71,11 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // =========================================================
-    // GET FOOD NAME
-    // =========================================================
-
-    function getFoodName(card) {
+    function getFoodNameForSearch(card) {
 
         const title =
             card.querySelector(".food-title");
@@ -85,10 +413,6 @@ document.addEventListener("DOMContentLoaded", function () {
             : "";
     }
 
-
-    // =========================================================
-    // GET FOOD DESCRIPTION
-    // =========================================================
 
     function getFoodDescription(card) {
 
@@ -102,28 +426,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =========================================================
-    // GET FOOD PRICE
-    // =========================================================
-
-    function getFoodPrice(card) {
-
-        const priceElement =
-            card.querySelector(".food-price");
-
-        if (!priceElement) {
-            return 0;
-        }
-
-        const price =
-            parseFloat(
-                priceElement.textContent.replace(/[^\d.]/g, "")
-            );
-
-        return isNaN(price) ? 0 : price;
-    }
-
-
-    // =========================================================
     // FILTER MENU
     // =========================================================
 
@@ -132,40 +434,42 @@ document.addEventListener("DOMContentLoaded", function () {
         let visibleCards = [];
 
 
-        // -----------------------------------------------------
-        // FILTER FOOD CARDS
-        // -----------------------------------------------------
-
         foodCards.forEach(function (card) {
 
             const categories =
                 getCardCategories(card);
 
             const foodName =
-                getFoodName(card);
+                getFoodNameForSearch(card);
 
             const foodDescription =
                 getFoodDescription(card);
 
 
-            // Category match
             const categoryMatch =
                 currentCategory === "all" ||
-                categories.includes(currentCategory);
+                categories.includes(
+                    currentCategory
+                );
 
 
-            // Search match
             const searchMatch =
                 currentSearch === "" ||
                 foodName.includes(currentSearch) ||
                 foodDescription.includes(currentSearch) ||
                 categories.some(function (category) {
-                    return category.includes(currentSearch);
+
+                    return category.includes(
+                        currentSearch
+                    );
+
                 });
 
 
-            // Show / hide
-            if (categoryMatch && searchMatch) {
+            if (
+                categoryMatch &&
+                searchMatch
+            ) {
 
                 card.style.display = "";
 
@@ -180,57 +484,61 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
 
-        // -----------------------------------------------------
-        // SORT RESULTS
-        // -----------------------------------------------------
-
+        // Sort
         if (currentSort === "low-to-high") {
 
-            sortCardsByPrice(visibleCards, false);
+            sortCardsByPrice(
+                visibleCards,
+                false
+            );
 
-        } else if (currentSort === "high-to-low") {
+        } else if (
+            currentSort === "high-to-low"
+        ) {
 
-            sortCardsByPrice(visibleCards, true);
-
+            sortCardsByPrice(
+                visibleCards,
+                true
+            );
         }
 
 
-        // -----------------------------------------------------
-        // UPDATE RESULT COUNT
-        // -----------------------------------------------------
+        updateResultsCount(
+            visibleCards.length
+        );
 
-        updateResultsCount(visibleCards.length);
-
-
-        // -----------------------------------------------------
-        // EMPTY STATE
-        // -----------------------------------------------------
 
         if (noResults) {
 
             if (visibleCards.length === 0) {
 
-                noResults.classList.remove("hidden");
+                noResults.classList.remove(
+                    "hidden"
+                );
 
             } else {
 
-                noResults.classList.add("hidden");
-
+                noResults.classList.add(
+                    "hidden"
+                );
             }
-
         }
-
     }
 
 
     // =========================================================
-    // SORT CARDS BY PRICE
+    // SORT
     // =========================================================
 
-    function sortCardsByPrice(cards, descending) {
+    function sortCardsByPrice(
+        cards,
+        descending
+    ) {
 
         const container =
-            document.getElementById("food-grid-container");
+            document.getElementById(
+                "food-grid-container"
+            );
 
         if (!container) {
             return;
@@ -239,27 +547,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
         cards.sort(function (a, b) {
 
-            const priceA = getFoodPrice(a);
-            const priceB = getFoodPrice(b);
+            const priceA =
+                getFoodPrice(a);
 
-            if (descending) {
-                return priceB - priceA;
-            }
+            const priceB =
+                getFoodPrice(b);
 
-            return priceA - priceB;
+
+            return descending
+                ? priceB - priceA
+                : priceA - priceB;
 
         });
 
 
         cards.forEach(function (card) {
-            container.appendChild(card);
-        });
 
+            container.appendChild(card);
+
+        });
     }
 
 
     // =========================================================
-    // UPDATE RESULTS COUNT
+    // RESULT COUNT
     // =========================================================
 
     function updateResultsCount(count) {
@@ -269,7 +580,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        if (currentCategory === "all" && currentSearch === "") {
+        if (
+            currentCategory === "all" &&
+            currentSearch === ""
+        ) {
 
             resultsCount.textContent =
                 `Showing all ${count} menu options`;
@@ -278,7 +592,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        let categoryName = "";
+        let categoryName = "menu";
 
 
         switch (currentCategory) {
@@ -302,9 +616,6 @@ document.addEventListener("DOMContentLoaded", function () {
             case "drinks":
                 categoryName = "Juices & Drinks";
                 break;
-
-            default:
-                categoryName = "menu";
         }
 
 
@@ -319,7 +630,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 `Showing ${count} ${categoryName} item${count !== 1 ? "s" : ""}`;
 
         }
-
     }
 
 
@@ -329,80 +639,89 @@ document.addEventListener("DOMContentLoaded", function () {
 
     categoryButtons.forEach(function (button) {
 
-        button.addEventListener("click", function () {
+        button.addEventListener(
+            "click",
+            function () {
 
-            // Get category
-            currentCategory =
-                this.getAttribute("data-category");
-
-
-            // Remove active class
-            categoryButtons.forEach(function (btn) {
-
-                btn.classList.remove("active");
-
-            });
+                currentCategory =
+                    this.getAttribute(
+                        "data-category"
+                    );
 
 
-            // Add active class
-            this.classList.add("active");
+                categoryButtons.forEach(
+                    function (btn) {
+
+                        btn.classList.remove(
+                            "active"
+                        );
+
+                    }
+                );
 
 
-            // Apply filter
-            filterMenu();
+                this.classList.add("active");
 
-        });
 
+                filterMenu();
+            }
+        );
     });
 
 
     // =========================================================
-    // DESKTOP SEARCH
+    // SEARCH
     // =========================================================
 
     if (searchInput) {
 
-        searchInput.addEventListener("input", function () {
+        searchInput.addEventListener(
+            "input",
+            function () {
 
-            currentSearch =
-                this.value.toLowerCase().trim();
+                currentSearch =
+                    this.value
+                        .toLowerCase()
+                        .trim();
 
 
-            // Keep mobile search synchronized
-            if (mobileSearchInput) {
-                mobileSearchInput.value = this.value;
+                if (mobileSearchInput) {
+
+                    mobileSearchInput.value =
+                        this.value;
+                }
+
+
+                filterMenu();
+
             }
-
-
-            filterMenu();
-
-        });
-
+        );
     }
 
 
-    // =========================================================
-    // MOBILE SEARCH
-    // =========================================================
-
     if (mobileSearchInput) {
 
-        mobileSearchInput.addEventListener("input", function () {
+        mobileSearchInput.addEventListener(
+            "input",
+            function () {
 
-            currentSearch =
-                this.value.toLowerCase().trim();
+                currentSearch =
+                    this.value
+                        .toLowerCase()
+                        .trim();
 
 
-            // Keep desktop search synchronized
-            if (searchInput) {
-                searchInput.value = this.value;
+                if (searchInput) {
+
+                    searchInput.value =
+                        this.value;
+                }
+
+
+                filterMenu();
+
             }
-
-
-            filterMenu();
-
-        });
-
+        );
     }
 
 
@@ -412,117 +731,99 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (priceSort) {
 
-        priceSort.addEventListener("change", function () {
+        priceSort.addEventListener(
+            "change",
+            function () {
 
-            currentSort = this.value;
+                currentSort =
+                    this.value;
 
-            filterMenu();
+                filterMenu();
 
-        });
-
+            }
+        );
     }
 
 
     // =========================================================
-    // RESET FILTERS
+    // RESET
     // =========================================================
 
     if (resetSearchButton) {
 
-        resetSearchButton.addEventListener("click", function () {
+        resetSearchButton.addEventListener(
+            "click",
+            function () {
 
-            // Reset category
-            currentCategory = "all";
-
-
-            // Reset search
-            currentSearch = "";
-
-
-            // Reset sort
-            currentSort = "recommended";
+                currentCategory = "all";
+                currentSearch = "";
+                currentSort = "recommended";
 
 
-            // Reset search inputs
-            if (searchInput) {
-                searchInput.value = "";
-            }
+                if (searchInput) {
+                    searchInput.value = "";
+                }
 
-            if (mobileSearchInput) {
-                mobileSearchInput.value = "";
-            }
+                if (mobileSearchInput) {
+                    mobileSearchInput.value = "";
+                }
 
-
-            // Reset sort select
-            if (priceSort) {
-                priceSort.value = "recommended";
-            }
+                if (priceSort) {
+                    priceSort.value = "recommended";
+                }
 
 
-            // Reset active category
-            categoryButtons.forEach(function (button) {
+                categoryButtons.forEach(
+                    function (button) {
 
-                button.classList.remove("active");
+                        button.classList.remove(
+                            "active"
+                        );
 
-            });
-
-
-            const allButton =
-                document.querySelector(
-                    '.category-pill[data-category="all"]'
+                    }
                 );
 
-            if (allButton) {
-                allButton.classList.add("active");
+
+                const allButton =
+                    document.querySelector(
+                        '.category-pill[data-category="all"]'
+                    );
+
+
+                if (allButton) {
+
+                    allButton.classList.add(
+                        "active"
+                    );
+                }
+
+
+                filterMenu();
             }
-
-
-            // Apply reset
-            filterMenu();
-
-        });
-
+        );
     }
 
 
     // =========================================================
-    // ADD TO CART
+    // CART EVENTS
     // =========================================================
 
-    document.addEventListener("click", function (event) {
+    window.addEventListener(
+        "cart:updated",
+        updateCartBadges
+    );
 
-        const addToCartButton =
-            event.target.closest(".add-to-cart-btn, .add-to-cart, [data-add-to-cart]");
-
-        if (!addToCartButton) {
-            return;
-        }
-
-        const card =
-            addToCartButton.closest(".food-card");
-
-        if (!card) {
-            return;
-        }
-
-        const name =
-            card.querySelector(".food-title")
-                ? card.querySelector(".food-title").textContent.trim()
-                : "Unknown Item";
-
-        const price =
-            getFoodPrice(card);
-
-        console.log(`Added to cart: ${name} - $${price}`);
-
-        // Insert your custom cart state logic or API call here
-
-    });
+    window.addEventListener(
+        "storage",
+        updateCartBadges
+    );
 
 
     // =========================================================
     // INITIAL LOAD
     // =========================================================
+
+    updateCartBadges();
 
     filterMenu();
 
