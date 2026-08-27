@@ -1,131 +1,505 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. DOM Elements
-    const checkoutItemsContainer = document.getElementById("checkout-items-list");
-    const subtotalElement = document.getElementById("checkout-subtotal");
-    const serviceFeeElement = document.getElementById("checkout-service-fee");
-    const totalElement = document.getElementById("checkout-total");
-    const checkoutForm = document.getElementById("checkout-form");
-    const orderTypeRadios = document.querySelectorAll('input[name="orderType"]');
-    const tableNumberGroup = document.getElementById("table-number-group");
-    const tableNumberInput = document.getElementById("table-number");
-    const paymentCards = document.querySelectorAll(".payment-card");
-    const radioCards = document.querySelectorAll(".radio-card");
 
+    const CART_KEY = "smart_cafeteria_cart";
     const SERVICE_FEE_ETB = 20;
 
-    // 2. Load Cart Data
+    const checkoutItemsContainer =
+        document.getElementById("checkout-items-list");
+
+    const subtotalElement =
+        document.getElementById("checkout-subtotal");
+
+    const serviceFeeElement =
+        document.getElementById("checkout-service-fee");
+
+    const totalElement =
+        document.getElementById("checkout-total");
+
+    const checkoutForm =
+        document.getElementById("checkout-form");
+
+    const orderTypeRadios =
+        document.querySelectorAll('input[name="orderType"]');
+
+    const tableNumberGroup =
+        document.getElementById("table-number-group");
+
+    const tableNumberInput =
+        document.getElementById("table-number");
+
+    const paymentCards =
+        document.querySelectorAll(".payment-card");
+
+    const radioCards =
+        document.querySelectorAll(".radio-card");
+
+
     function getCart() {
-        return JSON.parse(localStorage.getItem("cart")) || [];
+
+        try {
+
+            const savedCart =
+                localStorage.getItem(CART_KEY);
+
+            if (!savedCart) {
+                return [];
+            }
+
+            const cart =
+                JSON.parse(savedCart);
+
+            return Array.isArray(cart)
+                ? cart
+                : [];
+
+        } catch (error) {
+
+            console.error(
+                "Error reading cart:",
+                error
+            );
+
+            return [];
+        }
     }
 
-    // 3. Render Order Summary Preview
+
     function renderOrderReview() {
+
         const cart = getCart();
 
-        // Redirect if cart is empty
-        if (cart.length === 0) {
-            alert("Your cart is empty! Returning to menu.");
-            window.location.href = "menu.html";
+        console.log(
+            "Checkout cart:",
+            cart
+        );
+
+
+        if (!cart.length) {
+
+            alert(
+                "Your cart is empty! Returning to menu."
+            );
+
+            window.location.href =
+                "menu.html";
+
             return;
         }
+
 
         let itemsHTML = "";
         let subtotal = 0;
 
+
         cart.forEach((item) => {
-            const itemPrice = parseFloat(item.price);
-            const itemTotal = itemPrice * item.quantity;
+
+            const itemPrice =
+                Number(item.price) || 0;
+
+            const quantity =
+                Number(item.quantity) || 1;
+
+            const itemTotal =
+                itemPrice * quantity;
+
             subtotal += itemTotal;
 
+
             itemsHTML += `
-                <div class="checkout-item-row" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;">
-                    <span><strong>${item.quantity}x</strong> ${item.name}</span>
-                    <span><strong>${itemTotal}</strong> ETB</span>
+                <div
+                    class="checkout-item-row"
+                    style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-bottom:10px;
+                        font-size:0.9rem;
+                    "
+                >
+
+                    <span>
+                        <strong>
+                            ${quantity}x
+                        </strong>
+
+                        ${escapeHTML(item.name)}
+                    </span>
+
+                    <span>
+                        <strong>
+                            ${itemTotal.toFixed(2)}
+                        </strong>
+                        ETB
+                    </span>
+
                 </div>
             `;
+
         });
 
-        checkoutItemsContainer.innerHTML = itemsHTML;
 
-        const total = subtotal + SERVICE_FEE_ETB;
-        subtotalElement.textContent = subtotal.toFixed(0);
-        serviceFeeElement.textContent = SERVICE_FEE_ETB.toFixed(0);
-        totalElement.textContent = total.toFixed(0);
+        if (checkoutItemsContainer) {
+
+            checkoutItemsContainer.innerHTML =
+                itemsHTML;
+        }
+
+
+        const total =
+            subtotal + SERVICE_FEE_ETB;
+
+
+        if (subtotalElement) {
+
+            subtotalElement.textContent =
+                subtotal.toFixed(2);
+        }
+
+
+        if (serviceFeeElement) {
+
+            serviceFeeElement.textContent =
+                SERVICE_FEE_ETB.toFixed(2);
+        }
+
+
+        if (totalElement) {
+
+            totalElement.textContent =
+                total.toFixed(2);
+        }
+
     }
 
-    // 4. Toggle Table Number Input Based on Order Type (Dine-in vs Takeaway)
+
+    function escapeHTML(value) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent =
+            value || "";
+
+        return div.innerHTML;
+    }
+
+
     orderTypeRadios.forEach((radio) => {
-        radio.addEventListener("change", (e) => {
-            // Update Active UI State
-            radioCards.forEach(card => card.classList.remove("active"));
-            e.target.closest(".radio-card").classList.add("active");
 
-            if (e.target.value === "dine-in") {
-                tableNumberGroup.style.display = "block";
-                tableNumberInput.required = true;
-            } else {
-                tableNumberGroup.style.display = "none";
-                tableNumberInput.required = false;
-                tableNumberInput.value = "";
+        radio.addEventListener(
+            "change",
+            (event) => {
+
+                radioCards.forEach((card) => {
+                    card.classList.remove("active");
+                });
+
+
+                const selectedCard =
+                    event.target.closest(".radio-card");
+
+
+                if (selectedCard) {
+
+                    selectedCard.classList.add(
+                        "active"
+                    );
+                }
+
+
+                if (
+                    event.target.value ===
+                    "dine-in"
+                ) {
+
+                    if (tableNumberGroup) {
+                        tableNumberGroup.style.display =
+                            "block";
+                    }
+
+                    if (tableNumberInput) {
+                        tableNumberInput.required =
+                            true;
+                    }
+
+                } else {
+
+                    if (tableNumberGroup) {
+                        tableNumberGroup.style.display =
+                            "none";
+                    }
+
+                    if (tableNumberInput) {
+
+                        tableNumberInput.required =
+                            false;
+
+                        tableNumberInput.value =
+                            "";
+                    }
+                }
+
             }
-        });
+        );
+
     });
 
-    // 5. Payment Selection UI Styling
-    const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
+
+    const paymentRadios =
+        document.querySelectorAll(
+            'input[name="paymentMethod"]'
+        );
+
+
     paymentRadios.forEach((radio) => {
-        radio.addEventListener("change", (e) => {
-            paymentCards.forEach(card => card.classList.remove("active"));
-            e.target.closest(".payment-card").classList.add("active");
-        });
+
+        radio.addEventListener(
+            "change",
+            (event) => {
+
+                paymentCards.forEach((card) => {
+                    card.classList.remove("active");
+                });
+
+
+                const selectedCard =
+                    event.target.closest(
+                        ".payment-card"
+                    );
+
+
+                if (selectedCard) {
+
+                    selectedCard.classList.add(
+                        "active"
+                    );
+                }
+
+            }
+        );
+
     });
 
-    // 6. Handle Form Submission (Place Order)
-    checkoutForm.addEventListener("submit", (e) => {
-        e.preventDefault();
 
-        const cart = getCart();
-        if (cart.length === 0) return;
+    if (checkoutForm) {
 
-        // Collect Form Data
-        const orderType = document.querySelector('input[name="orderType"]:checked').value;
-        const tableNumber = orderType === "dine-in" ? tableNumberInput.value : "N/A (Takeaway)";
-        const customerName = document.getElementById("customer-name").value.trim();
-        const customerPhone = document.getElementById("customer-phone").value.trim();
-        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        checkoutForm.addEventListener(
+            "submit",
+            (event) => {
 
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const totalAmount = subtotal + SERVICE_FEE_ETB;
+                event.preventDefault();
 
-        // Generate Unique Order ID (e.g. ET-8392)
-        const orderId = "ET-" + Math.floor(1000 + Math.random() * 9000);
 
-        // Build Order Object
-        const newOrder = {
-            orderId: orderId,
-            orderDate: new Date().toLocaleString(),
-            orderType: orderType,
-            tableNumber: tableNumber,
-            customerName: customerName,
-            customerPhone: customerPhone,
-            paymentMethod: paymentMethod,
-            items: cart,
-            subtotal: subtotal,
-            serviceFee: SERVICE_FEE_ETB,
-            totalAmount: totalAmount,
-            status: "Received" // Default tracking state
-        };
+                const cart =
+                    getCart();
 
-        // Save order details to localStorage for the order-status.html page
-        localStorage.setItem("latestOrder", JSON.stringify(newOrder));
 
-        // Clear cart
-        localStorage.removeItem("cart");
+                if (!cart.length) {
 
-        // Redirect to Order Confirmation Page
-        window.location.href = `order-tracking.html?orderId=${orderId}`;
-    });
+                    alert(
+                        "Your cart is empty."
+                    );
 
-    // Initial render call
+                    window.location.href =
+                        "menu.html";
+
+                    return;
+                }
+
+
+                const selectedOrderType =
+                    document.querySelector(
+                        'input[name="orderType"]:checked'
+                    );
+
+
+                const selectedPaymentMethod =
+                    document.querySelector(
+                        'input[name="paymentMethod"]:checked'
+                    );
+
+
+                if (!selectedOrderType) {
+
+                    alert(
+                        "Please select an order type."
+                    );
+
+                    return;
+                }
+
+
+                if (!selectedPaymentMethod) {
+
+                    alert(
+                        "Please select a payment method."
+                    );
+
+                    return;
+                }
+
+
+                const orderType =
+                    selectedOrderType.value;
+
+
+                const tableNumber =
+                    orderType === "dine-in"
+                        ? (
+                            tableNumberInput
+                                ? tableNumberInput.value.trim()
+                                : ""
+                        )
+                        : "N/A (Takeaway)";
+
+
+                if (
+                    orderType === "dine-in" &&
+                    !tableNumber
+                ) {
+
+                    alert(
+                        "Please enter your table number."
+                    );
+
+                    if (tableNumberInput) {
+                        tableNumberInput.focus();
+                    }
+
+                    return;
+                }
+
+
+                const customerNameElement =
+                    document.getElementById(
+                        "customer-name"
+                    );
+
+
+                const customerPhoneElement =
+                    document.getElementById(
+                        "customer-phone"
+                    );
+
+
+                const customerName =
+                    customerNameElement
+                        ? customerNameElement.value.trim()
+                        : "";
+
+
+                const customerPhone =
+                    customerPhoneElement
+                        ? customerPhoneElement.value.trim()
+                        : "";
+
+
+                const paymentMethod =
+                    selectedPaymentMethod.value;
+
+
+                const subtotal =
+                    cart.reduce(
+                        (sum, item) => {
+
+                            const price =
+                                Number(item.price) || 0;
+
+                            const quantity =
+                                Number(item.quantity) || 0;
+
+                            return (
+                                sum +
+                                price * quantity
+                            );
+
+                        },
+                        0
+                    );
+
+
+                const totalAmount =
+                    subtotal + SERVICE_FEE_ETB;
+
+
+                const orderId =
+                    "ET-" +
+                    Math.floor(
+                        1000 +
+                        Math.random() * 9000
+                    );
+
+
+                const newOrder = {
+
+                    orderId: orderId,
+
+                    orderDate:
+                        new Date().toLocaleString(),
+
+                    orderType:
+                        orderType,
+
+                    tableNumber:
+                        tableNumber,
+
+                    customerName:
+                        customerName,
+
+                    customerPhone:
+                        customerPhone,
+
+                    paymentMethod:
+                        paymentMethod,
+
+                    items:
+                        cart,
+
+                    subtotal:
+                        subtotal,
+
+                    serviceFee:
+                        SERVICE_FEE_ETB,
+
+                    totalAmount:
+                        totalAmount,
+
+                    status:
+                        "Received"
+                };
+
+
+                localStorage.setItem(
+                    "latestOrder",
+                    JSON.stringify(newOrder)
+                );
+
+
+                localStorage.removeItem(
+                    CART_KEY
+                );
+
+
+                localStorage.removeItem(
+                    "checkoutCart"
+                );
+
+
+                window.dispatchEvent(
+                    new CustomEvent(
+                        "cart:updated"
+                    )
+                );
+
+
+                window.location.href =
+                    `order-tracking.html?orderId=${encodeURIComponent(orderId)}`;
+
+            }
+        );
+
+    }
+
+
     renderOrderReview();
+
 });
