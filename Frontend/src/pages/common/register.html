@@ -3,375 +3,536 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration - Smart Cafeteria</title>
-
-    <!-- Google Font -->
+    <title>Registration | Smart Cafeteria</title>
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Styles -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet"
+    >
     <style>
-        /* =========================
-           GLOBAL RESET & BASE STYLES
-           ========================= */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', system-ui, -apple-system, sans-serif;
         }
-
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --cream: #f8fafc;
+            --cream-light: #f1f5f9;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light-gray: #94a3b8;
+            --border: #cbd5e1;
+            --white: #ffffff;
+        }
         body {
             min-height: 100vh;
-            background-color: #0f172a; /* Modern dark background */
-            display: flex;
-            justify-content: center;   /* Centers form horizontally */
-            align-items: center;       /* Centers form vertically */
-            margin: 0;
-            padding: 20px;
-            color: #ffffff;
+            font-family: "DM Sans", Arial, sans-serif;
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8fafc 0%,
+                    #f1f5f9 48%,
+                    #e2e8f0 100%
+                );
+            color: var(--dark);
+            overflow-x: hidden;
             position: relative;
         }
-
-        /* =========================
-           TOP HOME NAVIGATION
-           ========================= */
+        body::before {
+            content: "";
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.07);
+            top: -120px;
+            right: -100px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.10);
+            bottom: -120px;
+            left: -100px;
+            pointer-events: none;
+            z-index: 0;
+        }
         .top-home-logo {
-            position: absolute;
-            top: 24px;
-            left: 32px;
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
-            opacity: 0.85;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            display: inline-flex;
+            position: fixed;
+            top: 16px;
+            left: 20px;
+            display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            padding: 6px 12px;
+            color: var(--dark);
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+            backdrop-filter: blur(10px);
+            transition: 0.25s ease;
+            z-index: 20;
         }
-
+        .top-home-logo i {
+            color: var(--primary);
+        }
         .top-home-logo:hover {
-            opacity: 1;
-            transform: translateX(-2px);
+            color: var(--primary);
+            transform: translateX(-3px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
         }
-
-        /* =========================
-           CONTAINER & CARD WRAPPER
-           ========================= */
         .main-container {
+            min-height: 100vh;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding-top: 40px; /* Accounts for top-left logo on small screens */
+            padding: 45px 14px 16px;
+            position: relative;
+            z-index: 2;
         }
-
         .register-card {
             width: 100%;
-            max-width: 600px;
-            background: #1e293b;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-width: 860px;
+            min-height: 480px;
+            display: grid;
+            grid-template-columns: 0.85fr 1.15fr;
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
-
-        .register-card h1 {
-            font-size: 26px;
-            font-weight: 600;
-            margin-bottom: 24px;
+        .food-panel {
+            position: relative;
+            min-height: 480px;
+            display: flex;
+            align-items: flex-end;
+            padding: 24px;
+            overflow: hidden;
+            color: white;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(15, 23, 42, 0.10),
+                    rgba(15, 23, 42, 0.78)
+                ),
+                url("../../../public/assets/images/food/main-meals/grilled-meat.jpeg");
+            background-size: cover;
+            background-position: center;
+        }
+        .food-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(37, 99, 235, 0.48),
+                    transparent 60%
+                );
+        }
+        .food-content {
+            position: relative;
+            z-index: 2;
+            max-width: 320px;
+        }
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            margin-bottom: 10px;
+        }
+        .brand-icon i {
+            font-size: 17px;
             color: #ffffff;
         }
-
-        /* =========================
-           FORM GRID & INPUTS
-           ========================= */
-        .form-row {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 18px;
+        .food-content h2 {
+            font-family: "Playfair Display", serif;
+            font-size: clamp(22px, 2.5vw, 30px);
+            line-height: 1.1;
+            margin-bottom: 8px;
         }
-
-        .form-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 18px;
+        .food-content h2 span {
+            color: #93c5fd;
         }
-
-        .form-row .form-group {
-            margin-bottom: 0;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-bottom: 6px;
-            font-weight: 400;
-        }
-
-        .form-group label span {
-            color: #ff2a5f;
-        }
-
-        .form-group input {
-            width: 100%;
-            height: 44px;
-            padding: 0 14px;
-            background: #ffffff;
-            border: 1.5px solid transparent;
-            border-radius: 6px;
-            font-size: 13px;
-            outline: none;
-            color: #0f172a;
-            transition: all 0.2s ease;
-        }
-
-        .form-group input::placeholder {
-            color: #94a3b8;
-        }
-
-        .form-group input:focus {
-            border-color: #ff2a5f;
-            box-shadow: 0 0 0 3px rgba(255, 42, 95, 0.2);
-        }
-
-        /* =========================
-           MESSAGES & TEXT
-           ========================= */
-        .message {
-            display: none;
-            font-size: 13px;
-            padding: 10px 14px;
-            border-radius: 6px;
-            margin-bottom: 18px;
-        }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid #ef4444;
-            color: #fca5a5;
-        }
-
-        .success-message {
-            background: rgba(34, 197, 94, 0.15);
-            border: 1px solid #22c55e;
-            color: #86efac;
-        }
-
-        .terms-text {
+        .food-content p {
+            color: rgba(255, 255, 255, 0.88);
             font-size: 12px;
-            color: #94a3b8;
-            margin: 16px 0 20px;
             line-height: 1.5;
         }
-
-        .terms-text span {
-            color: #ff2a5f;
+        .features-list {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
-
-        /* =========================
-           BUTTON & FOOTER LINKS
-           ========================= */
-        .submit-btn {
-            width: 100%;
-            background: #ff2a5f;
-            color: #ffffff;
-            border: none;
-            padding: 12px 28px;
-            font-size: 14px;
-            font-weight: 600;
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+        .feature-item i {
+            color: #93c5fd;
+            font-size: 12px;
+        }
+        .form-panel {
+            padding: 26px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--white);
+        }
+        .form-header {
+            margin-bottom: 14px;
+        }
+        .form-header h1 {
+            font-family: "Playfair Display", serif;
+            font-size: 23px;
+            color: var(--dark);
+            margin-bottom: 3px;
+        }
+        .form-header p {
+            color: var(--gray);
+            font-size: 11px;
+        }
+        .message {
+            display: none;
+            padding: 6px 10px;
             border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 11px;
+        }
+        .error-message {
+            color: #b42318;
+            background: #fef3f2;
+            border: 1px solid #fecdca;
+        }
+        .success-message {
+            color: #087443;
+            background: #ecfdf3;
+            border: 1px solid #abefc6;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .form-group {
+            margin-bottom: 9px;
+        }
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+        .form-group label {
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 3px;
+        }
+        .form-group label span {
+            color: var(--primary);
+        }
+        .input-box {
+            position: relative;
+        }
+        .input-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-gray);
+            font-size: 11px;
+        }
+        .form-group input {
+            width: 100%;
+            height: 34px;
+            padding: 0 10px 0 32px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            outline: none;
+            background: var(--cream);
+            color: var(--dark);
+            font-family: inherit;
+            font-size: 11px;
+            transition: 0.2s ease;
+        }
+        .form-group input:focus {
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+        }
+        .register-btn {
+            width: 100%;
+            height: 36px;
+            border: none;
+            border-radius: 7px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.18);
+            transition: 0.2s ease;
+            margin-top: 2px;
         }
-
-        .submit-btn:hover {
-            background: #e02050;
-            transform: translateY(-1px);
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
         }
-
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-
-        .footer-link {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-top: 20px;
+        .login-redirect {
             text-align: center;
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--gray);
         }
-
-        .footer-link a {
-            color: #ff2a5f;
+        .login-redirect a {
+            color: var(--primary);
+            font-weight: 700;
             text-decoration: none;
-            font-weight: 500;
         }
-
-        .footer-link a:hover {
+        .login-redirect a:hover {
             text-decoration: underline;
         }
-
-        .back-home {
-            margin-top: 12px;
-            text-align: center;
-        }
-
-        .back-home a {
-            color: #64748b;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
-
-        .back-home a:hover {
-            color: #ffffff;
-        }
-
-        /* =========================
-           RESPONSIVE (MOBILE)
-           ========================= */
-        @media (max-width: 580px) {
-            body {
-                padding-top: 60px;
-            }
-
-            .top-home-logo {
-                top: 16px;
-                left: 20px;
-            }
-
+        @media (max-width: 900px) {
             .register-card {
-                padding: 24px;
+                grid-template-columns: 1fr;
+                max-width: 460px;
             }
-
-            .form-row {
-                flex-direction: column;
-                gap: 18px;
+            .food-panel {
+                min-height: 160px;
+                padding: 18px;
+            }
+            .features-list {
+                display: none;
+            }
+            .form-panel {
+                padding: 22px 20px;
+            }
+        }
+        @media (max-width: 500px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full-width {
+                grid-column: span 1;
             }
         }
     </style>
 </head>
 <body>
-
-    <!-- TOP-LEFT HOME NAVIGATION -->
-    <a href="index.html" class="top-home-logo">
+    <!-- TOP HOME LOGO -->
+    <a href="../common/index.html" class="top-home-logo">
+        <i class="fa-solid fa-arrow-left"></i>
         Smart Cafeteria
     </a>
 
-    <!-- MAIN FORM AREA -->
-    <main class="main-container">
+    <div class="main-container">
         <div class="register-card">
-            <h1>Registration</h1>
-
-            <div id="errorMsg" class="message error-message"></div>
-            <div id="successMsg" class="message success-message"></div>
-
-            <form id="registerForm" novalidate>
-                
-                <!-- FULL NAME -->
-                <div class="form-group">
-                    <label for="fullName">Full Name <span>*</span></label>
-                    <input type="text" id="fullName" placeholder="Enter your full name" required>
-                </div>
-
-                <!-- ROW 1: Phone (Left) & Email (Right) -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="phone">Phone <span>*</span></label>
-                        <input type="tel" id="phone" placeholder="09XXXXXXXX or 07XXXXXXXX" required>
+            <!-- LEFT FOOD PANEL -->
+            <section class="food-panel">
+                <div class="food-content">
+                    <div class="brand-icon">
+                        <i class="fa-solid fa-bowl-food"></i>
                     </div>
-                    <div class="form-group">
-                        <label for="email">Email <span>*</span></label>
-                        <input type="email" id="email" placeholder="Email address" required>
-                    </div>
-                </div>
-
-                <!-- ROW 2: Password & Confirm Password -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="password">Password <span>*</span></label>
-                        <input type="password" id="password" placeholder="Password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirm Password <span>*</span></label>
-                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                    <h2>Smart dining, <span>simplified.</span></h2>
+                    <p>
+                        Join Smart Cafeteria today to order your favorite campus meals,
+                        track your queue status seamlessly, and avoid long lines.
+                    </p>
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <i class="fa-solid fa-circle-check"></i> Instant Account Activation
+                        </div>
+                        <div class="feature-item">
+                            <i class="fa-solid fa-circle-check"></i> Pre-order Meals Easily
+                        </div>
+                        <div class="feature-item">
+                            <i class="fa-solid fa-circle-check"></i> Secure Digital Payments & Tracking
+                        </div>
                     </div>
                 </div>
+            </section>
 
-                <!-- TERMS TEXT -->
-                <p class="terms-text">
-                    All fields with <span>*</span> are mandatory.
-                </p>
+            <!-- RIGHT FORM PANEL -->
+            <section class="form-panel">
+                <div class="form-header">
+                    <h1>Create Account</h1>
+                    <p>Fill in your details to get started with Smart Cafeteria.</p>
+                </div>
 
-                <!-- SUBMIT BUTTON -->
-                <button type="submit" class="submit-btn" id="submitBtn">Register</button>
+                <div id="registerError" class="message error-message"></div>
+                <div id="registerSuccess" class="message success-message"></div>
 
-                <!-- LOGIN LINK -->
-                <p class="footer-link">
-                    Already registered? <a href="login.html">Login</a>
-                </p>
+                <form id="registerForm" novalidate>
+                    <div class="form-grid">
+                        <!-- FULL NAME -->
+                        <div class="form-group full-width">
+                            <label for="fullName">Full Name <span>*</span></label>
+                            <div class="input-box">
+                                <input type="text" id="fullName" placeholder="Enter your full name" required>
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        </div>
 
-                <!-- BACK TO HOME LINK -->
-                <p class="back-home">
-                    <a href="index.html">← Back to Home Page</a>
-                </p>
+                        <!-- EMAIL -->
+                        <div class="form-group">
+                            <label for="regEmail">Email Address <span>*</span></label>
+                            <div class="input-box">
+                                <input type="email" id="regEmail" placeholder="name@example.com" required>
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                        </div>
 
-            </form>
+                        <!-- PHONE -->
+                        <div class="form-group">
+                            <label for="regPhone">Phone Number <span>*</span></label>
+                            <div class="input-box">
+                                <input type="tel" id="regPhone" placeholder="09XXXXXXXX" required>
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                        </div>
+
+                        <!-- PASSWORD -->
+                        <div class="form-group">
+                            <label for="regPassword">Password <span>*</span></label>
+                            <div class="input-box">
+                                <input type="password" id="regPassword" placeholder="At least 6 characters" required>
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                        </div>
+
+                        <!-- CONFIRM PASSWORD -->
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password <span>*</span></label>
+                            <div class="input-box">
+                                <input type="password" id="confirmPassword" placeholder="Repeat password" required>
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit" class="register-btn" id="regSubmitBtn">
+                        <i class="fa-solid fa-user-plus"></i> Register Account
+                    </button>
+
+                    <!-- REDIRECT TO LOGIN -->
+                    <p class="login-redirect">
+                        Already have an account?
+                        <a href="login.html">Sign in</a>
+                    </p>
+                </form>
+            </section>
         </div>
-    </main>
+    </div>
 
-    <!-- VALIDATION SCRIPT -->
+    <!-- REGISTRATION JAVASCRIPT -->
     <script>
-        const form = document.getElementById('registerForm');
-        const errorMsg = document.getElementById('errorMsg');
-        const successMsg = document.getElementById('successMsg');
+        const regForm = document.getElementById("registerForm");
+        const regError = document.getElementById("registerError");
+        const regSuccess = document.getElementById("registerSuccess");
+        const regSubmitBtn = document.getElementById("regSubmitBtn");
 
-        form.addEventListener('submit', function (e) {
+        regForm.addEventListener("submit", function (e) {
             e.preventDefault();
+            regError.style.display = "none";
+            regSuccess.style.display = "none";
 
-            errorMsg.style.display = 'none';
-            successMsg.style.display = 'none';
+            const fullName = document.getElementById("fullName").value.trim();
+            const email = document.getElementById("regEmail").value.trim().toLowerCase();
+            const phone = document.getElementById("regPhone").value.trim();
+            const password = document.getElementById("regPassword").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
 
-            const fullName = document.getElementById('fullName').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (!fullName || !email || !phone || !password || !confirmPassword) {
+                showRegError("Please fill in all required fields.");
+                return;
+            }
 
-            // Ethiopian Phone pattern (09... or 07...)
-            const phonePattern = /^(09|07)[0-9]{8}$/;
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (password.length < 6) {
+                showRegError("Password must be at least 6 characters long.");
+                return;
+            }
 
-            if (!fullName) return showError('Full Name is required.');
-            if (fullName.length < 2) return showError('Please enter a valid Full Name.');
-            if (!phone) return showError('Phone number is required.');
-            if (!phonePattern.test(phone)) return showError('Enter a valid phone number (09... or 07...).');
-            if (!email) return showError('Email address is required.');
-            if (!emailPattern.test(email)) return showError('Enter a valid email address.');
-            if (!password) return showError('Password is required.');
-            if (password.length < 6) return showError('Password must be at least 6 characters.');
-            if (password !== confirmPassword) return showError('Passwords do not match.');
+            if (password !== confirmPassword) {
+                showRegError("Passwords do not match.");
+                return;
+            }
 
-            showSuccess('Registration successful! Redirecting...');
-            form.reset();
+            let registeredUsers = [];
+            try {
+                registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+            } catch (err) {
+                registeredUsers = [];
+            }
 
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 1500);
+            const existingUser = registeredUsers.find(u => u.email === email || u.phone === phone);
+            if (existingUser) {
+                showRegError("An account with this email or phone already exists.");
+                return;
+            }
+
+            const newUser = {
+                id: Date.now(),
+                name: fullName,
+                email: email,
+                phone: phone,
+                password: password,
+                role: "CUSTOMER",
+                createdAt: new Date().toISOString()
+            };
+
+            registeredUsers.push(newUser);
+            localStorage.setItem("registeredUsers", JSON.stringify(registeredUsers));
+
+            showRegSuccess("Registration successful! Redirecting to login...");
+            regSubmitBtn.disabled = true;
+            regSubmitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+
+            setTimeout(function () {
+                window.location.href = "login.html";
+            }, 1200);
         });
 
-        function showError(msg) {
-            errorMsg.textContent = msg;
-            errorMsg.style.display = 'block';
+        function showRegError(msg) {
+            regError.textContent = msg;
+            regError.style.display = "block";
+            regSuccess.style.display = "none";
         }
 
-        function showSuccess(msg) {
-            successMsg.textContent = msg;
-            successMsg.style.display = 'block';
+        function showRegSuccess(msg) {
+            regSuccess.textContent = msg;
+            regSuccess.style.display = "block";
+            regError.style.display = "none";
         }
     </script>
 </body>

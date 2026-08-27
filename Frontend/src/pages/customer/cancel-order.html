@@ -1384,10 +1384,11 @@
         const orderId =
             urlParams.get('id');
 
-
+ 
         // =========================================================
         // DOM References
         // =========================================================
+
 
         const container =
             document.getElementById('cancelContent');
@@ -1413,6 +1414,7 @@
 
             alertText.textContent =
                 message;
+
 
             setTimeout(() => {
 
@@ -2020,7 +2022,6 @@
 
 
                                     setTimeout(() => {
-
                                         window.location.href =
                                             `order-tracking.html?id=${orderId}`;
 

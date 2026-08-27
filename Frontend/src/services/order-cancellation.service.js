@@ -1,15 +1,59 @@
 /**
- * ================================================================
- * SMART CAFETERIA ORDERING SYSTEM - ORDER CANCELLATION SERVICE
- * ================================================================
- * THIS FILE IS INTENTIONALLY LEFT EMPTY.
- *
- * Purpose: Will handle cancellation API calls when backend is ready.
- *
- * Future Implementation:
- *   - requestCancellation(orderId, reason, details)
- *   - getCancellations()
- *   - approveCancellation(id)
- *   - rejectCancellation(id, reason)
- * ================================================================
+ * Order Cancellation Service
+ * File: frontend/src/services/order-cancellation.service.js
  */
+
+import api from "../js/api.js";
+
+class OrderCancellationService {
+
+    async cancelOrder(orderId, reason = "") {
+        if (!orderId) throw new Error("Order ID is required.");
+        return api.post(
+            `/orders/${orderId}/cancel`,
+            {
+                reason
+            }
+        );
+    }
+
+    async getCancellation(orderId) {
+        if (!orderId) throw new Error("Order ID is required.");
+        return api.get(
+            `/orders/${orderId}/cancellation`
+        );
+    }
+
+    async getAll() {
+        return api.get(
+            "/order-cancellations"
+        );
+    }
+
+    async approveCancellation(
+        cancellationId
+    ) {
+        if (!cancellationId) throw new Error("Cancellation ID is required.");
+        return api.patch(
+            `/order-cancellations/${cancellationId}/approve`
+        );
+    }
+
+    async rejectCancellation(
+        cancellationId,
+        reason = ""
+    ) {
+        if (!cancellationId) throw new Error("Cancellation ID is required.");
+        return api.patch(
+            `/order-cancellations/${cancellationId}/reject`,
+            {
+                reason
+            }
+        );
+    }
+}
+
+const orderCancellationService =
+    new OrderCancellationService();
+
+export default orderCancellationService;
