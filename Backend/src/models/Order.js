@@ -95,17 +95,38 @@ const OrderSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["cbe_birr", "telebirr", "cash", "CBE Birr", "Telebirr", "Cash"],
+      enum: ["TELEBIRR", "CHAPA"],
       required: true,
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "simulated", "failed", "paid"],
-      default: "pending",
+      enum: ["PENDING", "PAID", "FAILED", "CANCELLED"],
+      default: "PENDING",
+    },
+    orderStatus: {
+      type: String,
+      enum: ["PENDING", "PREPARING", "READY", "SERVED", "COMPLETED", "CANCELLED"],
+      default: "PENDING",
     },
     transactionId: {
       type: String,
       default: null,
+    },
+    payment: {
+      method: {
+        type: String,
+        enum: ["TELEBIRR", "CHAPA"],
+      },
+      status: {
+        type: String,
+        enum: ["PENDING", "PAID", "FAILED", "CANCELLED"],
+        default: "PENDING",
+      },
+      transactionId: { type: String, default: null },
+      providerReference: { type: String, default: null },
+      amount: { type: Number, min: 0 },
+      currency: { type: String, default: "ETB" },
+      paidAt: { type: Date, default: null },
     },
     orderDate: {
       type: String,
@@ -125,6 +146,36 @@ const OrderSchema = new mongoose.Schema(
     },
     cancellationReason: {
       type: String,
+      default: null,
+    },
+    cancellationRequested: {
+      type: Boolean,
+      default: false,
+    },
+    cancellationDetails: {
+      type: String,
+      default: "",
+    },
+    cancellationStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: null,
+    },
+    cancellationRequestedAt: {
+      type: Date,
+      default: null,
+    },
+    cancellationAdminNote: {
+      type: String,
+      default: "",
+    },
+    cancellationProcessedAt: {
+      type: Date,
+      default: null,
+    },
+    cancellationProcessedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       default: null,
     },
     notes: {
@@ -166,5 +217,11 @@ OrderSchema.methods.getSummary = function () {
     orderTime: this.orderTime,
   };
 };
+
+OrderSchema.index({ status: 1 });
+OrderSchema.index({ orderStatus: 1 });
+OrderSchema.index({ createdAt: -1 });
+OrderSchema.index({ userId: 1 });
+OrderSchema.index({ paymentStatus: 1 });
 
 module.exports = mongoose.model("Order", OrderSchema);

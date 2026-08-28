@@ -579,7 +579,7 @@
         const successMsg = document.getElementById("successMsg");
         const submitBtn = document.getElementById("submitBtn");
 
-        form.addEventListener("submit", function (e) {
+        form.addEventListener("submit", async function (e) {
             e.preventDefault();
             errorMsg.style.display = "none";
             successMsg.style.display = "none";
@@ -596,58 +596,118 @@
                 return;
             }
 
+            submitBtn.disabled = true;
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+
+            let authenticatedUser = null;
+            let authToken = null;
+            let backendSuccess = false;
+
+            // Try authenticating with backend API
+            try {
+                let response;
+                const reqBody = JSON.stringify({
+                    identifier: identifier,
+                    email: identifier,
+                    password: password
+                });
+
+                try {
+                    response = await fetch("http://localhost:5000/api/v1/auth/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: reqBody
+                    });
+                } catch (err) {
+                    response = await fetch("http://127.0.0.1:5000/api/v1/auth/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: reqBody
+                    });
+                }
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    backendSuccess = true;
+                    authenticatedUser = data.user;
+                    authToken = data.token;
+                }
+            } catch (err) {
+                console.warn("Backend API login unreachable, trying local fallback:", err);
+            }
+
             let userRole = "";
             let userName = "";
             let userEmail = "";
             let redirectUrl = "";
 
-            /* ADMIN */
-            if (identifier.toLowerCase() === "admin@gmail.com" && password === "12121212") {
-                userRole = "ADMIN";
-                userName = "Admin";
-                userEmail = identifier;
-                redirectUrl = "../admin/dashboard.html";
-            }
-            /* KITCHEN STAFF */
-            else if (identifier.toLowerCase() === "kitchen@gmail.com" && password === "21212121") {
-                userRole = "KITCHEN_STAFF";
-                userName = "Kitchen Staff";
-                userEmail = identifier;
-                redirectUrl = "../kitchen/dashboard.html";
-            }
-            /* REGISTERED CUSTOMER */
-            else {
-                let registeredUsers = [];
-                try {
-                    registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-                } catch (error) {
-                    registeredUsers = [];
+            if (backendSuccess && authenticatedUser) {
+                const rawRole = (authenticatedUser.role || "customer").toLowerCase();
+                userName = authenticatedUser.name || authenticatedUser.email;
+                userEmail = authenticatedUser.email;
+
+                if (rawRole === "admin") {
+                    userRole = "ADMIN";
+                    redirectUrl = "../admin/dashboard.html";
+                } else if (rawRole === "kitchen" || rawRole === "staff") {
+                    userRole = "KITCHEN_STAFF";
+                    redirectUrl = "../kitchen/dashboard.html";
+                } else {
+                    userRole = "CUSTOMER";
+                    redirectUrl = "../customer/menu.html";
                 }
+            } else {
+                /* LOCAL FALLBACK CHECK FOR MOCK ACCOUNTS */
+                if (identifier.toLowerCase() === "admin@gmail.com" && password === "12121212") {
+                    userRole = "ADMIN";
+                    userName = "Admin";
+                    userEmail = identifier;
+                    redirectUrl = "../admin/dashboard.html";
+                } else if (identifier.toLowerCase() === "kitchen@gmail.com" && password === "21212121") {
+                    userRole = "KITCHEN_STAFF";
+                    userName = "Kitchen Staff";
+                    userEmail = identifier;
+                    redirectUrl = "../kitchen/dashboard.html";
+                } else {
+                    let registeredUsers = [];
+                    try {
+                        registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+                    } catch (error) {
+                        registeredUsers = [];
+                    }
 
-                const normalizedIdentifier = identifier.toLowerCase();
-                const foundUser = registeredUsers.find(function (user) {
-                    const email = String(user.email || "").trim().toLowerCase();
-                    const phone = String(user.phone || "").trim();
-                    const savedPassword = String(user.password || "");
-                    const identifierMatches = email === normalizedIdentifier || phone === identifier;
-                    return identifierMatches && savedPassword === password;
-                });
+                    const normalizedIdentifier = identifier.toLowerCase();
+                    const foundUser = registeredUsers.find(function (user) {
+                        const email = String(user.email || "").trim().toLowerCase();
+                        const phone = String(user.phone || "").trim();
+                        const savedPassword = String(user.password || "");
+                        const identifierMatches = email === normalizedIdentifier || phone === identifier;
+                        return identifierMatches && savedPassword === password;
+                    });
 
-                if (!foundUser) {
-                    showError("Invalid email/phone or password.");
-                    return;
+                    if (foundUser) {
+                        userRole = "CUSTOMER";
+                        userName = foundUser.name || foundUser.fullName || "Customer";
+                        userEmail = foundUser.email || "";
+                        redirectUrl = "../customer/menu.html";
+                    } else {
+                        showError("Invalid email/phone or password.");
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnHtml;
+                        return;
+                    }
                 }
-
-                userRole = "CUSTOMER";
-                userName = foundUser.name || foundUser.fullName || "Customer";
-                userEmail = foundUser.email || "";
-                redirectUrl = "../customer/menu.html";
             }
 
             /* SAVE LOGIN SESSION */
             localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("userRole", userRole);
             localStorage.setItem("role", userRole);
+            if (authToken) {
+                localStorage.setItem("auth_token", authToken);
+            }
 
             /* SAVE USER PROFILE */
             localStorage.setItem(
@@ -670,7 +730,6 @@
             }
 
             showSuccess("Login successful! Redirecting...");
-            submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Redirecting...';
 
             setTimeout(function () {
@@ -690,5 +749,6 @@
             errorMsg.style.display = "none";
         }
     </script>
+    <script type="module" src="../../js/utils/i18n.js"></script>
 </body>
 </html>

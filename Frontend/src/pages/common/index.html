@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en"> 
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -1183,20 +1183,28 @@
           <i class="fas fa-bars"></i>
         </button>
         <nav class="nav" id="mainNav">
-          <a href="index.html">Home</a>
-          <a href="/Frontend/src/pages/common/register.html">Menu</a>
-          <a href="#how-it-works">How It Works</a>
-          <a href="#features">Features</a>
-          <a href="#testimonials">Testimonials</a>
+          <a href="index.html" id="navHome">Home</a>
+          <a href="/Frontend/src/pages/common/register.html" id="navMenu">Menu</a>
+          <a href="#how-it-works" id="navHow">How It Works</a>
+          <a href="#features" id="navFeatures">Features</a>
+          <a href="#testimonials" id="navTestimonials">Testimonials</a>
+          <div class="lang-switcher" style="display: inline-flex; align-items: center; margin: 0 10px;">
+            <select id="langToggleSelect" aria-label="Language Selector" style="background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; cursor: pointer; padding: 4px 10px; font-size: 13px; outline: none; transition: 0.2s;">
+              <option value="en">🇬🇧 English</option>
+              <option value="am">🇪🇹 አማርኛ</option>
+            </select>
+          </div>
           <div class="auth-buttons">
             <a
               href="/Frontend/src/pages/common/login.html"
               class="btn-custom btn-outline-custom"
+              id="navLogin"
               >Login</a
             >
             <a
               href="/Frontend/src/pages/common/register.html"
               class="btn-custom btn-primary-custom"
+              id="navRegister"
               >Register</a
             >
           </div>
@@ -1238,8 +1246,8 @@
               alt="Special Combo"
             />
             <div class="carousel-caption d-none d-md-block">
-              <h2 class="fw-bold text-warning">Special Breakfast Deals</h2>
-              <p class="fs-5">
+              <h2 class="fw-bold text-warning" id="banner1Title">Special Breakfast Deals</h2>
+              <p class="fs-5" id="banner1Desc">
                 Get up to 20% off on traditional breakfast combos every morning!
               </p>
             </div>
@@ -1251,8 +1259,8 @@
               alt="Fresh Meals"
             />
             <div class="carousel-caption d-none d-md-block">
-              <h2 class="fw-bold text-warning">Fresh & Spicy Lunch Delights</h2>
-              <p class="fs-5">
+              <h2 class="fw-bold text-warning" id="banner2Title">Fresh & Spicy Lunch Delights</h2>
+              <p class="fs-5" id="banner2Desc">
                 Authentic Shiro, Siga Firfir, and fresh salads prepared daily.
               </p>
             </div>
@@ -1264,10 +1272,10 @@
               alt="Craft Beverages"
             />
             <div class="carousel-caption d-none d-md-block">
-              <h2 class="fw-bold text-warning">
+              <h2 class="fw-bold text-warning" id="banner3Title">
                 Fresh Juices & Roasted Coffee
               </h2>
-              <p class="fs-5">
+              <p class="fs-5" id="banner3Desc">
                 Pair your meal with premium Macchiato or Layered Sprice Juice.
               </p>
             </div>
@@ -1294,26 +1302,26 @@
     <!-- ================= HOW IT WORKS ================= -->
     <section class="how-it-works" id="how-it-works">
       <div class="container">
-        <h2 class="section-title">How It Works</h2>
-        <p class="section-subtitle">በሦስት ቀላል ደረጃዎች ምግብዎን ይዘዙ</p>
+        <h2 class="section-title" id="howTitle">How It Works</h2>
+        <p class="section-subtitle" id="howSubtitle">Order your meal in three simple steps</p>
         <div class="steps-grid">
           <div class="step-card">
             <div class="step-number">1</div>
             <div class="step-icon"><i class="fas fa-utensils"></i></div>
-            <h3>Browse Menu</h3>
-            <p>የተለያዩ ምግቦችን በምድባቸው ይመልከቱ</p>
+            <h3 id="step1Title">Browse Menu</h3>
+            <p id="step1Desc">Explore a variety of food items by category</p>
           </div>
           <div class="step-card">
             <div class="step-number">2</div>
             <div class="step-icon"><i class="fas fa-shopping-cart"></i></div>
-            <h3>Order & Pay</h3>
-            <p>ምግብ ወደ ካርት ይጨምሩ እና በTeleBirr ወይም CBE Birr ክፍያ ይፈጽሙ</p>
+            <h3 id="step2Title">Order & Pay</h3>
+            <p id="step2Desc">Add items to cart and pay seamlessly via TeleBirr or CBE Birr</p>
           </div>
           <div class="step-card">
             <div class="step-number">3</div>
             <div class="step-icon"><i class="fas fa-check-circle"></i></div>
-            <h3>Track & Collect</h3>
-            <p>በእውነተኛ ጊዜ ትዕዛዝዎን ይከታተሉ እና ይቀበሉ</p>
+            <h3 id="step3Title">Track & Collect</h3>
+            <p id="step3Desc">Track your order status in real-time and collect your meal</p>
           </div>
           
         </div>
@@ -1322,8 +1330,8 @@
     <!-- ================= MENU PREVIEW ================= -->
     <section class="menu-preview" id="menu-preview">
       <div class="container">
-        <h2 class="section-title">Popular Menu Items</h2>
-        <p class="section-subtitle">በጣም ተወዳጅ የሆኑ ምግቦቻችንን ይመልከቱ</p>
+        <h2 class="section-title" id="menuPreviewTitle">Popular Menu Items</h2>
+        <p class="section-subtitle" id="menuPreviewSubtitle">Check out our most popular dishes</p>
         <div class="menu-grid" id="menuPreviewGrid">
           <!-- Injected via JavaScript -->
         </div>
@@ -1331,6 +1339,7 @@
           <a
             href="/Frontend/src/pages/common/register.html"
             class="btn-custom btn-primary-custom"
+            id="viewFullMenuBtn"
           >
             <i class="fas fa-utensils"></i> View Full Menu
           </a>
@@ -1340,38 +1349,38 @@
     <!-- ================= FEATURES ================= -->
     <section class="features" id="features">
       <div class="container">
-        <h2 class="section-title">Why Choose Us?</h2>
-        <p class="section-subtitle">ሥርዓታችንን ልዩ የሚያደርጉት ባህሪያት</p>
+        <h2 class="section-title" id="whyTitle">Why Choose Us?</h2>
+        <p class="section-subtitle" id="whySubtitle">Key features that make our system special</p>
         <div class="features-grid">
           <div class="feature-card">
             <div class="feature-icon"><i class="fas fa-clock"></i></div>
-            <h4>No More Queues</h4>
-            <p>ረጅም ወረፋ ሳይጠብቁ ምግብ ይዘዙ</p>
+            <h4 id="feat1Title">No More Queues</h4>
+            <p id="feat1Desc">Order your meals remotely without waiting in long lines</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
-            <h4>Order Anywhere</h4>
-            <p>ከየትኛውም ቦታ በቀላሉ ምግቦን ይዘዙ</p>
+            <h4 id="feat2Title">Order Anywhere</h4>
+            <p id="feat2Desc">Place your order easily from anywhere on campus</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon"><i class="fas fa-bell"></i></div>
-            <h4>Real-Time Updates</h4>
-            <p>የትዕዛዝ ሁኔታን በእውነተኛ ጊዜ ይከታተሉ</p>
+            <h4 id="feat3Title">Real-Time Updates</h4>
+            <p id="feat3Desc">Track your order progress live from kitchen to pick-up</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon"><i class="fas fa-credit-card"></i></div>
-            <h4>Easy Payment</h4>
-            <p>በCBE Birr እና TeleBirr ክፍያ መፈጸም</p>
+            <h4 id="feat4Title">Easy Payment</h4>
+            <p id="feat4Desc">Fast and secure digital payment via CBE Birr & TeleBirr</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon"><i class="fas fa-history"></i></div>
-            <h4>Order History</h4>
-            <p>ያለፉትን ትዕዛዞች መመልከት</p>
+            <h4 id="feat5Title">Order History</h4>
+            <p id="feat5Desc">View and reorder your favorite past orders anytime</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-            <h4>Smart Reports</h4>
-            <p>ለአስተዳዳሪዎች ዝርዝር ሪፖርቶች</p>
+            <h4 id="feat6Title">Smart Reports</h4>
+            <p id="feat6Desc">Comprehensive sales and inventory reports for management</p>
           </div>
         </div>
       </div>
@@ -1382,10 +1391,10 @@
     <!-- ============================================================ -->
     <section class="testimonials" id="testimonials">
       <div class="container">
-        <h2 class="section-title">What Our Users Say</h2>
+        <h2 class="section-title" id="testTitle">What Our Users Say</h2>
 
-        <p class="section-subtitle">
-          ተጠቃሚዎቻችን ስለ ሥርዓታችን ያላቸው አስተያየት / Feedback from our users
+        <p class="section-subtitle" id="testSubtitle">
+          Feedback from our cafeteria users
         </p>
 
         <div class="testimonials-grid">
@@ -1398,9 +1407,8 @@
               <i class="fas fa-star"></i>
             </div>
 
-            <p>
-              "ይህ ስርዓት በካፊቴሪያ ውስጥ ረጅም ጊዜ ከመጠበቅ አድኖኛል! በቀላሉ ምግብ አዝዣለሁ እና ዝግጁ በሚሆን
-              ጊዜ ማሳወቂያ አገኛለሁ።"
+            <p id="test1Quote">
+              "This system saved me so much time waiting in cafeteria lines! I order easily and get notified when ready."
             </p>
 
             <div class="author">Kidus Birhanu</div>
@@ -1416,7 +1424,7 @@
               <i class="fas fa-star"></i>
             </div>
 
-            <p>"የኩሽና ዳሽቦርዱ በጣም ምቹ ነው! ትዕዛዞችን በቀላሉ ማየት እና ሁኔታቸውን ማዘመን እችላለሁ።"</p>
+            <p id="test2Quote">"The kitchen dashboard is very convenient! I can easily view orders and update their status live."</p>
 
             <div class="author">Sintayehu Begashaw</div>
             <div class="role">Kitchen Staff</div>
@@ -1431,7 +1439,7 @@
               <i class="fas fa-star"></i>
             </div>
 
-            <p>"የአስተዳደር ፓነሉ ሁሉንም ነገር ለመቆጣጠር ያስችላል። ሪፖርቶች በጣም ጠቃሚ ናቸው!"</p>
+            <p id="test3Quote">"The admin panel gives full control over menu and operations. The reports are extremely helpful!"</p>
 
             <div class="author">Wondesen Gemechu</div>
             <div class="role">Administrator</div>
@@ -1452,9 +1460,8 @@
               Smart<span>Cafeteria</span>
             </div>
 
-            <p>
-              ዘመናዊ የካፊቴሪያ አገልግሎት — Modern cafeteria ordering system that makes
-              food ordering fast, simple, and efficient.
+            <p id="footerAbout">
+              Modern cafeteria ordering system that makes food ordering fast, simple, and efficient.
             </p>
 
             <div class="social-links">
@@ -1612,7 +1619,7 @@
         grid.innerHTML = menuData
           .map(
             (item) => `
-                <div class="menu-card">
+                <div /class="menu-card">
                     <div class="menu-img">
                         <img src="${item.image}" alt="${item.name}">
                     </div>
@@ -1626,7 +1633,155 @@
           )
           .join("");
       }
-      document.addEventListener("DOMContentLoaded", renderMenuPreview);
+      // Language Switcher Logic (Bilingual: English & Amharic)
+      const translations = {
+        en: {
+          navHome: "Home",
+          navMenu: "Menu",
+          navHow: "How It Works",
+          navFeatures: "Features",
+          navTestimonials: "Testimonials",
+          navLogin: "Login",
+          navRegister: "Register",
+
+          banner1Title: "Special Breakfast Deals",
+          banner1Desc: "Get up to 20% off on traditional breakfast combos every morning!",
+          banner2Title: "Fresh & Spicy Lunch Delights",
+          banner2Desc: "Authentic Shiro, Siga Firfir, and fresh salads prepared daily.",
+          banner3Title: "Fresh Juices & Roasted Coffee",
+          banner3Desc: "Pair your meal with premium Macchiato or Layered Sprice Juice.",
+
+          howTitle: "How It Works",
+          howSubtitle: "Order your meal in three simple steps",
+          step1Title: "Browse Menu",
+          step1Desc: "Explore a variety of food items by category",
+          step2Title: "Order & Pay",
+          step2Desc: "Add items to cart and pay seamlessly via TeleBirr or CBE Birr",
+          step3Title: "Track & Collect",
+          step3Desc: "Track your order status in real-time and collect your meal",
+
+          menuPreviewTitle: "Popular Menu Items",
+          menuPreviewSubtitle: "Check out our most popular dishes",
+          viewFullMenuBtn: '<i class="fas fa-utensils"></i> View Full Menu',
+
+          whyTitle: "Why Choose Us?",
+          whySubtitle: "Key features that make our system special",
+          feat1Title: "No More Queues",
+          feat1Desc: "Order your meals remotely without waiting in long lines",
+          feat2Title: "Order Anywhere",
+          feat2Desc: "Place your order easily from anywhere on campus",
+          feat3Title: "Real-Time Updates",
+          feat3Desc: "Track your order progress live from kitchen to pick-up",
+          feat4Title: "Easy Payment",
+          feat4Desc: "Fast and secure digital payment via CBE Birr & TeleBirr",
+          feat5Title: "Order History",
+          feat5Desc: "View and reorder your favorite past orders anytime",
+          feat6Title: "Smart Reports",
+          feat6Desc: "Comprehensive sales and inventory reports for management",
+
+          testTitle: "What Our Users Say",
+          testSubtitle: "Feedback from our cafeteria users",
+          test1Quote: '"This system saved me so much time waiting in cafeteria lines! I order easily and get notified when ready."',
+          test2Quote: '"The kitchen dashboard is very convenient! I can easily view orders and update their status live."',
+          test3Quote: '"The admin panel gives full control over menu and operations. The reports are extremely helpful!"',
+
+          footerAbout: "Modern cafeteria ordering system that makes food ordering fast, simple, and efficient."
+        },
+        am: {
+          navHome: "መነሻ",
+          navMenu: "ማውጫ",
+          navHow: "እንዴት እንደሚሰራ",
+          navFeatures: "ባህሪያት",
+          navTestimonials: "አስተያየቶች",
+          navLogin: "ግባ",
+          navRegister: "ተመዝገብ",
+
+          banner1Title: "ልዩ የቁርስ ቅናሾች",
+          banner1Desc: "በየጠዋቱ በባህላዊ የቁርስ ምግቦች ላይ እስከ 20% ቅናሽ ያግኙ!",
+          banner2Title: "ትኩስ እና ጣፋጭ የምሳ ምግቦች",
+          banner2Desc: "በየቀኑ የሚዘጋጁ ልዩ ሽሮ፣ የሥጋ ፍርፍር እና ትኩስ ሰላጣዎች።",
+          banner3Title: "ትኩስ ጭማቂዎች እና የተጠበሰ ቡና",
+          banner3Desc: "ምግብዎን ከባህላዊ ማኪያቶ ወይም ከተደራረበ ስፕሪስ ጭማቂ ጋር ያጣጥሙ።",
+
+          howTitle: "እንዴት እንደሚሰራ",
+          howSubtitle: "በሦስት ቀላል ደረጃዎች ምግብዎን ይዘዙ",
+          step1Title: "ምግቦችን ይመልከቱ",
+          step1Desc: "የተለያዩ ምግቦችን በምድባቸው ይመልከቱ",
+          step2Title: "ይዘዙ እና ይክፈሉ",
+          step2Desc: "ምግብ ወደ ካርት ይጨምሩ እና በTeleBirr ወይም CBE Birr ክፍያ ይፈጽሙ",
+          step3Title: "ይከታተሉ እና ይቀበሉ",
+          step3Desc: "በእውነተኛ ጊዜ ትዕዛዝዎን ይከታተሉ እና ይቀበሉ",
+
+          menuPreviewTitle: "በጣም ተወዳጅ ምግቦች",
+          menuPreviewSubtitle: "በጣም ተወዳጅ የሆኑ ምግቦቻችንን ይመልከቱ",
+          viewFullMenuBtn: '<i class="fas fa-utensils"></i> ሙሉ ማውጫውን ይመልከቱ',
+
+          whyTitle: "ለምን እኛን ይመርጣሉ?",
+          whySubtitle: "ሥርዓታችንን ልዩ የሚያደርጉት ባህሪያት",
+          feat1Title: "ረጅም ወረፋ የለም",
+          feat1Desc: "ረጅም ወረፋ ሳይጠብቁ ምግብዎን በቅድመ ሁኔታ ይዘዙ",
+          feat2Title: "ከየትኛውም ቦታ ይዘዙ",
+          feat2Desc: "ከየትኛውም ቦታ ሆነው በቀላሉ ምግብዎን ይዘዙ",
+          feat3Title: "የቀጥታ ማሳወቂያዎች",
+          feat3Desc: "የትዕዛዝዎን ሁኔታ በእውነተኛ ጊዜ ይከታተሉ",
+          feat4Title: "ቀላል ክፍያ",
+          feat4Desc: "በCBE Birr እና TeleBirr ፈጣን ክፍያ ይፈጽሙ",
+          feat5Title: "ያለፉ ትዕዛዞች",
+          feat5Desc: "ያለፉትን ትዕዛዞች እና ታሪክ በማንኛውም ጊዜ ይመልከቱ",
+          feat6Title: "ዘመናዊ ሪፖርቶች",
+          feat6Desc: "ለአስተዳዳሪዎች ዝርዝር የሽያጭ እና የካፌቴሪያ ሪፖርቶች",
+
+          testTitle: "ተጠቃሚዎቻችን ምን ይላሉ?",
+          testSubtitle: "ተጠቃሚዎቻችን ስለ ሥርዓታችን ያላቸው አስተያየት",
+          test1Quote: '"ይህ ስርዓት በካፊቴሪያ ውስጥ ረጅም ጊዜ ከመጠበቅ አድኖኛል! በቀላሉ ምግብ አዝዣለሁ እና ዝግጁ በሚሆንበት ጊዜ ማሳወቂያ አገኛለሁ።"',
+          test2Quote: '"የኩሽና ዳሽቦርዱ በጣም ምቹ ነው! ትዕዛዞችን በቀላሉ ማየት እና ሁኔታቸውን በቀጥታ ማዘመን እችላለሁ።"',
+          test3Quote: '"የአስተዳደር ፓነሉ ሁሉንም ነገር ለመቆጣጠር ያስችላል። ሪፖርቶች በጣም ጠቃሚ ናቸው!"',
+
+          footerAbout: "ዘመናዊ የካፊቴሪያ አገልግሎት — ምግብ ማዘዝን ፈጣን፣ ቀላል እና ቀልጣፋ የሚያደርግ ስርዓት።"
+        }
+      };
+
+      function updateLanguageUI(lang) {
+        const t = translations[lang] || translations.en;
+
+        const ids = [
+          "navHome", "navMenu", "navHow", "navFeatures", "navTestimonials", "navLogin", "navRegister",
+          "banner1Title", "banner1Desc", "banner2Title", "banner2Desc", "banner3Title", "banner3Desc",
+          "howTitle", "howSubtitle", "step1Title", "step1Desc", "step2Title", "step2Desc", "step3Title", "step3Desc",
+          "menuPreviewTitle", "menuPreviewSubtitle",
+          "whyTitle", "whySubtitle", "feat1Title", "feat1Desc", "feat2Title", "feat2Desc", "feat3Title", "feat3Desc", "feat4Title", "feat4Desc", "feat5Title", "feat5Desc", "feat6Title", "feat6Desc",
+          "testTitle", "testSubtitle", "test1Quote", "test2Quote", "test3Quote",
+          "footerAbout"
+        ];
+
+        ids.forEach(function (id) {
+          const el = document.getElementById(id);
+          if (el && t[id]) {
+            el.textContent = t[id];
+          }
+        });
+
+        const btnEl = document.getElementById("viewFullMenuBtn");
+        if (btnEl && t.viewFullMenuBtn) {
+          btnEl.innerHTML = t.viewFullMenuBtn;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        renderMenuPreview();
+        const langSelect = document.getElementById("langToggleSelect");
+        if (langSelect) {
+          const currentLang = localStorage.getItem("scos_language") || "en";
+          langSelect.value = currentLang;
+          updateLanguageUI(currentLang);
+
+          langSelect.addEventListener("change", function () {
+            const selectedLang = langSelect.value;
+            localStorage.setItem("scos_language", selectedLang);
+            updateLanguageUI(selectedLang);
+          });
+        }
+      });
     </script>
   </body>
 </html>

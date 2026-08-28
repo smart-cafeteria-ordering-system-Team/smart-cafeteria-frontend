@@ -47,7 +47,7 @@ const UserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["customer", "kitchen", "admin", "STAFF", "STUDENT", "ADMIN"],
+      enum: ["customer", "kitchen", "admin", "STAFF", "STUDENT", "ADMIN", "KITCHEN_STAFF"],
       default: "customer",
     },
     balance: {
@@ -83,17 +83,12 @@ const UserSchema = new mongoose.Schema(
 );
 
 // Hash password before saving
-UserSchema.pre("save", async function (next) {
+UserSchema.pre("save", async function () {
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Update updatedAt on save
@@ -121,5 +116,9 @@ UserSchema.methods.getPublicProfile = function () {
     createdAt: this.createdAt,
   };
 };
+
+UserSchema.index({ email: 1 });
+UserSchema.index({ role: 1 });
+UserSchema.index({ status: 1 });
 
 module.exports = mongoose.model("User", UserSchema);

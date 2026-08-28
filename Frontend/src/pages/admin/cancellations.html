@@ -4,262 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cancellations - Smart Cafeteria</title>
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Admin CSS stylesheet -->
     <link rel="stylesheet" href="/frontend/src/css/admin.css">
-    <link rel="stylesheet" href="/frontend/src/css/style.css">
-
-    <!-- Auth Guard Check -->
-    <script>
-        const role = localStorage.getItem('userRole');
-        if (!role || role !== 'ADMIN') {
-            alert('Access denied! Admins only.');
-           window.location.href = '/Frontend/src/pages/common/login.html';
-        }
-    </script>
 </head>
 <body class="admin-body">
 
-    <!-- TOP NAVBAR --> 
-            </button>
-            <div class="brand-logo">
-                <i class="fa-solid fa-utensils"></i>
-                <span>Smart Cafeteria <small>Admin</small></span>
-            </div> 
-        </div>
-
-        <div class="nav-right">
-            <div class="nav-item dropdown">
-                <button class="btn-icon" id="notificationBtn" title="Notifications">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="badge-dot" id="notifBadge"></span>
-                </button>
-            </div>
-            
-            <div class="user-profile-menu">
-                <div class="avatar" id="adminAvatar">A</div>
-                <div class="user-info">
-                    <strong id="adminNameDisplay">Admin User</strong>
-                    <small>Administrator</small>
-                </div>
-                <button id="logoutBtn" class="btn-logout-icon" title="Logout">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- WRAPPER: SIDEBAR + MAIN CONTENT -->
+    <!-- Layout will be injected by admin-layout.js -->
+    <header class="admin-navbar"></header>
     <div class="admin-container">
-
-        <!-- SIDEBAR NAVIGATION --> 
-        <aside class="admin-sidebar" id="adminSidebar">
-            <nav class="sidebar-nav">  
-                <div class="sidebar-group">
-                    <span class="group-title">MAIN</span>
-                    <a href="dashboard.html" class="sidebar-link">
-                        <i class="fa-solid fa-chart-line"></i>
-                        <span>Dashboard</span>
-                    </a> 
-                </div>
-
-                <div class="sidebar-group">
-                    <span class="group-title">MANAGEMENT</span>
-                    <a href="users.html" class="sidebar-link">
-                        <i class="fa-solid fa-users"></i>
-                        <span>Users</span>
-                    </a>
-                    <a href="menu.html" class="sidebar-link">
-                        <i class="fa-solid fa-bowl-food"></i>
-                        <span>Menu</span>
-                    </a> 
-                    <a href="categories.html" class="sidebar-link">
-                        <i class="fa-solid fa-list"></i>
-                        <span>Categories</span>
-                    </a>
-                    <a href="orders.html" class="sidebar-link">
-                        <i class="fa-solid fa-receipt"></i>
-                        <span>Orders</span>
-                    </a>
-                    <a href="payments.html" class="sidebar-link">
-                        <i class="fa-solid fa-wallet"></i>
-                        <span>Payments</span>
-                    </a>
-                    <a href="cancellations.html" class="sidebar-link active">
-                        <i class="fa-solid fa-ban"></i>
-                        <span>Cancellations</span>
-                        <span class="sidebar-badge" id="sidebarCancellationBadge">0</span>
-                    </a>
-                </div>
-
-                <div class="sidebar-group">
-                    <span class="group-title">ANALYTICS & SYSTEM</span>
-                    <a href="feedback.html" class="sidebar-link">
-                        <i class="fa-solid fa-comments"></i>
-                        <span>Feedback</span>
-                    </a>
-                    <a href="reports.html" class="sidebar-link">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span>Reports</span>
-                    </a>
-                    <a href="settings.html" class="sidebar-link">
-                        <i class="fa-solid fa-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
-
-        <!-- MAIN CONTENT AREA -->
-        <main class="admin-main">
-            
-            <div class="page-header">
-                <div>
-                    <h1>Cancellation Requests</h1>
-                    <p class="subtitle">Review and manage order cancellations and refund processing.</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-secondary" id="refreshCancellationsBtn">
-                        <i class="fa-solid fa-rotate"></i> Refresh Requests
-                    </button>
-                </div>
-            </div>
-
-            <!-- METRIC CARDS GRID -->
-            <section class="metrics-grid">
-                <div class="metric-card">
-                    <div class="card-icon bg-blue">
-                        <i class="fa-solid fa-ban"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Total Cancellations</span>
-                        <h2 id="metricTotalCancellations">0</h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-orange">
-                        <i class="fa-solid fa-clock"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Pending Approval</span>
-                        <h2 id="metricPendingCancellations">0</h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-green">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Refunded Today</span>
-                        <h2 id="metricRefundedAmount">0 <small>ETB</small></h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-red">
-                        <i class="fa-solid fa-xmark"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Rejected Requests</span>
-                        <h2 id="metricRejectedCancellations">0</h2>
-                    </div>
-                </div>
-            </section>
-
-            <!-- CANCELLATIONS TABLE CONTAINER -->
-            <section class="dashboard-card full-width">
-                <div class="card-header table-header-actions">
-                    <div class="search-box">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="cancellationSearchInput" placeholder="Search by Order ID, Request ID, or Customer...">
-                    </div>
-                    <div class="filter-group">
-                        <select id="cancellationStatusFilter" class="form-select">
-                            <option value="">All Statuses</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="APPROVED">Approved & Refunded</option>
-                            <option value="REJECTED">Rejected</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Request ID</th>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Reason</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Date & Time</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cancellationsTableBody">
-                            <!-- Dynamic Render -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="pagination-container" id="cancellationPaginationControls">
-                    <!-- Pagination Controls -->
-                </div>
-            </section>
-
-        </main>
+        <aside class="admin-sidebar" id="adminSidebar"></aside>
+        <main class="admin-main"></main>
     </div>
 
-    <!-- CANCELLATION DETAILS & ACTION MODAL -->
-    <div class="modal-overlay" id="cancellationModal" style="display: none;">
-        <div class="modal-card">
+    <!-- ===== CANCELLATION DETAILS MODAL ===== -->
+    <div class="modal-overlay" id="cancellationDetailsModal">
+        <div class="modal modal-lg">
             <div class="modal-header">
-                <h3>Review Cancellation Request</h3>
-                <button class="btn-close" id="closeCancellationModalBtn">&times;</button>
+                <h3 class="modal-title">Cancellation Request - <span id="modalCancellationOrderId">#0000</span></h3>
+                <button class="modal-close" data-close-modal="cancellationDetailsModal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="order-summary-header">
                     <div>
-                        <strong>Request ID:</strong> <span id="modalRequestId">#0000</span><br>
-                        <strong>Order ID:</strong> <span id="modalOrderId">#0000</span>
+                        <strong>Customer:</strong> <span id="modalCancCustomer">-</span><br>
+                        <strong>Phone:</strong> <span id="modalCancPhone">-</span><br>
+                        <strong>Email:</strong> <span id="modalCancEmail">-</span>
                     </div>
                     <div>
-                        <strong>Customer:</strong> <span id="modalCustomerName">-</span><br>
-                        <strong>Refund Amount:</strong> <span id="modalRefundAmount">0.00 ETB</span>
+                        <strong>Order Type:</strong> <span id="modalCancOrderType">-</span><br>
+                        <strong>Table:</strong> <span id="modalCancTableNumber">-</span><br>
+                        <strong>Order Status:</strong> <span id="modalCancOrderStatus">-</span>
+                    </div>
+                    <div>
+                        <strong>Payment Status:</strong> <span id="modalCancPaymentStatus">-</span><br>
+                        <strong>Amount:</strong> <span id="modalCancAmount">-</span>
                     </div>
                 </div>
 
-                <hr class="divider">
+                <hr class="form-divider">
+
+                <div class="detail-grid">
+                    <div class="detail-item"><span>Reason</span><strong id="modalCancReason">—</strong></div>
+                    <div class="detail-item"><span>Requested At</span><strong id="modalCancRequestedAt">—</strong></div>
+                    <div class="detail-item"><span>Status</span><strong id="modalCancStatus">—</strong></div>
+                </div>
+
+                <hr class="form-divider">
+
+                <h4 class="section-heading"><i class="fa-solid fa-list"></i> Order Items</h4>
+                <div class="table-wrapper">
+                    <table class="admin-table compact">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Unit Price</th>
+                                <th>Qty</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalCancItemsBody">
+                            <tr><td colspan="4" class="table-empty">No items</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="order-total-summary">
+                    <span>Subtotal: <strong id="modalCancSubtotal">0.00 ETB</strong></span>
+                    <span>Service Fee: <strong id="modalCancServiceFee">0.00 ETB</strong></span>
+                    <span class="grand-total">Total: <strong id="modalCancTotal">0.00 ETB</strong></span>
+                </div>
+
+                <hr class="form-divider">
 
                 <div class="form-group">
-                    <label><strong>Reason for Cancellation</strong></label>
-                    <p id="modalCancellationReason" class="text-muted-bg">-</p>
+                    <label for="cancAdminNote" class="form-label"><strong>Admin Note</strong></label>
+                    <textarea id="cancAdminNote" class="form-control" rows="3" placeholder="Add a note for the customer..."></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="adminNoteInput"><strong>Admin Remarks (Optional)</strong></label>
-                    <textarea id="adminNoteInput" class="form-control" rows="3" placeholder="Add a note for the customer..."></textarea>
+                    <label class="form-label"><strong>Action</strong></label>
+                    <div class="btn-group" style="gap:8px;">
+                        <button type="button" class="btn btn-success" id="approveCancellationBtn"><i class="fa-solid fa-check"></i> Approve</button>
+                        <button type="button" class="btn btn-danger" id="rejectCancellationBtn"><i class="fa-solid fa-times"></i> Reject</button>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="rejectCancellationBtn">Reject Request</button>
-                <button type="button" class="btn btn-success" id="approveCancellationBtn">Approve & Refund</button>
+                <button type="button" class="btn btn-secondary" data-close-modal="cancellationDetailsModal">Close</button>
             </div>
         </div>
     </div>
 
     <!-- JavaScript Files -->
-    <script src="../../js/api.js"></script>
-    <script src="../../js/auth.js"></script>
-    <script src="/frontend/src/js/admin.js"></script>
-    <script src="/frontend/src/js/cancellations.js"></script>
-    <script src="/Frontend/src/components/sidebar.js"></script>
+    <script src="../../js/admin-api.js"></script>
+    <script src="../../js/admin-layout.js"></script>
+    <script src="../../js/admin-ui.js"></script>
+    <script src="../../js/admin-cancellations.js"></script>
 
+    <script>
+        // Page-specific initialization
+        function initPageSpecific() {
+            // admin-cancellations.js handles initialization via its own DOMContentLoaded
+        }
+    </script>
 </body>
 </html>

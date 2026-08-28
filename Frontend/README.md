@@ -1,4 +1,4 @@
-# 🍽️ Smart Cafeteria Ordering System
+#  Smart Cafeteria Ordering System
 
 ## 📌 Project Overview
 

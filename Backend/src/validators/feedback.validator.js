@@ -1,37 +1,25 @@
-// validators/feedback.validator.js
+const { validateObjectId, validateQuantity } = require('./common.validator');
 
-export const validateFeedbackInput = (data) => {
+const validateFeedbackInput = (data) => {
     const errors = {};
 
-    // Order ID
-    const orderId = data.orderId?.trim();
+    const orderIdErr = validateObjectId(data.orderId, 'Order ID');
+    if (orderIdErr) errors.orderId = orderIdErr;
 
-    if (!orderId) {
-        errors.orderId = 'Order ID is required to leave feedback';
+    const ratingErr = validateQuantity(data.rating, 'Rating', 1, 5);
+    if (ratingErr) errors.rating = ratingErr;
+
+    if (data.comment !== undefined) {
+        if (typeof data.comment !== 'string') {
+            errors.comment = 'Comment must be a string';
+        } else if (data.comment.trim().length > 500) {
+            errors.comment = 'Comment cannot exceed 500 characters';
+        }
     }
 
-    // Rating
-    const rating = Number(data.rating);
+    return { isValid: Object.keys(errors).length === 0, errors };
+};
 
-    if (
-        data.rating === undefined ||
-        data.rating === null ||
-        !Number.isInteger(rating) ||
-        rating < 1 ||
-        rating > 5
-    ) {
-        errors.rating = 'Rating must be an integer between 1 and 5';
-    }
-
-    // Comment
-    const comment = data.comment?.trim() || '';
-
-    if (comment.length > 500) {
-        errors.comment = 'Comment cannot exceed 500 characters';
-    }
-
-    return {
-        isValid: Object.keys(errors).length === 0,
-        errors
-    };
+module.exports = {
+    validateFeedbackInput
 };

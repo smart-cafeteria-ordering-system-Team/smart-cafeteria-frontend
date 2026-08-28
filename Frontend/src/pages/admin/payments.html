@@ -3,252 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payments - Smart Cafeteria</title>
-    
+    <title>Payment Management - Smart Cafeteria</title>
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Admin CSS stylesheet -->
     <link rel="stylesheet" href="/frontend/src/css/admin.css">
-    <link rel="stylesheet" href="/frontend/src/css/style.css">
-
-    <!-- Auth Guard Check -->
-    <script>
-        const role = localStorage.getItem('userRole');
-        if (!role || role !== 'ADMIN') {
-            alert('Access denied! Admins only.');
-           window.location.href = '/Frontend/src/pages/common/login.html';
-        }
-    </script>
 </head>
 <body class="admin-body">
 
-    <!-- TOP NAVBAR -->
-    <header class="admin-navbar">
-        <div class="nav-left">
-            <button id="sidebarToggle" class="btn-icon" aria-label="Toggle Sidebar">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <div class="brand-logo">
-                <i class="fa-solid fa-utensils"></i>
-                <span>Smart Cafeteria <small>Admin</small></span>
-            </div>
-        </div>
-
-        <div class="nav-right">
-            <div class="nav-item dropdown">
-                <button class="btn-icon" id="notificationBtn" title="Notifications">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="badge-dot" id="notifBadge"></span>
-                </button>
-            </div>
-            
-            <div class="user-profile-menu">
-                <div class="avatar" id="adminAvatar">A</div>
-                <div class="user-info">
-                    <strong id="adminNameDisplay">Admin User</strong>
-                    <small>Administrator</small>
-                </div>
-                <button id="logoutBtn" class="btn-logout-icon" title="Logout">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- WRAPPER: SIDEBAR + MAIN CONTENT -->
+    <!-- Layout will be injected by admin-layout.js -->
+    <header class="admin-navbar"></header>
     <div class="admin-container">
+        <aside class="admin-sidebar" id="adminSidebar"></aside>
+        <main class="admin-main"></main>
+    </div>
 
-        <!-- SIDEBAR NAVIGATION -->
-        <aside class="admin-sidebar" id="adminSidebar">
-            <nav class="sidebar-nav">
-                <div class="sidebar-group">
-                    <span class="group-title">MAIN</span>
-                    <a href="dashboard.html" class="sidebar-link">
-                        <i class="fa-solid fa-chart-line"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-
-                <div class="sidebar-group">
-                    <span class="group-title">MANAGEMENT</span>
-                    <a href="users.html" class="sidebar-link">
-                        <i class="fa-solid fa-users"></i>
-                        <span>Users</span>
-                    </a>
-                    <a href="menu.html" class="sidebar-link">
-                        <i class="fa-solid fa-bowl-food"></i>
-                        <span>Menu</span>
-                    </a>
-                    <a href="categories.html" class="sidebar-link">
-                        <i class="fa-solid fa-list"></i>
-                        <span>Categories</span>
-                    </a>
-                    <a href="orders.html" class="sidebar-link">
-                        <i class="fa-solid fa-receipt"></i>
-                        <span>Orders</span>
-                    </a>
-                    <a href="payments.html" class="sidebar-link active">
-                        <i class="fa-solid fa-wallet"></i>
-                        <span>Payments</span>
-                    </a>
-                    <a href="cancellations.html" class="sidebar-link">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                        <span>cancellations</span>
-                        <span class="sidebar-badge" id="sidebarRefundBadge">0</span>
-                    </a>
-                </div>
-
-                <div class="sidebar-group">
-                    <span class="group-title">ANALYTICS & SYSTEM</span>
-                    <a href="feedback.html" class="sidebar-link">
-                        <i class="fa-solid fa-comments"></i>
-                        <span>Feedback</span>
-                    </a>
-                    <a href="reports.html" class="sidebar-link">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span>Reports</span>
-                    </a>
-                    <a href="settings.html" class="sidebar-link">
-                        <i class="fa-solid fa-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
-
-        <!-- MAIN CONTENT AREA -->
-        <main class="admin-main">
-            
-            <div class="page-header">
-                <div>
-                    <h1>Payment Transactions</h1>
-                    <p class="subtitle">Track digital payments, wallet deposits, and financial transactions.</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-secondary" id="refreshPaymentsBtn">
-                        <i class="fa-solid fa-rotate"></i> Refresh Transactions
-                    </button>
-                </div>
+    <!-- ===== PAYMENT DETAILS MODAL (READ-ONLY) ===== -->
+    <div class="modal-overlay" id="paymentDetailsModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">Payment Details - <span id="modalPaymentOrderId">#0000</span></h3>
+                <button class="modal-close" data-close-modal="paymentDetailsModal">&times;</button>
             </div>
-
-            <!-- METRIC CARDS GRID -->
-            <section class="metrics-grid">
-                <div class="metric-card">
-                    <div class="card-icon bg-blue">
-                        <i class="fa-solid fa-cash-register"></i>
+            <div class="modal-body">
+                <div class="order-summary-header">
+                    <div>
+                        <strong>Customer:</strong> <span id="modalPaymentCustomer">-</span><br>
+                        <strong>Phone:</strong> <span id="modalPaymentCustomerPhone">-</span><br>
+                        <strong>Email:</strong> <span id="modalPaymentCustomerEmail">-</span>
                     </div>
-                    <div class="card-details">
-                        <span class="metric-title">Total Revenue</span>
-                        <h2 id="metricTotalRevenue">0 <small>ETB</small></h2>
+                    <div>
+                        <strong>Payment Method:</strong> <span id="modalPaymentMethod">-</span><br>
+                        <strong>Payment Status:</strong> <span id="modalPaymentStatus">-</span><br>
+                        <strong>Amount:</strong> <span id="modalPaymentAmount">-</span>
                     </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-green">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Successful Payments</span>
-                        <h2 id="metricSuccessfulPayments">0</h2>
+                    <div>
+                        <strong>Transaction Ref:</strong> <span id="modalPaymentTransactionId">-</span><br>
+                        <strong>Provider Ref:</strong> <span id="modalPaymentProviderReference">-</span><br>
+                        <strong>Payment Date:</strong> <span id="modalPaymentDate">-</span>
                     </div>
                 </div>
 
-                <div class="metric-card">
-                    <div class="card-icon bg-orange">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Pending Transactions</span>
-                        <h2 id="metricPendingPayments">0</h2>
-                    </div>
+                <hr class="form-divider">
+
+                <h4 class="section-heading"><i class="fa-solid fa-bag-shopping"></i> Order Information</h4>
+                <div class="timeline-grid">
+                    <div class="detail-item"><span>Order Type</span><strong id="modalPaymentOrderType">—</strong></div>
+                    <div class="detail-item"><span>Table</span><strong id="modalPaymentTableNumber">—</strong></div>
+                    <div class="detail-item"><span>Order Status</span><strong id="modalPaymentOrderStatus">—</strong></div>
+                    <div class="detail-item"><span>Paid At</span><strong id="modalPaymentPaidAt">—</strong></div>
                 </div>
 
-                <div class="metric-card">
-                    <div class="card-icon bg-red">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Failed Payments</span>
-                        <h2 id="metricFailedPayments">0</h2>
-                    </div>
-                </div>
-            </section>
+                <hr class="form-divider">
 
-            <!-- PAYMENTS TABLE CONTAINER -->
-            <section class="dashboard-card full-width">
-                <div class="card-header table-header-actions">
-                    <div class="search-box">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="paymentSearchInput" placeholder="Search by Txn ID, Order ID, or User...">
-                    </div>
-                    <div class="filter-group">
-                        <select id="paymentMethodFilter" class="form-select">
-                            <option value="">All Methods</option>
-                            <option value="WALLET">In-App Wallet</option>
-                            <option value="CBE_BIRR">CBE Birr</option>
-                            <option value="TELEBIRR">Telebirr</option>
-                            <option value="CASH">Cash</option>
-                        </select>
-                        <select id="paymentStatusFilter" class="form-select">
-                            <option value="">All Statuses</option>
-                            <option value="COMPLETED">Completed</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="FAILED">Failed</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="admin-table">
+                <h4 class="section-heading"><i class="fa-solid fa-list"></i> Order Items</h4>
+                <div class="table-wrapper">
+                    <table class="admin-table compact">
                         <thead>
                             <tr>
-                                <th>Transaction ID</th>
-                                <th>Order ID</th>
-                                <th>User</th>
-                                <th>Method</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Date & Time</th>
-                                <th>Action</th>
+                                <th>Item</th>
+                                <th>Unit Price</th>
+                                <th>Qty</th>
+                                <th>Subtotal</th>
                             </tr>
                         </thead>
-                        <tbody id="paymentsTableBody">
-                            <!-- Dynamic Render -->
+                        <tbody id="modalPaymentItemsBody">
+                            <tr><td colspan="4" class="table-empty">No items</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="pagination-container" id="paymentPaginationControls">
-                    <!-- Pagination Controls -->
+                <div class="order-total-summary">
+                    <span>Subtotal: <strong id="modalPaymentSubtotal">0.00 ETB</strong></span>
+                    <span>Service Fee: <strong id="modalPaymentServiceFee">0.00 ETB</strong></span>
+                    <span class="grand-total">Total: <strong id="modalPaymentTotal">0.00 ETB</strong></span>
                 </div>
-            </section>
 
-        </main>
-    </div>
+                <hr class="form-divider">
 
-    <!-- PAYMENT RECEIPT MODAL -->
-    <div class="modal-overlay" id="paymentModal" style="display: none;">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3>Payment Details</h3>
-                <button class="btn-close" id="closePaymentModalBtn">&times;</button>
-            </div>
-            <div class="modal-body" id="paymentReceiptDetails">
-                <!-- Dynamic Receipt Content -->
+                <div class="alert alert-warning">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Payment status is read-only. Only verified responses from Chapa / Telebirr can mark a payment as Paid.</span>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="closePaymentModalFooterBtn">Close</button>
+                <button type="button" class="btn btn-secondary" data-close-modal="paymentDetailsModal">Close</button>
             </div>
         </div>
     </div>
 
     <!-- JavaScript Files -->
-    <script src="../../js/api.js"></script>
-    <script src="../../js/auth.js"></script>
-    <script src="/frontend/src/js/admin.js"></script>
-    <script src="/frontend/src/js/payments.js"></script>
-    <script src="/Frontend/src/components/sidebar.js"></script>
+    <script src="../../js/admin-api.js"></script>
+    <script src="../../js/admin-layout.js"></script>
+    <script src="../../js/admin-ui.js"></script>
+    <script src="../../js/admin-payments.js"></script>
 
+    <script>
+        // Page-specific initialization
+        function initPageSpecific() {
+            // admin-payments.js handles initialization via its own DOMContentLoaded
+        }
+    </script>
 </body>
 </html>

@@ -4,254 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Management - Smart Cafeteria</title>
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Admin CSS stylesheet -->
     <link rel="stylesheet" href="/frontend/src/css/admin.css">
-    <link rel="stylesheet" href="/frontend/src/css/style.css">
-
-    <!-- Auth Guard Check -->
-     
-    <script>
-        const role = localStorage.getItem('userRole');
-        if (!role || role !== 'ADMIN') {
-            alert('Access denied! Admins only.');
-            window.location.href = '/Frontend/src/pages/common/login.html';
-        }
-    </script>
 </head>
 <body class="admin-body">
 
-    <!-- TOP NAVBAR -->
-    <header class="admin-navbar">
-        <div class="nav-left">
-            <button id="sidebarToggle" class="btn-icon" aria-label="Toggle Sidebar">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <div class="brand-logo">
-                <i class="fa-solid fa-utensils"></i>
-                <span>Smart Cafeteria <small>Admin</small></span>
-            </div>
-        </div>
-
-        <div class="nav-right">
-            <div class="nav-item dropdown">
-                <button class="btn-icon" id="notificationBtn" title="Notifications">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="badge-dot" id="notifBadge"></span>
-                </button>
-            </div>
-            
-            <div class="user-profile-menu">
-                <div class="avatar" id="adminAvatar">A</div>
-                <div class="user-info">
-                    <strong id="adminNameDisplay">Admin User</strong>
-                    <small>Administrator</small>
-                </div>
-                <button id="logoutBtn" class="btn-logout-icon" title="Logout">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- WRAPPER: SIDEBAR + MAIN CONTENT -->
+    <!-- Layout will be injected by admin-layout.js -->
+    <header class="admin-navbar"></header>
     <div class="admin-container">
-
-        <!-- SIDEBAR NAVIGATION -->
-        <aside class="admin-sidebar" id="adminSidebar">
-            <nav class="sidebar-nav">
-                <div class="sidebar-group">
-                    <span class="group-title">MAIN</span>
-                    <a href="dashboard.html" class="sidebar-link">
-                        <i class="fa-solid fa-chart-line"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-
-                <div class="sidebar-group">
-                    <span class="group-title">MANAGEMENT</span>
-                    <a href="users.html" class="sidebar-link">
-                        <i class="fa-solid fa-users"></i>
-                        <span>Users</span>
-                    </a>
-                    <a href="menu.html" class="sidebar-link">
-                        <i class="fa-solid fa-bowl-food"></i>
-                        <span>Menu</span>
-                    </a>
-                    <a href="categories.html" class="sidebar-link">
-                        <i class="fa-solid fa-list"></i>
-                        <span>Categories</span>
-                    </a>
-                    <a href="orders.html" class="sidebar-link active">
-                        <i class="fa-solid fa-receipt"></i>
-                        <span>Orders</span>
-                    </a>
-                    <a href="payments.html" class="sidebar-link">
-                        <i class="fa-solid fa-wallet"></i>
-                        <span>Payments</span>
-                    </a>
-                    <a href="cancellations.html" class="sidebar-link">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                        <span>cancellations</span>
-                        <span class="sidebar-badge" id="sidebarRefundBadge">0</span>
-                    </a>
-                </div>
-
-                <div class="sidebar-group">
-                    <span class="group-title">ANALYTICS & SYSTEM</span>
-                    <a href="feedback.html" class="sidebar-link">
-                        <i class="fa-solid fa-comments"></i>
-                        <span>Feedback</span>
-                    </a>
-                    <a href="reports.html" class="sidebar-link">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span>Reports</span>
-                    </a>
-                    <a href="settings.html" class="sidebar-link">
-                        <i class="fa-solid fa-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
-
-        <!-- MAIN CONTENT AREA -->
-        <main class="admin-main">
-            
-            <div class="page-header">
-                <div>
-                    <h1>Order Management</h1>
-                    <p class="subtitle">Monitor, process, and track customer cafeteria orders in real-time.</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-secondary" id="refreshOrdersBtn">
-                        <i class="fa-solid fa-rotate"></i> Refresh Orders
-                    </button>
-                </div>
-            </div>
-
-            <!-- METRIC CARDS GRID -->
-            <section class="metrics-grid">
-                <div class="metric-card">
-                    <div class="card-icon bg-blue">
-                        <i class="fa-solid fa-receipt"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Total Orders</span>
-                        <h2 id="metricTotalOrders">0</h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-orange">
-                        <i class="fa-solid fa-hourglass-half"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Pending Orders</span>
-                        <h2 id="metricPendingOrders">0</h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-green">
-                        <i class="fa-solid fa-fire-burner"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Preparing / Ready</span>
-                        <h2 id="metricPreparingOrders">0</h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-red">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Completed Today</span>
-                        <h2 id="metricCompletedOrders">0</h2>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ORDERS TABLE CONTAINER -->
-            <section class="dashboard-card full-width">
-                <div class="card-header table-header-actions">
-                    <div class="search-box">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="orderSearchInput" placeholder="Search by Order ID or Customer Name...">
-                    </div>
-                    <div class="filter-group">
-                        <select id="orderStatusFilter" class="form-select">
-                            <option value="">All Statuses</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="PREPARING">Preparing</option>
-                            <option value="READY">Ready for Pickup</option>
-                            <option value="COMPLETED">Completed</option>
-                            <option value="CANCELLED">Cancelled</option>
-                        </select>
-                        <select id="paymentStatusFilter" class="form-select">
-                            <option value="">All Payments</option>
-                            <option value="PAID">Paid</option>
-                            <option value="UNPAID">Unpaid</option>
-                            <option value="REFUNDED">Refunded</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Items</th>
-                                <th>Total Amount</th>
-                                <th>Payment</th>
-                                <th>Order Status</th>
-                                <th>Date & Time</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ordersTableBody">
-                            <!-- Dynamic Render -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="pagination-container" id="orderPaginationControls">
-                    <!-- Pagination Controls -->
-                </div>
-            </section>
-
-        </main>
+        <aside class="admin-sidebar" id="adminSidebar"></aside>
+        <main class="admin-main"></main>
     </div>
 
-    <!-- ORDER DETAILS MODAL -->
-    <div class="modal-overlay" id="orderDetailsModal" style="display: none;">
-        <div class="modal-card modal-large">
+    <!-- ===== ORDER DETAILS MODAL ===== -->
+    <div class="modal-overlay" id="orderDetailsModal">
+        <div class="modal modal-lg">
             <div class="modal-header">
-                <h3>Order Details - <span id="modalOrderId">#0000</span></h3>
-                <button class="btn-close" id="closeOrderModalBtn">&times;</button>
+                <h3 class="modal-title">Order Details - <span id="modalOrderId">#0000</span></h3>
+                <button class="modal-close" data-close-modal="orderDetailsModal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="order-summary-header">
                     <div>
-                        <strong>Customer Name:</strong> <span id="modalCustomerName">-</span><br>
+                        <strong>Customer:</strong> <span id="modalCustomerName">-</span><br>
+                        <strong>Phone:</strong> <span id="modalCustomerPhone">-</span><br>
                         <strong>Email:</strong> <span id="modalCustomerEmail">-</span>
                     </div>
                     <div>
                         <strong>Placed On:</strong> <span id="modalOrderDate">-</span><br>
-                        <strong>Payment Method:</strong> <span id="modalPaymentMethod">-</span>
+                        <strong>Type:</strong> <span id="modalOrderType">-</span><br>
+                        <strong>Table:</strong> <span id="modalTableNumber">-</span>
+                    </div>
+                    <div>
+                        <strong>Payment Method:</strong> <span id="modalPaymentMethod">-</span><br>
+                        <strong>Payment Status:</strong> <span id="modalPaymentStatus">-</span><br>
+                        <strong>Transaction:</strong> <span id="modalTransactionId">-</span>
                     </div>
                 </div>
 
-                <hr class="divider">
+                <hr class="form-divider">
 
-                <h4>Ordered Items</h4>
-                <div class="table-responsive">
+                <h4 class="section-heading"><i class="fa-solid fa-list"></i> Ordered Items</h4>
+                <div class="table-wrapper">
                     <table class="admin-table compact">
                         <thead>
                             <tr>
@@ -262,41 +60,55 @@
                             </tr>
                         </thead>
                         <tbody id="modalOrderItemsBody">
-                            <!-- Dynamic Render -->
+                            <tr><td colspan="4" class="table-empty">No items</td></tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="order-total-summary">
-                    <strong>Total Amount: <span id="modalOrderTotal">0.00 ETB</span></strong>
+                    <span>Subtotal: <strong id="modalSubtotal">0.00 ETB</strong></span>
+                    <span>Service Fee: <strong id="modalServiceFee">0.00 ETB</strong></span>
+                    <span class="grand-total">Total: <strong id="modalOrderTotal">0.00 ETB</strong></span>
                 </div>
 
-                <hr class="divider">
+                <hr class="form-divider">
+
+                <div class="timeline-grid">
+                    <div class="detail-item"><span>Ordered</span><strong id="modalOrderTime">—</strong></div>
+                    <div class="detail-item"><span>Ready</span><strong id="modalReadyTime">—</strong></div>
+                    <div class="detail-item"><span>Completed</span><strong id="modalCompletedTime">—</strong></div>
+                    <div class="detail-item"><span>Cancellation</span><strong id="modalCancellationInfo">—</strong></div>
+                </div>
+
+                <hr class="form-divider">
 
                 <div class="form-group">
-                    <label for="updateOrderStatusSelect"><strong>Update Order Status</strong></label>
+                    <label for="updateOrderStatusSelect" class="form-label"><strong>Update Order Status</strong></label>
                     <select id="updateOrderStatusSelect" class="form-select">
-                        <option value="PENDING">Pending</option>
-                        <option value="PREPARING">Preparing</option>
-                        <option value="READY">Ready for Pickup</option>
-                        <option value="COMPLETED">Completed</option>
-                        <option value="CANCELLED">Cancelled</option>
+                        <option value="">—</option>
                     </select>
+                    <small class="form-text" id="statusFlowHint">Order statuses follow the flow: PENDING → PREPARING → READY → SERVED → COMPLETED.</small>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelOrderModalBtn">Close</button>
+                <button type="button" class="btn btn-secondary" data-close-modal="orderDetailsModal">Close</button>
+                <button type="button" class="btn btn-secondary danger-outline" id="cancelOrderBtn" style="display:none;"><i class="fa-solid fa-ban"></i> Cancel Order</button>
                 <button type="button" class="btn btn-primary" id="saveOrderStatusBtn">Update Status</button>
             </div>
         </div>
     </div>
 
     <!-- JavaScript Files -->
-    <script src="../../js/api.js"></script>
-    <script src="../../js/auth.js"></script>
-    <script src="/frontend/src/js/admin.js"></script>
-    <script src="/frontend/src/js/orders.js"></script>
-    <script src="/Frontend/src/components/sidebar.js"></script>
+    <script src="../../js/admin-api.js"></script>
+    <script src="../../js/admin-layout.js"></script>
+    <script src="../../js/admin-ui.js"></script>
+    <script src="../../js/admin-orders.js"></script>
 
+    <script>
+        // Page-specific initialization
+        function initPageSpecific() {
+            // admin-orders.js handles initialization via its own DOMContentLoaded
+        }
+    </script>
 </body>
 </html>

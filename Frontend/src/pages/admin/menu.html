@@ -1,290 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Management - Smart Cafeteria</title>
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Admin CSS stylesheet -->
     <link rel="stylesheet" href="/frontend/src/css/admin.css">
-    <link rel="stylesheet" href="/frontend/src/css/style.css">
-
-    <!-- Auth Guard Check -->
-    <script>
-        const role = localStorage.getItem('userRole');
-        if (!role || role !== 'ADMIN') {
-            alert('Access denied! Admins only.');
-            window.location.href = '/Frontend/src/pages/common/login.html';
-        }
-    </script>
 </head>
 <body class="admin-body">
 
-    <!-- TOP NAVBAR -->
-    <header class="admin-navbar">
-        <div class="nav-left">
-            <button id="sidebarToggle" class="btn-icon" aria-label="Toggle Sidebar">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <div class="brand-logo">
-                <i class="fa-solid fa-utensils"></i>
-                <span>Smart Cafeteria <small>Admin</small></span>
-            </div>
-        </div>
-
-        <div class="nav-right">
-            <div class="nav-item dropdown">
-                <button class="btn-icon" id="notificationBtn" title="Notifications">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="badge-dot" id="notifBadge"></span>
-                </button>
-            </div>
-            
-            <div class="user-profile-menu">
-                <div class="avatar" id="adminAvatar">A</div>
-                <div class="user-info">
-                    <strong id="adminNameDisplay">Admin User</strong>
-                    <small>Administrator</small>
-                </div>
-                <button id="logoutBtn" class="btn-logout-icon" title="Logout">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- WRAPPER: SIDEBAR + MAIN CONTENT -->
+    <!-- Layout will be injected by admin-layout.js -->
+    <header class="admin-navbar"></header>
     <div class="admin-container">
-
-        <!-- SIDEBAR NAVIGATION -->
-        <aside class="admin-sidebar" id="adminSidebar">
-            <nav class="sidebar-nav">
-                <div class="sidebar-group">
-                    <span class="group-title">MAIN</span>
-                    <a href="dashboard.html" class="sidebar-link">
-                        <i class="fa-solid fa-chart-line"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-
-                <div class="sidebar-group">
-                    <span class="group-title">MANAGEMENT</span>
-                    <a href="users.html" class="sidebar-link">
-                        <i class="fa-solid fa-users"></i>
-                        <span>Users</span>
-                    </a>
-                    <a href="menu.html" class="sidebar-link active">
-                        <i class="fa-solid fa-bowl-food"></i>
-                        <span>Menu</span>
-                    </a>
-                    <a href="categories.html" class="sidebar-link">
-                        <i class="fa-solid fa-list"></i>
-                        <span>Categories</span>
-                    </a>
-                    <a href="orders.html" class="sidebar-link">
-                        <i class="fa-solid fa-receipt"></i>
-                        <span>Orders</span>
-                    </a>
-                    <a href="payments.html" class="sidebar-link">
-                        <i class="fa-solid fa-wallet"></i>
-                        <span>Payments</span>
-                    </a>
-                    <a href="cancellations.html" class="sidebar-link">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                        <span>cancellations</span>
-                        <span class="sidebar-badge" id="sidebarRefundBadge">0</span>
-                    </a>
-                </div>
-
-                <div class="sidebar-group">
-                    <span class="group-title">ANALYTICS & SYSTEM</span>
-                    <a href="feedback.html" class="sidebar-link">
-                        <i class="fa-solid fa-comments"></i>
-                        <span>Feedback</span>
-                    </a>
-                    <a href="reports.html" class="sidebar-link">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span>Reports</span>
-                    </a>
-                    <a href="settings.html" class="sidebar-link">
-                        <i class="fa-solid fa-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
-
-        <!-- MAIN CONTENT AREA -->
-        <main class="admin-main">
-            
-            <div class="page-header">
-                <div>
-                    <h1>Menu Management</h1>
-                    <p class="subtitle">Manage cafeteria food items, pricing, availability, and details.</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-primary" id="openAddMenuModalBtn">
-                        <i class="fa-solid fa-plus"></i> Add New Item
-                    </button>
-                </div>
-            </div> 
-
-            <!-- METRIC CARDS GRID -->
-            <section class="metrics-grid">
-                <div class="metric-card">
-                    <div class="card-icon bg-blue">
-                        <i class="fa-solid fa-utensils"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Total Items</span>
-                        <h2 id="metricTotalItems">0</h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-green">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Available Now</span>
-                        <h2 id="metricAvailableItems">0</h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-orange">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Out of Stock</span>
-                        <h2 id="metricOutOfStockItems">0</h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-red">
-                        <i class="fa-solid fa-layer-group"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Categories</span>
-                        <h2 id="metricTotalCategories">0</h2>
-                    </div>
-                </div>
-            </section>
-
-            <!-- MENU TABLE CONTAINER -->
-            <section class="dashboard-card full-width">
-                <div class="card-header table-header-actions">
-                    <div class="search-box">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="menuSearchInput" placeholder="Search by food name or ID...">
-                    </div>
-                    <div class="filter-group">
-                        <select id="categoryFilter" class="form-select">
-                            <option value="">All Categories</option>
-                            <option value="Breakfast">Breakfast</option>
-                            <option value="Lunch">Lunch</option>
-                            <option value="Dinner">Dinner</option>
-                            <option value="Drinks">Drinks</option>
-                            <option value="Snacks">Snacks</option>
-                        </select>
-                        <select id="availabilityFilter" class="form-select">
-                            <option value="">All Availability</option>
-                            <option value="AVAILABLE">Available</option>
-                            <option value="OUT_OF_STOCK">Out of Stock</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Item ID</th>
-                                <th>Item Name</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Availability</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="menuTableBody">
-                            <!-- Dynamic Render -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="pagination-container" id="menuPaginationControls">
-                    <!-- Pagination Controls -->
-                </div>
-            </section>
-
-        </main>
+        <aside class="admin-sidebar" id="adminSidebar"></aside>
+        <main class="admin-main"></main>
     </div>
 
-    <!-- ADD/EDIT MENU ITEM MODAL -->
-    <div class="modal-overlay" id="menuModal" style="display: none;">
-        <div class="modal-card">
+    <!-- ===== ADD / EDIT MENU ITEM MODAL ===== -->
+    <div class="modal-overlay" id="menuItemModal">
+        <div class="modal">
             <div class="modal-header">
-                <h3 id="menuModalTitle">Add New Menu Item</h3>
-                <button class="btn-close" id="closeMenuModalBtn">&times;</button>
+                <h3 class="modal-title" id="menuModalTitle">Add New Menu Item</h3>
+                <button class="modal-close" data-close-modal="menuItemModal">&times;</button>
             </div>
-            <form id="menuForm">
-                <input type="hidden" id="itemId">
+            <form id="menuItemForm">
+                <input type="hidden" name="id" id="itemId">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="itemName">Food Item Name</label>
-                        <input type="text" id="itemName" class="form-control" placeholder="e.g. Special Doro Wat" required>
-                    </div>
-                    <div class="form-row">
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label for="itemCategory">Category</label>
-                            <select id="itemCategory" class="form-select" required>
-                                <option value="">Select Category</option>
-                                <option value="Breakfast">Breakfast</option>
-                                <option value="Lunch">Lunch</option>
-                                <option value="Dinner">Dinner</option>
-                                <option value="Drinks">Drinks</option>
-                                <option value="Snacks">Snacks</option>
+                            <label for="itemNameEn" class="form-label">English Name <span class="required">*</span></label>
+                            <input type="text" name="name_en" id="itemNameEn" class="form-control" placeholder="e.g. Special Doro Wat" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemNameAm" class="form-label">Amharic Name <span class="required">*</span></label>
+                            <input type="text" name="name_am" id="itemNameAm" class="form-control" placeholder="e.g. ዶሮ ወጥ" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemCategory" class="form-label">Category <span class="required">*</span></label>
+                            <select name="category" id="itemCategory" class="form-select" required>
+                                <option value="">Select category</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="itemPrice">Price (ETB)</label>
-                            <input type="number" id="itemPrice" class="form-control" step="0.01" min="0" placeholder="0.00" required>
+                            <label for="itemPrice" class="form-label">Price (ETB) <span class="required">*</span></label>
+                            <input type="number" name="price" id="itemPrice" class="form-control" step="0.01" min="0" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemPrepTime" class="form-label">Preparation Time (min)</label>
+                            <input type="number" name="preparationTime" id="itemPrepTime" class="form-control" min="1" value="10">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Availability</label>
+                            <label class="switch">
+                                <input type="checkbox" name="available" id="itemAvailable" checked>
+                                <span class="switch-slider"></span>
+                            </label>
+                            <small id="itemAvailableLabel" class="form-text">Available for ordering</small>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="itemImageUrl">Image URL (Optional)</label>
-                        <input type="url" id="itemImageUrl" class="form-control" placeholder="https://example.com/image.jpg">
+
+                    <div class="form-group" style="margin-top:1rem;">
+                        <label for="itemDescriptionEn" class="form-label">Description (English)</label>
+                        <textarea name="description_en" id="itemDescriptionEn" class="form-control" rows="2" placeholder="Brief description in English..."></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="itemDescription">Description</label>
-                        <textarea id="itemDescription" class="form-control" rows="3" placeholder="Brief description of the item..."></textarea>
+                    <div class="form-group" style="margin-top:0.8rem;">
+                        <label for="itemDescriptionAm" class="form-label">Description (Amharic)</label>
+                        <textarea name="description_am" id="itemDescriptionAm" class="form-control" rows="2" placeholder="በአማርኛ መግለጫ..."></textarea>
                     </div>
-                    <div class="form-group checkbox-group">
-                        <label class="switch-label">
-                            <input type="checkbox" id="itemIsAvailable" checked>
-                            <span>Available for ordering</span>
-                        </label>
+
+                    <div class="form-row upload-row" style="margin-top:1rem;">
+                        <div class="form-group">
+                            <label for="itemImageFile" class="form-label">Upload Image (JPG, PNG, WEBP, max 2 MB)</label>
+                            <input type="file" name="image" id="itemImageFile" class="form-control" accept="image/jpeg,image/png,image/webp">
+                        </div>
+                        <div class="form-group">
+                            <label for="itemImageUrl" class="form-label">...or Image URL (optional)</label>
+                            <input type="url" name="image_url" id="itemImageUrl" class="form-control" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </div>
+
+                    <div class="file-preview" id="imagePreviewRow" style="display:none;">
+                        <img id="itemImagePreview" alt="Preview">
+                        <button type="button" class="btn-remove-file" id="removeImageBtn"><i class="fa-solid fa-trash-can"></i> Remove Image</button>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancelMenuModalBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="saveMenuBtn">Save Item</button>
+                    <button type="button" class="btn btn-secondary" data-close-modal="menuItemModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveMenuItemBtn">Save Item</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- JavaScript Files -->
-    <script src="../../js/api.js"></script>
-    <script src="../../js/auth.js"></script>
-    <script src="/frontend/src/js/admin.js"></script>
-    <script src="/frontend/src/js/menu.js"></script>
-    <script src="/Frontend/src/components/sidebar.js"></script>
+    <!-- ===== VIEW MENU ITEM MODAL ===== -->
+    <div class="modal-overlay" id="viewItemModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Menu Item Details</h3>
+                <button class="modal-close" data-close-modal="viewItemModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-hero">
+                    <img id="viewItemImage" class="img-thumb" alt="Item image" src="">
+                    <div>
+                        <h4 id="viewItemName">—</h4>
+                        <div id="viewItemCategory" class="form-text">—</div>
+                    </div>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item"><span>Item ID</span><strong id="viewItemId">—</strong></div>
+                    <div class="detail-item"><span>Price</span><strong id="viewItemPrice">—</strong></div>
+                    <div class="detail-item"><span>Availability</span><strong id="viewItemAvailability">—</strong></div>
+                    <div class="detail-item"><span>Prep Time</span><strong id="viewItemPrepTime">—</strong></div>
+                    <div class="detail-item"><span>Description (EN)</span><strong id="viewItemDescEn">—</strong></div>
+                    <div class="detail-item"><span>Description (AM)</span><strong id="viewItemDescAm">—</strong></div>
+                    <div class="detail-item"><span>Created</span><strong id="viewItemCreated">—</strong></div>
+                    <div class="detail-item"><span>Last Updated</span><strong id="viewItemUpdated">—</strong></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-modal="viewItemModal">Close</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- JavaScript Files -->
+    <script src="../../js/admin-api.js"></script>
+    <script src="../../js/admin-layout.js"></script>
+    <script src="../../js/admin-ui.js"></script>
+    <script src="../../js/admin-menu.js"></script>
+
+    <script>
+        // Page-specific initialization
+        function initPageSpecific() {
+            // admin-menu.js handles initialization via its own DOMContentLoaded
+        }
+    </script>
 </body>
 </html>

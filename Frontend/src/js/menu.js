@@ -26,9 +26,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const categoryButtons =
         document.querySelectorAll(".category-pill");
 
-    const foodCards =
-        document.querySelectorAll(".food-card");
-
     const resultsCount =
         document.getElementById("results-count");
 
@@ -430,6 +427,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================================================
 
     function filterMenu() {
+
+        const foodCards =
+            document.querySelectorAll(".food-card");
 
         let visibleCards = [];
 

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Log - Smart Cafeteria</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Admin CSS stylesheet -->
+    <link rel="stylesheet" href="/frontend/src/css/admin.css">
+</head>
+<body class="admin-body">
+
+    <!-- Layout will be injected by admin-layout.js -->
+    <header class="admin-navbar"></header>
+    <div class="admin-container">
+        <aside class="admin-sidebar" id="adminSidebar"></aside>
+        <main class="admin-main">
+            <div class="page-header">
+                <div>
+                    <h1>Activity Log</h1>
+                    <p class="subtitle">Audit trail of administrative actions. Passwords, tokens, and secret keys are never recorded.</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" id="refreshLogsBtn">
+                        <i class="fa-solid fa-rotate"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- FILTER TOOLBAR -->
+            <section class="card">
+                <div class="card-header users-toolbar">
+                    <div class="search-wrap">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="logSearchInput" class="form-control" placeholder="Search admin, description, entity id...">
+                    </div>
+                    <div class="filter-group">
+                        <select id="logActionFilter" class="form-select">
+                            <option value="">All Actions</option>
+                            <option value="ADMIN_LOGIN">Admin Login</option>
+                            <option value="USER_CREATED">User Created</option>
+                            <option value="USER_UPDATED">User Updated</option>
+                            <option value="USER_ACTIVATED">User Activated</option>
+                            <option value="USER_DEACTIVATED">User Deactivated</option>
+                            <option value="USER_DELETED">User Deleted</option>
+                            <option value="ROLE_CHANGED">Role Changed</option>
+                            <option value="FOOD_CREATED">Food Created</option>
+                            <option value="FOOD_UPDATED">Food Updated</option>
+                            <option value="FOOD_DELETED">Food Deleted</option>
+                            <option value="FOOD_AVAILABILITY_CHANGED">Food Availability Changed</option>
+                            <option value="ORDER_CANCELLED">Order Cancelled</option>
+                            <option value="SETTINGS_UPDATED">Settings Updated</option>
+                        </select>
+                        <select id="logEntityFilter" class="form-select">
+                            <option value="">All Entities</option>
+                            <option value="User">User</option>
+                            <option value="MenuItem">Menu Item</option>
+                            <option value="Order">Order</option>
+                            <option value="Setting">Setting</option>
+                        </select>
+                        <input type="date" id="logStartDate" class="form-control" title="From date">
+                        <input type="date" id="logEndDate" class="form-control" title="To date">
+                        <button class="btn btn-secondary" id="resetLogFiltersBtn" title="Reset filters">
+                            <i class="fa-solid fa-filter-circle-xmark"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="admin-table orders-table">
+                        <thead>
+                            <tr>
+                                <th>Agent / Admin</th>
+                                <th>Action</th>
+                                <th>Entity</th>
+                                <th>Entity ID</th>
+                                <th>Description</th>
+                                <th>Date & Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            <tr><td colspan="6" class="table-empty">Loading activity logs...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <span class="pagination-info" id="logsPaginationInfo">Page 1</span>
+                    <div class="pagination-actions">
+                        <button class="btn btn-secondary" id="prevLogsBtn" title="Previous page">
+                            <i class="fa-solid fa-chevron-left"></i> Prev
+                        </button>
+                        <button class="btn btn-secondary" id="nextLogsBtn" title="Next page">
+                            Next <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <div class="alert alert-warning">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Privacy: this audit trail records <strong>who</strong> performed each action and <strong>what</strong> changed. It never logs passwords, JWT tokens, payment-provider secrets, or user credentials.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../../js/admin-api.js"></script>
+    <script src="../../js/admin-layout.js"></script>
+    <script src="../../js/admin-ui.js"></script>
+    <script src="../../js/admin-activity.js"></script>
+
+    <script>
+        // Page-specific initialization
+        function initPageSpecific() {
+            // admin-activity.js handles initialization via its own DOMContentLoaded
+        }
+    </script>
+</body>
+</html>

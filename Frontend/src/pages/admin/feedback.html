@@ -3,276 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feedback Management - Smart Cafeteria</title>
+    <title>Feedback - Smart Cafeteria</title>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Admin CSS stylesheet -->
     <link rel="stylesheet" href="/frontend/src/css/admin.css">
-    <link rel="stylesheet" href="/frontend/src/css/style.css">
-
-    <!-- Auth Guard Check -->
-    <script>
-        const role = localStorage.getItem('userRole');
-        if (!role || role !== 'ADMIN') {
-            alert('Access denied! Admins only.');
-            window.location.href = '/Frontend/src/pages/common/login.html';
-        }
-    </script>
 </head>
 <body class="admin-body">
 
-    <!-- TOP NAVBAR -->
-    <header class="admin-navbar">
-        <div class="nav-left">
-            <button id="sidebarToggle" class="btn-icon" aria-label="Toggle Sidebar">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <div class="brand-logo">
-                <i class="fa-solid fa-utensils"></i>
-                <span>Smart Cafeteria <small>Admin</small></span>
-            </div>
-        </div>
-
-        <div class="nav-right">
-            <div class="nav-item dropdown">
-                <button class="btn-icon" id="notificationBtn" title="Notifications">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="badge-dot" id="notifBadge"></span>
-                </button>
-            </div>
-            
-            <div class="user-profile-menu">
-                <div class="avatar" id="adminAvatar">A</div>
-                <div class="user-info">
-                    <strong id="adminNameDisplay">Admin User</strong>
-                    <small>Administrator</small>
-                </div>
-                <button id="logoutBtn" class="btn-logout-icon" title="Logout">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- WRAPPER: SIDEBAR + MAIN CONTENT -->
+    <!-- Layout will be injected by admin-layout.js -->
+    <header class="admin-navbar"></header>
     <div class="admin-container">
-
-        <!-- SIDEBAR NAVIGATION -->
-        <aside class="admin-sidebar" id="adminSidebar">
-            <nav class="sidebar-nav">
-                <div class="sidebar-group">
-                    <span class="group-title">MAIN</span>
-                    <a href="dashboard.html" class="sidebar-link">
-                        <i class="fa-solid fa-chart-line"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-
-                <div class="sidebar-group">
-                    <span class="group-title">MANAGEMENT</span>
-                    <a href="users.html" class="sidebar-link">
-                        <i class="fa-solid fa-users"></i>
-                        <span>Users</span>
-                    </a>
-                    <a href="menu.html" class="sidebar-link">
-                        <i class="fa-solid fa-bowl-food"></i>
-                        <span>Menu</span>
-                    </a>
-                    <a href="categories.html" class="sidebar-link">
-                        <i class="fa-solid fa-list"></i>
-                        <span>Categories</span>
-                    </a>
-                    <a href="orders.html" class="sidebar-link">
-                        <i class="fa-solid fa-receipt"></i>
-                        <span>Orders</span>
-                    </a>
-                    <a href="payments.html" class="sidebar-link">
-                        <i class="fa-solid fa-wallet"></i>
-                        <span>Payments</span>
-                    </a>
-                    <a href="cancellations.html" class="sidebar-link">
-                        <i class="fa-solid fa-ban"></i>
-                        <span>Cancellations</span>
-                        <span class="sidebar-badge" id="sidebarCancellationBadge">0</span>
-                    </a>
-                </div>
-
-                <div class="sidebar-group">
-                    <span class="group-title">ANALYTICS & SYSTEM</span>
-                    <a href="feedback.html" class="sidebar-link active">
-                        <i class="fa-solid fa-comments"></i>
-                        <span>Feedback</span>
-                    </a>
-                    <a href="reports.html" class="sidebar-link">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span>Reports</span>
-                    </a>
-                    <a href="settings.html" class="sidebar-link">
-                        <i class="fa-solid fa-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
-
-        <!-- MAIN CONTENT AREA -->
-        <main class="admin-main"> 
-            
+        <aside class="admin-sidebar" id="adminSidebar"></aside>
+        <main class="admin-main">
             <div class="page-header">
                 <div>
-                    <h1>Customer Feedback</h1>
-                    <p class="subtitle">Review customer ratings, meal reviews, and service complaints.</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-secondary" id="refreshFeedbackBtn">
-                        <i class="fa-solid fa-rotate"></i> Refresh Feedback
-                    </button>
+                    <h1>Feedback</h1>
+                    <p class="subtitle">View and manage customer feedback and reviews.</p>
                 </div>
             </div>
 
-            <!-- METRIC CARDS GRID -->
-            <section class="metrics-grid">
-                <div class="metric-card"> 
-                    <div class="card-icon bg-blue">
-                        <i class="fa-solid fa-comments"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Total Feedback</span>
-                        <h2 id="metricTotalFeedback">0</h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-green">
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Average Rating</span>
-                        <h2 id="metricAvgRating">0.0 <small>/ 5</small></h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-orange">
-                        <i class="fa-solid fa-face-smile"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Positive Reviews</span>
-                        <h2 id="metricPositiveFeedback">0</h2>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="card-icon bg-red">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                    </div>
-                    <div class="card-details">
-                        <span class="metric-title">Pending Issues</span>
-                        <h2 id="metricPendingFeedback">0</h2>
-                    </div>
-                </div>
-            </section>
-
-            <!-- FEEDBACK TABLE CONTAINER -->
-            <section class="dashboard-card full-width">
-                <div class="card-header table-header-actions">
-                    <div class="search-box">
+            <!-- FILTER TOOLBAR -->
+            <section class="card">
+                <div class="card-header users-toolbar">
+                    <div class="search-wrap">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="feedbackSearchInput" placeholder="Search by customer name, order ID, or comment...">
+                        <input type="text" id="feedbackSearchInput" class="form-control" placeholder="Search by user, order, or comment...">
                     </div>
                     <div class="filter-group">
-                        <select id="ratingFilter" class="form-select">
+                        <select id="feedbackStatusFilter" class="form-select">
+                            <option value="">All Status</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="RESOLVED">Resolved</option>
+                            <option value="ARCHIVED">Archived</option>
+                        </select>
+                        <select id="feedbackRatingFilter" class="form-select">
                             <option value="">All Ratings</option>
                             <option value="5">5 Stars</option>
                             <option value="4">4 Stars</option>
                             <option value="3">3 Stars</option>
-                            <option value="2">2 Stars</option> 
+                            <option value="2">2 Stars</option>
                             <option value="1">1 Star</option>
                         </select>
-                        <select id="feedbackStatusFilter" class="form-select">
-                            <option value="">All Statuses</option>
-                            <option value="PENDING">Pending Review</option>
-                            <option value="RESOLVED">Resolved</option>
-                            <option value="ARCHIVED">Archived</option>
-                        </select>
+                        <button class="btn btn-secondary" id="resetFeedbackFiltersBtn" title="Reset filters">
+                            <i class="fa-solid fa-filter-circle-xmark"></i> Reset
+                        </button>
                     </div>
                 </div>
 
-                <div class="table-responsive">
+                <div class="table-wrapper">
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Feedback ID</th>
-                                <th>Customer</th>
-                                <th>Order ID</th>
+                                <th>ID</th>
+                                <th>User</th>
                                 <th>Rating</th>
-                                <th>Comment</th>
+                                <th>Category</th>
+                                <th>Dish</th>
                                 <th>Status</th>
                                 <th>Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="feedbackTableBody">
-                            <!-- Dynamic Render -->
+                            <tr><td colspan="8" class="table-empty">Loading feedback...</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="pagination-container" id="feedbackPaginationControls">
-                    <!-- Pagination Controls -->
+                <div class="pagination">
+                    <span class="pagination-info" id="paginationInfo">Page 1</span>
+                    <div class="pagination-actions">
+                        <button class="btn btn-secondary" id="prevPageBtn" title="Previous page"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+                        <button class="btn btn-secondary" id="nextPageBtn" title="Next page">Next <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
                 </div>
             </section>
-
         </main>
     </div>
 
-    <!-- FEEDBACK DETAIL & RESPONSE MODAL -->
-    <div class="modal-overlay" id="feedbackModal" style="display: none;">
-        <div class="modal-card">
+    <!-- ===== FEEDBACK DETAILS MODAL ===== -->
+    <div class="modal-overlay" id="feedbackDetailsModal">
+        <div class="modal modal-lg">
             <div class="modal-header">
-                <h3>Feedback Details</h3>
-                <button class="btn-close" id="closeFeedbackModalBtn">&times;</button>
+                <h3 class="modal-title">Feedback Details - <span id="modalFeedbackId">#0000</span></h3>
+                <button class="modal-close" data-close-modal="feedbackDetailsModal">&times;</button>
             </div>
-            <div class="modal-body"> 
-                <div class="order-summary-header">
+            <div class="modal-body">
+                <div class="detail-hero">
+                    <div class="avatar detail-avatar" id="modalFeedbackAvatar">U</div>
                     <div>
-                        <strong>Feedback ID:</strong> <span id="modalFeedbackId">#0000</span><br>
-                        <strong>Order ID:</strong> <span id="modalOrderId">#0000</span>
-                    </div>
-                    <div>
-                        <strong>Customer:</strong> <span id="modalCustomerName">-</span><br>
-                        <strong>Rating:</strong> <span id="modalRatingStars" class="text-warning">-</span>
+                        <h4 id="modalFeedbackUser">—</h4>
+                        <div id="modalFeedbackRole" class="form-text">—</div>
                     </div>
                 </div>
 
-                <hr class="divider">
+                <div class="detail-grid">
+                    <div class="detail-item"><span>Feedback ID</span><strong id="modalFeedbackIdVal">—</strong></div>
+                    <div class="detail-item"><span>Order</span><strong id="modalFeedbackOrder">—</strong></div>
+                    <div class="detail-item"><span>Rating</span><strong id="modalFeedbackRating">—</strong></div>
+                    <div class="detail-item"><span>Category</span><strong id="modalFeedbackCategory">—</strong></div>
+                    <div class="detail-item"><span>Dish</span><strong id="modalFeedbackDish">—</strong></div>
+                    <div class="detail-item"><span>Submitted</span><strong id="modalFeedbackDate">—</strong></div>
+                    <div class="detail-item"><span>Status</span><strong id="modalFeedbackStatus">—</strong></div>
+                </div>
 
+                <hr class="form-divider">
+
+                <h4 class="section-heading"><i class="fa-solid fa-comment"></i> Comment</h4>
+                <p id="modalFeedbackComment" style="white-space: pre-wrap; color: #374151;">—</p>
+
+                <hr class="form-divider">
+
+                <h4 class="section-heading"><i class="fa-solid fa-reply"></i> Admin Reply</h4>
                 <div class="form-group">
-                    <label><strong>Customer Comment</strong></label>
-                    <p id="modalCustomerComment" class="text-muted-bg">-</p>
+                    <label for="modalFeedbackReply" class="form-label">Your Reply</label>
+                    <textarea id="modalFeedbackReply" class="form-control" rows="3" placeholder="Write your response to the customer..."></textarea>
                 </div>
 
-    
-                  <div class="form-group">
-                    <label for="adminReplyInput"><strong>Admin Response</strong></label>
-                    <textarea id="adminReplyInput" class="form-control" rows="3" placeholder="Write a response to the customer..."></textarea>
+                <div class="form-group" style="display:flex;gap:8px;align-items:center;">
+                    <label class="switch">
+                        <input type="checkbox" id="modalFeedbackMarkResolved">
+                        <span class="switch-slider"></span>
+                    </label>
+                    <span class="form-text">Mark as resolved</span>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="archiveFeedbackBtn">Archive</button>
-                <button type="button" class="btn btn-primary" id="saveFeedbackResponseBtn">Submit Response</button>
+                <button type="button" class="btn btn-secondary" data-close-modal="feedbackDetailsModal">Close</button>
+                <button type="button" class="btn btn-primary" id="sendFeedbackReplyBtn"><i class="fa-solid fa-paper-plane"></i> Send Reply</button>
             </div>
         </div>
     </div>
 
     <!-- JavaScript Files -->
-    <script src="../../js/api.js"></script>
-    <script src="../../js/auth.js"></script>
-    <script src="/frontend/src/js/admin.js"></script>
-    <script src="/frontend/src/js/feedback.js"></script>
-    <script src="/Frontend/src/components/sidebar.js"></script>
+    <script src="../../js/admin-api.js"></script>
+    <script src="../../js/admin-layout.js"></script>
+    <script src="../../js/admin-ui.js"></script>
+    <script src="../../js/admin-feedback.js"></script>
 
+    <script>
+        // Page-specific initialization
+        function initPageSpecific() {
+            // admin-feedback.js handles initialization via its own DOMContentLoaded
+        }
+    </script>
 </body>
 </html>

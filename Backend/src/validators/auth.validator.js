@@ -1,51 +1,77 @@
-// validators/auth.validator.js
+const { validateName, validateEmail, validatePhone, validatePassword } = require('./common.validator');
 
-export const validateRegisterInput = (data) => {
+const validateRegisterInput = (data) => {
     const errors = {};
 
-    // Full name
-    const fullName = data.fullName?.trim();
+    const nameErr = validateName(data.fullName, 'Full name', 2, 100);
+    if (nameErr) errors.fullName = nameErr;
 
-    if (!fullName) {
-        errors.fullName = 'Full name is required';
-    } else if (fullName.length < 2) {
-        errors.fullName = 'Full name must be at least 2 characters long';
-    }
+    const emailErr = validateEmail(data.email);
+    if (emailErr) errors.email = emailErr;
 
-    // Email
-    const email = data.email?.trim();
+    const phoneErr = validatePhone(data.phone);
+    if (phoneErr) errors.phone = phoneErr;
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passErr = validatePassword(data.password, 8);
+    if (passErr) errors.password = passErr;
 
-    if (!email) {
-        errors.email = 'Email address is required';
-    } else if (!emailPattern.test(email)) {
-        errors.email = 'A valid email address is required';
-    }
-
-    // Phone
-    const phone = data.phone?.trim();
-
-    if (!phone) {
-        errors.phone = 'Phone number is required';
-    }
-
-    // Password
-    if (!data.password) {
-        errors.password = 'Password is required';
-    } else if (data.password.length < 8) {
-        errors.password = 'Password must be at least 8 characters long';
-    }
-
-    // Confirm password
     if (!data.confirmPassword) {
         errors.confirmPassword = 'Please confirm your password';
     } else if (data.password !== data.confirmPassword) {
         errors.confirmPassword = 'Passwords do not match';
     }
 
-    return {
-        isValid: Object.keys(errors).length === 0,
-        errors
-    };
+    return { isValid: Object.keys(errors).length === 0, errors };
+};
+
+const validateLoginInput = (data) => {
+    const errors = {};
+
+    if (!data.identifier) {
+        errors.identifier = 'Email or phone is required';
+    }
+
+    if (!data.password) {
+        errors.password = 'Password is required';
+    }
+
+    return { isValid: Object.keys(errors).length === 0, errors };
+};
+
+const validateUpdateProfileInput = (data) => {
+    const errors = {};
+
+    if (data.fullName !== undefined) {
+        const nameErr = validateName(data.fullName, 'Full name', 2, 100);
+        if (nameErr) errors.fullName = nameErr;
+    }
+
+    if (data.email !== undefined) {
+        const emailErr = validateEmail(data.email);
+        if (emailErr) errors.email = emailErr;
+    }
+
+    if (data.phone !== undefined) {
+        const phoneErr = validatePhone(data.phone);
+        if (phoneErr) errors.phone = phoneErr;
+    }
+
+    if (data.password !== undefined && data.password !== '') {
+        const passErr = validatePassword(data.password, 6);
+        if (passErr) errors.password = passErr;
+    }
+
+    if (data.currentPassword !== undefined) {
+        if (!data.currentPassword) {
+            errors.currentPassword = 'Current password is required';
+        }
+    }
+
+    return { isValid: Object.keys(errors).length === 0, errors };
+};
+
+module.exports = {
+    validateRegisterInput,
+    validateLoginInput,
+    validateUpdateProfileInput
 };

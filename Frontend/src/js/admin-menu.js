@@ -1,0 +1,609 @@
+/**
+ * ================================================================
+ * SMART CAFETERIA ORDERING SYSTEM - ADMIN MENU MANAGEMENT
+ * ================================================================
+ * Admin Menu Management driven by the backend API:
+ *   GET    /admin/menu            (list / search / filter / sort / paginate)
+ *   GET    /admin/menu/stats      (metric cards)
+ *   GET    /admin/menu/:id        (details)
+ *   POST   /admin/menu            (create)
+ *   PUT    /admin/menu/:id        (update: price, category, image, ...)
+ *   PATCH  /admin/menu/:id/availability (enable / disable)
+ *   DELETE /admin/menu/:id        (delete)
+ *
+ * Image upload: validated client-side, then sent as a base64 data URL.
+ * Requires window.AdminAPI (admin-api.js) loaded first.
+ * ================================================================
+ */
+(function () {
+  "use strict";
+
+  var state = {
+    page: 1,
+    limit: 10,
+    search: "",
+    category: "",
+    availability: "",
+    sort: "newest"
+  };
+
+  var pendingImage = null; // { type: 'file'|'url'|'remove', value } or null to keep
+  var editingItem = null;
+
+  var FALLBACK_CATEGORIES = [
+    { id: "breakfast", name: "Breakfast" },
+    { id: "mains", name: "Mains" },
+    { id: "main-meals", name: "Main Meals" },
+    { id: "fasting", name: "Fasting" },
+    { id: "beverages", name: "Beverages" },
+    { id: "snacks", name: "Snacks" },
+    { id: "Lunch", name: "Lunch" },
+    { id: "Dinner", name: "Dinner" },
+    { id: "Drinks", name: "Drinks" }
+  ];
+
+  var ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  var MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
+
+  function money(value) {
+    if (value === null || value === undefined) return "0";
+    return Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function categoryLabel(cat) {
+    var found = (window.__categories || FALLBACK_CATEGORIES).find(function (c) {
+      return String(c.id).toLowerCase() === String(cat).toLowerCase();
+    });
+    if (found) return found.name;
+    return cat || "—";
+  }
+
+  function escapeHtml(value) {
+    return window.esc(value);
+  }
+
+  function itemImage(item) {
+    var src = item.image
+      ? (item.image.indexOf("http") === 0 ? item.image : "http://localhost:5000" + item.image)
+      : "";
+    if (!src) return '<div class="food-image-thumb no-image"><i class="fa-solid fa-utensils"></i></div>';
+    return '<img class="food-image-thumb" src="' + window.esc(src) + '" alt="' + window.esc(item.name.en) + '" loading="lazy">';
+  }
+
+  function availabilityBadge(item) {
+    var available = item.availability && item.isAvailable;
+    var cls = available ? "order-badge avail-on" : "order-badge avail-off";
+    return '<span class="' + cls + '">' + (available ? "Available" : "Unavailable") + "</span>";
+  }
+
+  /* ============================================================
+   * MODALS
+   * ============================================================ */
+  function openModal(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add("open");
+  }
+
+  function closeModal(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove("open");
+  }
+
+  function closeAllModals() {
+    document.querySelectorAll(".amodal-overlay.open").forEach(function (m) {
+      m.classList.remove("open");
+    });
+  }
+
+  /* ============================================================
+   * CATEGORIES
+   * ============================================================ */
+  async function loadCategories() {
+    try {
+      var data = await window.AdminAPI.get("/categories");
+      window.__categories = (data.categories || []).filter(function (c) { return c.isActive !== false; });
+    } catch (e) {
+      window.__categories = FALLBACK_CATEGORIES;
+    }
+    populateCategorySelects();
+  }
+
+  function populateCategorySelects() {
+    var cats = window.__categories || FALLBACK_CATEGORIES;
+    var options = cats
+      .map(function (c) {
+        var name = (c.name && (c.name.en || c.name)) || c.id;
+        return '<option value="' + window.esc(c.id) + '">' + window.esc(name) + "</option>";
+      })
+      .join("");
+
+    var filter = document.getElementById("categoryFilter");
+    var formSelect = document.getElementById("itemCategory");
+    if (filter) filter.innerHTML = '<option value="">All Categories</option>' + options;
+    if (formSelect) formSelect.innerHTML = '<option value="">Select category</option>' + options;
+  }
+
+  /* ============================================================
+   * DATA LOADING
+   * ============================================================ */
+  async function loadStats() {
+    try {
+      var data = await window.AdminAPI.get("/admin/menu/stats");
+      var stats = data.stats || {};
+      document.getElementById("metricTotalItems").textContent = stats.totalItems || 0;
+      document.getElementById("metricAvailableItems").textContent = stats.availableItems || 0;
+      document.getElementById("metricOutOfStockItems").textContent = stats.outOfStockItems || 0;
+      document.getElementById("metricTotalCategories").textContent = stats.totalCategories || 0;
+    } catch (e) {
+      // stats are supplementary
+    }
+  }
+
+  function availabilityQueryValue() {
+    if (state.availability === "AVAILABLE") return "available";
+    if (state.availability === "OUT_OF_STOCK") return "out_of_stock";
+    return "";
+  }
+
+  async function loadMenuItems() {
+    var tbody = document.getElementById("menuTableBody");
+    if (!tbody || !window.AdminAPI) return;
+
+    tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading menu items...</td></tr>';
+
+    try {
+      var data = await window.AdminAPI.get("/admin/menu", {
+        page: state.page,
+        limit: state.limit,
+        search: state.search,
+        category: state.category,
+        availability: availabilityQueryValue(),
+        sort: state.sort
+      });
+
+      window.__menuCache = data.items || [];
+      renderMenuItems(window.__menuCache);
+
+      var info = document.getElementById("menuPaginationInfo");
+      var total = data.total || 0;
+      var pages = Math.max(data.pages || 1, 1);
+      if (info) info.textContent = "Page " + (data.page || state.page) + " of " + pages + " (" + total + " items)";
+      var prevBtn = document.getElementById("menuPrevPageBtn");
+      var nextBtn = document.getElementById("menuNextPageBtn");
+      if (prevBtn) prevBtn.disabled = (data.page || 1) <= 1;
+      if (nextBtn) nextBtn.disabled = (data.page || 1) >= pages;
+      state.page = data.page || 1;
+    } catch (error) {
+      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Failed to load menu: ' + window.esc(error.message || "Server error") + "</td></tr>";
+    }
+  }
+
+  function renderMenuItems(items) {
+    var tbody = document.getElementById("menuTableBody");
+    if (!tbody) return;
+
+    if (!items.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No menu items found.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = items.map(function (item) {
+      var available = item.availability && item.isAvailable;
+      var toggleBtn =
+        '<button class="action-btn" data-action="toggle" data-id="' + item.id + '" title="' +
+        (available ? "Make unavailable" : "Make available") + '">' +
+        '<i class="fa-solid ' + (available ? "fa-circle-xmark" : "fa-circle-check") + '"></i></button>';
+
+      return (
+        "<tr>" +
+        '<td>' +
+          '<div class="user-cell">' +
+            itemImage(item) +
+            "<div>" +
+              "<strong>" + escapeHtml(item.name.en) + "</strong>" +
+              "<small>" + escapeHtml(item.name.am) + "</small>" +
+            "</div>" +
+          "</div>" +
+        "</td>" +
+        '<td><span class="cat-pill">' + escapeHtml(categoryLabel(item.category)) + "</span></td>" +
+        "<td><strong>" + money(item.price) + " ETB</strong></td>" +
+        "<td>" + (item.preparationTime || 10) + " min</td>" +
+        "<td>" + availabilityBadge(item) + "</td>" +
+        "<td>" + window.AdminAPI.formatDate(item.updatedAt) + "</td>" +
+        "<td>" +
+          '<div class="table-actions">' +
+            '<button class="action-btn" data-action="view" data-id="' + item.id + '" title="View details"><i class="fa-solid fa-eye"></i></button>' +
+            '<button class="action-btn" data-action="edit" data-id="' + item.id + '" title="Edit item (price / category / image)"><i class="fa-solid fa-pen"></i></button>' +
+            toggleBtn +
+            '<button class="action-btn danger" data-action="delete" data-id="' + item.id + '" title="Delete item"><i class="fa-solid fa-trash"></i></button>' +
+          "</div>" +
+        "</td>" +
+        "</tr>"
+      );
+    }).join("");
+  }
+
+  function changePage(delta) {
+    state.page += delta;
+    if (state.page < 1) state.page = 1;
+    loadMenuItems();
+  }
+
+  /* ============================================================
+   * ADD / EDIT
+   * ============================================================ */
+  function resetImageState() {
+    pendingImage = null;
+    editingItem = null;
+    document.getElementById("itemImageFile").value = "";
+    document.getElementById("itemImageUrl").value = "";
+    document.getElementById("imagePreviewRow").style.display = "none";
+    document.getElementById("itemImagePreview").removeAttribute("src");
+  }
+
+  function openAddItemModal() {
+    closeAllModals();
+    resetImageState();
+    document.getElementById("menuItemForm").reset();
+    document.getElementById("itemId").value = "";
+    document.getElementById("itemPrepTime").value = 10;
+    document.getElementById("itemAvailable").checked = true;
+    document.getElementById("itemAvailableLabel").textContent = "Available for ordering";
+    document.getElementById("menuModalTitle").textContent = "Add New Menu Item";
+    document.getElementById("saveMenuItemBtn").textContent = "Save Item";
+    openModal("menuItemModal");
+  }
+
+  function openEditItemModal(item) {
+    closeAllModals();
+    resetImageState();
+    editingItem = item;
+
+    document.getElementById("itemId").value = item.id;
+    document.getElementById("itemNameEn").value = item.name.en || "";
+    document.getElementById("itemNameAm").value = item.name.am || "";
+    document.getElementById("itemCategory").value = item.category;
+    document.getElementById("itemPrice").value = item.price;
+    document.getElementById("itemPrepTime").value = item.preparationTime || 10;
+    document.getElementById("itemAvailable").checked = !!(item.availability && item.isAvailable);
+    document.getElementById("itemAvailableLabel").textContent =
+      item.availability && item.isAvailable ? "Available for ordering" : "Not available for ordering";
+    document.getElementById("itemDescriptionEn").value = (item.description && item.description.en) || "";
+    document.getElementById("itemDescriptionAm").value = (item.description && item.description.am) || "";
+
+    var previewRow = document.getElementById("imagePreviewRow");
+    var preview = document.getElementById("itemImagePreview");
+    if (item.image) {
+      preview.src = item.image.indexOf("http") === 0 ? item.image : "http://localhost:5000" + item.image;
+      previewRow.style.display = "flex";
+    } else {
+      previewRow.style.display = "none";
+      preview.removeAttribute("src");
+    }
+
+    document.getElementById("menuModalTitle").textContent = "Edit Menu Item";
+    document.getElementById("saveMenuItemBtn").textContent = "Update Item";
+    openModal("menuItemModal");
+  }
+
+  function buildMenuItemPayload() {
+    return {
+      name: {
+        en: document.getElementById("itemNameEn").value.trim(),
+        am: document.getElementById("itemNameAm").value.trim()
+      },
+      category: document.getElementById("itemCategory").value,
+      price: parseFloat(document.getElementById("itemPrice").value),
+      preparationTime: parseInt(document.getElementById("itemPrepTime").value) || 10,
+      description: {
+        en: document.getElementById("itemDescriptionEn").value.trim(),
+        am: document.getElementById("itemDescriptionAm").value.trim()
+      },
+      available: document.getElementById("itemAvailable").checked
+    };
+  }
+
+  async function handleMenuItemSubmit(event) {
+    event.preventDefault();
+
+    var payload = buildMenuItemPayload();
+    if (!payload.name.en || !payload.name.am) {
+      if (window.AdminToast) window.AdminToast.error("Both English and Amharic names are required");
+      return;
+    }
+    if (isNaN(payload.price) || payload.price < 0) {
+      if (window.AdminToast) window.AdminToast.error("Price must be a non-negative number");
+      return;
+    }
+
+    if (pendingImage) {
+      if (pendingImage.type === "remove") {
+        payload.image = "";
+      } else {
+        payload.image = pendingImage.value;
+      }
+    } else if (!editingItem) {
+      payload.image = null;
+    }
+
+    var id = document.getElementById("itemId").value;
+
+    try {
+      var data;
+      if (id) {
+        data = await window.AdminAPI.put("/admin/menu/" + id, payload);
+      } else {
+        data = await window.AdminAPI.post("/admin/menu", payload);
+      }
+
+      closeModal("menuItemModal");
+      if (window.AdminToast) window.AdminToast.success(id ? "Menu item updated" : "Menu item added");
+      if (state.page > 1 && !id) state.page = 1;
+      loadMenuItems();
+      loadStats();
+    } catch (error) {
+      if (window.AdminToast) window.AdminToast.error(error.message || "Failed to save menu item");
+    }
+  }
+
+  /* ============================================================
+   * IMAGE HANDLING
+   * ============================================================ */
+  function handleImageFileChange(file) {
+    if (!file) return;
+    if (ALLOWED_IMAGE_TYPES.indexOf(file.type) === -1) {
+      pendingImage = null;
+      if (window.AdminToast) window.AdminToast.error("Invalid image type. Allowed: JPG, JPEG, PNG, WEBP");
+      document.getElementById("itemImageFile").value = "";
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      pendingImage = null;
+      if (window.AdminToast) window.AdminToast.error("Image too large. Maximum size is 2 MB");
+      document.getElementById("itemImageFile").value = "";
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function () {
+      pendingImage = { type: "file", value: String(reader.result) };
+      document.getElementById("itemImageUrl").value = "";
+      document.getElementById("itemImagePreview").src = String(reader.result);
+      document.getElementById("imagePreviewRow").style.display = "flex";
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleImageUrlInput(value) {
+    if (value && value.trim()) {
+      pendingImage = { type: "url", value: value.trim() };
+      document.getElementById("itemImageFile").value = "";
+      document.getElementById("itemImagePreview").src = value.trim();
+      document.getElementById("imagePreviewRow").style.display = "flex";
+    } else {
+      pendingImage = null;
+    }
+  }
+
+  /* ============================================================
+   * VIEW / TOGGLE / DELETE
+   * ============================================================ */
+  function viewMenuItem(item) {
+    closeAllModals();
+
+    var thumb = item.image
+      ? (item.image.indexOf("http") === 0 ? item.image : "http://localhost:5000" + item.image)
+      : "";
+    var imageEl = document.getElementById("viewItemImage");
+    if (thumb) {
+      imageEl.src = thumb;
+      imageEl.style.display = "block";
+    } else {
+      imageEl.style.display = "none";
+    }
+
+    document.getElementById("viewItemName").textContent = item.name.en + (item.name.am ? " / " + item.name.am : "");
+    document.getElementById("viewItemCategory").textContent = categoryLabel(item.category);
+    document.getElementById("viewItemId").textContent = item.id;
+    document.getElementById("viewItemPrice").textContent = money(item.price) + " ETB";
+    document.getElementById("viewItemAvailability").textContent =
+      item.availability && item.isAvailable ? "Available" : "Unavailable";
+    document.getElementById("viewItemPrepTime").textContent = (item.preparationTime || 10) + " min";
+    document.getElementById("viewItemDescEn").textContent = (item.description && item.description.en) || "—";
+    document.getElementById("viewItemDescAm").textContent = (item.description && item.description.am) || "—";
+    document.getElementById("viewItemCreated").textContent = window.AdminAPI.formatDateTime(item.createdAt);
+    document.getElementById("viewItemUpdated").textContent = window.AdminAPI.formatDateTime(item.updatedAt);
+    openModal("viewItemModal");
+  }
+
+  async function toggleAvailability(item) {
+    var available = item.availability && item.isAvailable;
+    var label = available ? "Make unavailable" + " (" + item.name.en + ")?" : "Make available" + " (" + item.name.en + ")?";
+    if (!window.confirm(label)) return;
+
+    try {
+      await window.AdminAPI.patch("/admin/menu/" + item.id + "/availability", { available: !available });
+      if (window.AdminToast) window.AdminToast.success(!available ? "Item is now available" : "Item is now unavailable");
+      loadMenuItems();
+      loadStats();
+    } catch (error) {
+      if (window.AdminToast) window.AdminToast.error(error.message || "Failed to update availability");
+    }
+  }
+
+  async function deleteMenuItem(item) {
+    if (!window.confirm('Delete "' + item.name.en + '" from the menu? This cannot be undone.')) return;
+
+    try {
+      await window.AdminAPI.del("/admin/menu/" + item.id);
+      if (window.AdminToast) window.AdminToast.success("Menu item deleted");
+      if (window.__menuCache && window.__menuCache.length === 1 && state.page > 1) state.page--;
+      loadMenuItems();
+      loadStats();
+    } catch (error) {
+      if (window.AdminToast) window.AdminToast.error(error.message || "Failed to delete menu item");
+    }
+  }
+
+  async function findItemById(id) {
+    try {
+      var data = await window.AdminAPI.get("/admin/menu/" + id);
+      return data.item || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /* ============================================================
+   * EVENT BINDINGS
+   * ============================================================ */
+  function bindEvents() {
+    var addBtn = document.getElementById("openAddMenuModalBtn");
+    if (addBtn) addBtn.addEventListener("click", openAddItemModal);
+
+    var refreshBtn = document.getElementById("refreshMenuBtn");
+    if (refreshBtn) refreshBtn.addEventListener("click", function () {
+      loadMenuItems();
+      loadStats();
+      if (window.AdminToast) window.AdminToast.show("Menu refreshed");
+    });
+
+    var form = document.getElementById("menuItemForm");
+    if (form) form.addEventListener("submit", handleMenuItemSubmit);
+
+    document.querySelectorAll("[data-close-modal]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        closeModal(btn.getAttribute("data-close-modal"));
+      });
+    });
+
+    document.querySelectorAll(".amodal-overlay").forEach(function (overlay) {
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) overlay.classList.remove("open");
+      });
+    });
+
+    var searchInput = document.getElementById("menuSearchInput");
+    if (searchInput) {
+      var debounceTimer = null;
+      searchInput.addEventListener("input", function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+          state.search = searchInput.value.trim();
+          state.page = 1;
+          loadMenuItems();
+        }, 400);
+      });
+    }
+
+    var categoryFilter = document.getElementById("categoryFilter");
+    if (categoryFilter) {
+      categoryFilter.addEventListener("change", function () {
+        state.category = categoryFilter.value;
+        state.page = 1;
+        loadMenuItems();
+      });
+    }
+
+    var availabilityFilter = document.getElementById("availabilityFilter");
+    if (availabilityFilter) {
+      availabilityFilter.addEventListener("change", function () {
+        state.availability = availabilityFilter.value;
+        state.page = 1;
+        loadMenuItems();
+      });
+    }
+
+    var sortSelect = document.getElementById("menuSortSelect");
+    if (sortSelect) {
+      sortSelect.addEventListener("change", function () {
+        state.sort = sortSelect.value;
+        state.page = 1;
+        loadMenuItems();
+      });
+    }
+
+    var resetBtn = document.getElementById("resetMenuFiltersBtn");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", function () {
+        if (searchInput) searchInput.value = "";
+        if (categoryFilter) categoryFilter.value = "";
+        if (availabilityFilter) availabilityFilter.value = "";
+        if (sortSelect) sortSelect.value = "newest";
+        state.search = "";
+        state.category = "";
+        state.availability = "";
+        state.sort = "newest";
+        state.page = 1;
+        loadMenuItems();
+      });
+    }
+
+    var prevBtn = document.getElementById("menuPrevPageBtn");
+    var nextBtn = document.getElementById("menuNextPageBtn");
+    if (prevBtn) prevBtn.addEventListener("click", function () { changePage(-1); });
+    if (nextBtn) nextBtn.addEventListener("click", function () { changePage(1); });
+
+    var fileInput = document.getElementById("itemImageFile");
+    if (fileInput) fileInput.addEventListener("change", function () {
+      handleImageFileChange(fileInput.files[0]);
+    });
+
+    var urlInput = document.getElementById("itemImageUrl");
+    if (urlInput) urlInput.addEventListener("input", function () {
+      handleImageUrlInput(urlInput.value);
+    });
+
+    var removeImageBtn = document.getElementById("removeImageBtn");
+    if (removeImageBtn) {
+      removeImageBtn.addEventListener("click", function () {
+        pendingImage = { type: "remove", value: "" };
+        document.getElementById("itemImageFile").value = "";
+        document.getElementById("itemImageUrl").value = "";
+        document.getElementById("itemImagePreview").removeAttribute("src");
+        document.getElementById("imagePreviewRow").style.display = "none";
+      });
+    }
+
+    var availCheckbox = document.getElementById("itemAvailable");
+    var availLabel = document.getElementById("itemAvailableLabel");
+    if (availCheckbox && availLabel) {
+      availCheckbox.addEventListener("change", function () {
+        availLabel.textContent = availCheckbox.checked ? "Available for ordering" : "Not available for ordering";
+      });
+    }
+
+    var tbody = document.getElementById("menuTableBody");
+    if (tbody) {
+      tbody.addEventListener("click", async function (e) {
+        var btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        var id = btn.getAttribute("data-id");
+        var action = btn.getAttribute("data-action");
+        if (!id) return;
+
+        var item = (window.__menuCache || []).find(function (i) { return i.id === id; });
+        if (!item) item = await findItemById(id);
+        if (!item) {
+          if (window.AdminToast) window.AdminToast.error("Menu item not found");
+          return;
+        }
+
+        if (action === "view") viewMenuItem(item);
+        else if (action === "edit") openEditItemModal(item);
+        else if (action === "toggle") toggleAvailability(item);
+        else if (action === "delete") deleteMenuItem(item);
+      });
+    }
+  }
+
+  function init() {
+    bindEvents();
+    loadCategories().then(function () {
+      loadMenuItems();
+      loadStats();
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();

@@ -74,32 +74,24 @@
                     <div class="payment-options">
                         
                         <label class="payment-card active">
-                            <input type="radio" name="paymentMethod" value="Telebirr" checked>
+                            <input type="radio" name="paymentMethod" value="TELEBIRR" checked>
                             <div class="payment-info">
                                 <strong>Telebirr</strong>
-                                <small>Pay instantly via Telebirr app or CBE birr</small>
+                                <small>Pay securely with Telebirr</small>
                             </div>
 
                             <i class="fa-solid fa-mobile-screen-button"></i>
                         </label>
 
                         <label class="payment-card">
-                            <input type="radio" name="paymentMethod" value="CBE Birr">
+                            <input type="radio" name="paymentMethod" value="CHAPA">
                             <div class="payment-info">
-                                <strong>CBE Birr / Bank Transfer</strong>
-                                <small>Commercial Bank of Ethiopia direct payment</small>
+                                <strong>Chapa</strong>
+                                <small>Pay securely with Chapa</small>
                             </div>
-                            <i class="fa-solid fa-building-columns"></i>
+                            <i class="fa-solid fa-credit-card"></i>
                         </label>
 
-                        <label class="payment-card"> 
-                            <input type="radio" name="paymentMethod" value="Cash">
-                            <div class="payment-info">
-                                <strong>Cash on Delivery / Service</strong>
-                                <small>Pay at your table or counter</small>
-                            </div>
-                            <i class="fa-solid fa-money-bill-wave"></i>
-                        </label>
 
                     </div>
                 </div>
@@ -149,11 +141,12 @@
 
     </main>
 
-    <!-- Connect script -->
-    <script src="/frontend/src/js/checkout.js" defer></script>
-      <script src="/frontend/src/js/utils/storage.js"></script>
-    <script src="/frontend/src/js/utils/validators.js"></script>
-      <script src="/frontend/src/js/utils/formatters.js"></script>
+    <!-- Connect scripts -->
+    <script type="module" src="../../js/utils/i18n.js"></script>
+    <script type="module" src="../../js/checkout.js"></script>
+    <script type="module" src="../../js/utils/storage.js"></script>
+    <script type="module" src="../../js/utils/validators.js"></script>
+    <script type="module" src="../../js/utils/formatters.js"></script>
    
 </body>
 </html>

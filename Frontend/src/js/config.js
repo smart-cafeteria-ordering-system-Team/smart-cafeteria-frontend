@@ -60,7 +60,8 @@ export const API_CONFIG = {
             status: '/orders/:id/status',
         },
         payments: {
-            simulate: '/payments/simulate',
+            initializeChapa: '/payments/chapa/initialize',
+            verifyChapa: '/payments/chapa/verify/:txRef',
             list: '/payments',
             getByOrder: '/payments/order/:orderId',
         },
@@ -129,8 +130,8 @@ export const PAYMENT_STATUS = {
 };
 
 export const PAYMENT_METHODS = {
-    CBE_BIRR: 'cbe_birr',
-    TELEBIRR: 'telebirr',
+    TELEBIRR: 'TELEBIRR',
+    CHAPA: 'CHAPA',
 };
 
 // ===== 7. MENU CATEGORIES =====

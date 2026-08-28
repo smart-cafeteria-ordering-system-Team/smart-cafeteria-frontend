@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { logAction } = require('../utils/audit');
 
 
 
@@ -42,9 +43,7 @@ error: 'All fields are required'
 if (name.length < 2) {
 return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
-error: 'Name must be at
-
-least 2 characters'
+error: 'Name must be at least 2 characters'
 });
 }
 
@@ -66,9 +65,7 @@ error: 'Enter a valid phone number (09XXXXXXXX or 07XXXXXXXX)'
 });
 }
 
-// ✅ Validate password (matches register.html: min 6
-
-characters)
+// Validate password length.
 if (password.length < 6) {
 return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
@@ -201,6 +198,17 @@ error: 'Invalid credentials'
 // ✅ Generate token
 const token = generateToken(user._id);
 
+// ✅ Audit: record admin sign-in (never logs credentials/token)
+if (user.role === 'ADMIN' || user.role === 'admin') {
+    await logAction({
+        req,
+        action: 'ADMIN_LOGIN',
+        entityType: 'User',
+        entityId: String(user._id),
+        description: `${user.name} (${user.email}) signed in as Administrator`
+    });
+}
+
 // ✅ Response matches frontend expectations
 // Frontend stores: isLoggedIn, userRole, userProfile
 res.status(HTTP_STATUS.OK).json({
@@ -240,9 +248,7 @@ MESSAGES.SERVER_ERROR
 */
 exports.getMe = async (req, res) => {
 try {
-const user = await User.findById(req.user.id).select('-
-
-password');
+const user = await User.findById(req.user.id).select('-password');
 
 if (!user) {
 return res.status(HTTP_STATUS.NOT_FOUND).json({
@@ -314,9 +320,7 @@ error: 'Enter a valid phone number (09XXXXXXXX or 07XXXXXXXX)'
 user.phone = phone;
 }
 if (email) {
-const emailRegex = /^[^\s@]
-
-+@[^\s@]+\.[^\s@]+$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 if (!emailRegex.test(email)) {
 return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
@@ -372,9 +376,7 @@ MESSAGES.SERVER_ERROR
 * Expected Body: { currentPassword, newPassword, confirmPassword }
 * Response: { success, message }
 */
-exports.changePassword = async
-
-(req, res) => {
+exports.changePassword = async (req, res) => {
 try {
 const { currentPassword, newPassword, confirmPassword } = req.body;
 
@@ -410,9 +412,7 @@ error: 'User not found'
 }
 
 // ✅ Check current password
-const isMatch = await user.matchPassword(currentPasswo
-
-rd);
+const isMatch = await user.matchPassword(currentPassword);
 if (!isMatch) {
 return res.status(HTTP_STATUS.UNAUTHORIZED).json({
 success: false,
@@ -467,9 +467,7 @@ error: 'Email is required'
 
 const user = await User.findOne({ email: email.toLowerCase() });
 if (!user) {
-return res.status(HTTP_STATUS.NOT_FOU
-
-ND).json({
+return res.status(HTTP_STATUS.NOT_FOUND).json({
 success: false,
 error: 'No account found with this email'
 });

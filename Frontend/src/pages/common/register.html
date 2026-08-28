@@ -462,7 +462,7 @@
         const regSuccess = document.getElementById("registerSuccess");
         const regSubmitBtn = document.getElementById("regSubmitBtn");
 
-        regForm.addEventListener("submit", function (e) {
+        regForm.addEventListener("submit", async function (e) {
             e.preventDefault();
             regError.style.display = "none";
             regSuccess.style.display = "none";
@@ -488,39 +488,67 @@
                 return;
             }
 
-            let registeredUsers = [];
-            try {
-                registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-            } catch (err) {
-                registeredUsers = [];
-            }
-
-            const existingUser = registeredUsers.find(u => u.email === email || u.phone === phone);
-            if (existingUser) {
-                showRegError("An account with this email or phone already exists.");
-                return;
-            }
-
-            const newUser = {
-                id: Date.now(),
-                name: fullName,
-                email: email,
-                phone: phone,
-                password: password,
-                role: "CUSTOMER",
-                createdAt: new Date().toISOString()
-            };
-
-            registeredUsers.push(newUser);
-            localStorage.setItem("registeredUsers", JSON.stringify(registeredUsers));
-
-            showRegSuccess("Registration successful! Redirecting to login...");
+            // Show loading state
             regSubmitBtn.disabled = true;
-            regSubmitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+            const originalBtnHtml = regSubmitBtn.innerHTML;
+            regSubmitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
 
-            setTimeout(function () {
-                window.location.href = "login.html";
-            }, 1200);
+            try {
+                let response;
+                const reqBody = JSON.stringify({
+                    name: fullName,
+                    email: email,
+                    phone: phone,
+                    password: password,
+                    confirmPassword: confirmPassword
+                });
+
+                try {
+                    response = await fetch("http://localhost:5000/api/v1/auth/register", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: reqBody
+                    });
+                } catch (err) {
+                    response = await fetch("http://127.0.0.1:5000/api/v1/auth/register", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: reqBody
+                    });
+                }
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    showRegError(data.message || "Registration failed. Please try again.");
+                    regSubmitBtn.disabled = false;
+                    regSubmitBtn.innerHTML = originalBtnHtml;
+                    return;
+                }
+
+                // Save to registeredUsers list as local fallback
+                const userObj = data.user || { name: fullName, email: email, phone: phone, role: "customer" };
+                let registeredUsers = [];
+                try {
+                    registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+                } catch (err) {
+                    registeredUsers = [];
+                }
+                registeredUsers.push({ id: userObj.id || Date.now(), name: fullName, email, phone, role: "CUSTOMER" });
+                localStorage.setItem("registeredUsers", JSON.stringify(registeredUsers));
+
+                showRegSuccess("Registration successful! Redirecting to login page...");
+
+                setTimeout(function () {
+                    window.location.href = "login.html";
+                }, 1200);
+
+            } catch (err) {
+                console.error("Registration error:", err);
+                showRegError("Could not connect to backend server. Please ensure the backend is running on port 5000.");
+                regSubmitBtn.disabled = false;
+                regSubmitBtn.innerHTML = originalBtnHtml;
+            }
         });
 
         function showRegError(msg) {
@@ -535,5 +563,6 @@
             regError.style.display = "none";
         }
     </script>
+    <script type="module" src="../../js/utils/i18n.js"></script>
 </body>
 </html>

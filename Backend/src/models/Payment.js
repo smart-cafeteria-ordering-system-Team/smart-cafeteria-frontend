@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
  * Payment Schema - Track payments
  *
  * Frontend Usage:
- * - checkout.js: Simulate payment (CBE Birr, TeleBirr, Cash)
+ * - checkout.js: Chapa checkout
  * - admin/payments.html: View all payments
  */
 const PaymentSchema = new mongoose.Schema(
@@ -24,15 +24,24 @@ const PaymentSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    provider: {
+      type: String,
+      enum: ["TELEBIRR", "CHAPA"],
+      required: true,
+    },
     method: {
       type: String,
-      enum: ["cbe_birr", "telebirr", "cash", "CBE Birr", "Telebirr", "Cash"],
+      enum: ["TELEBIRR", "CHAPA"],
       required: true,
+    },
+    currency: {
+      type: String,
+      default: "ETB",
     },
     status: {
       type: String,
-      enum: ["pending", "simulated", "failed", "completed"],
-      default: "pending",
+      enum: ["PENDING", "PAID", "FAILED", "CANCELLED"],
+      default: "PENDING",
     },
     transactionId: {
       type: String,
@@ -47,6 +56,27 @@ const PaymentSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    chapaReference: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    checkoutUrl: {
+      type: String,
+      default: "",
+    },
+    providerReference: {
+      type: String,
+      default: null,
+    },
+    metadata: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+    paidAt: {
+      type: Date,
+      default: null,
+    },
     paymentDate: {
       type: Date,
       default: Date.now,
@@ -60,10 +90,17 @@ const PaymentSchema = new mongoose.Schema(
 // Generate transaction ID before saving
 PaymentSchema.pre("save", function (next) {
   if (!this.transactionId) {
-    const prefix = this.method.toUpperCase().replace(" ", "_");
+    const prefix = this.provider.toUpperCase();
     this.transactionId = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   }
   next();
 });
+
+PaymentSchema.index({ status: 1 });
+PaymentSchema.index({ method: 1 });
+PaymentSchema.index({ transactionId: 1 });
+PaymentSchema.index({ reference: 1 });
+PaymentSchema.index({ providerReference: 1 });
+PaymentSchema.index({ paymentDate: -1 });
 
 module.exports = mongoose.model("Payment", PaymentSchema);

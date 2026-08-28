@@ -1,33 +1,64 @@
-// validators/payment.validator.js
+const { HTTP_STATUS } = require('../config/constants');
+const {
+    validateObjectId,
+    validatePaymentStatus,
+    validateEnum,
+    validatePhone,
+    validateName
+} = require('./common.validator');
 
-export const validatePaymentInput = (data) => {
+const validatePaymentInput = (data) => {
     const errors = {};
 
-    // Order ID
-    const orderId = data.orderId?.trim();
+    const orderIdErr = validateObjectId(data.orderId, 'Order ID');
+    if (orderIdErr) errors.orderId = orderIdErr;
 
-    if (!orderId) {
-        errors.orderId = 'Order ID is required for payment';
+    const methodErr = validateEnum(data.paymentMethod, ['CHAPA', 'TELEBIRR'], 'Payment method');
+    if (methodErr) errors.paymentMethod = methodErr;
+
+    return { isValid: Object.keys(errors).length === 0, errors };
+};
+
+const validatePaymentVerification = (data) => {
+    const errors = {};
+
+    if (data.txRef) {
+        if (typeof data.txRef !== 'string' || data.txRef.trim().length === 0) {
+            errors.txRef = 'Transaction reference must be a non-empty string';
+        }
     }
 
-    // Payment method
-    const paymentMethod = data.paymentMethod?.trim().toLowerCase();
+    return { isValid: Object.keys(errors).length === 0, errors };
+};
 
-    const validMethods = [
-        'telebirr',
-        'cbe_birr',
-        'cash'
-    ];
+const validateAdminPaymentFilter = (data) => {
+    const errors = {};
 
-    if (!paymentMethod) {
-        errors.paymentMethod = 'Payment method is required';
-    } else if (!validMethods.includes(paymentMethod)) {
-        errors.paymentMethod =
-            'Invalid or unsupported payment method';
+    if (data.method) {
+        const methodErr = validateEnum(data.method, ['CHAPA', 'TELEBIRR'], 'Payment method');
+        if (methodErr) errors.method = methodErr;
     }
 
-    return {
-        isValid: Object.keys(errors).length === 0,
-        errors
-    };
+    if (data.status) {
+        const statusErr = validatePaymentStatus(data.status);
+        if (statusErr) errors.status = statusErr;
+    }
+
+    if (data.startDate) {
+        const dateErr = validateDate(data.startDate, 'Start date');
+        if (dateErr) errors.startDate = dateErr;
+    }
+
+    if (data.endDate) {
+        const dateErr = validateDate(data.endDate, 'End date');
+        if (dateErr) errors.endDate = dateErr;
+    }
+
+    return { isValid: Object.keys(errors).length === 0, errors };
+};
+
+module.exports = {
+    validatePaymentInput,
+    validatePaymentVerification,
+    validateAdminPaymentFilter
 };

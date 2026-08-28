@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { protect, authorize } = 
-
-require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth');
+const { validateBody } = require('../middleware/validation.middleware');
+const {
+    initializeChapaPayment,
+    chapaCallback,
+    verifyChapaPayment
+} = require('../controllers/chapa.controller');
+const { initializeTelebirrPayment, telebirrCallback } = require('../controllers/provider-payment.controller');
 const {
     simulatePayment,
     getPaymentByOrder,
@@ -11,74 +16,22 @@ const {
     getPaymentStats,
     validatePayment
 } = require('../controllers/payment.controller');
+const { validatePaymentInput, validatePaymentVerification, validateAdminPaymentFilter } = require('../validators/payment.validator');
 
-// ============================================================
-//  PRIVATE ROUTES
-// =============================
-
-===============================
-
-/**
- * @route   POST /api/payments/simulate
- * @desc    Simulate payment
- * @access  Private
- * 
- * Frontend: checkout.js → Simulate payment
- * Body: { orderId, method, phone, reference }
- */
-router.post('/simulate', protect, simulatePayment);
-
-/**
-
- * @route   POST /api/payments/validate
- * @desc    Validate payment details
- * @access  Private
- * 
- * Frontend: checkout.js → Validate payment
- * Body: { method, phone }
- */
-router.post('/validate', protect, validatePayment);
-
-/**
- * @route   GET /api/payments/my
- * @desc    Get user's payment history
- * @access  Private
- * 
-
- * Frontend: profile.js → Payment history
- */
+router.post('/simulate', protect, validateBody(validatePaymentInput), simulatePayment);
+router.post('/validate', protect, validateBody(validatePaymentVerification), validatePayment);
 router.get('/my', protect, getMyPayments);
-
-/**
- * @route   GET /api/payments/order/:orderId
- * @desc    Get payment by order ID
- * @access  Private
- * 
- * Frontend: order-status.js → Show payment details
- */
 router.get('/order/:orderId', protect, getPaymentByOrder);
 
-// ============================================================
-//  ADMIN ROUTES
-// ============================================================
-
-/**
- * @route   GET /api/payments
- * @desc    Get all payments
- * @access  Private/Admin
- * 
- * Frontend: admin/payments.html → Load all payments
- */
-
-router.get('/', protect, authorize('admin'), getAllPayments);
-
-/**
- * @route   GET /api/payments/stats
- * @desc    Get payment statistics
- * @access  Private/Admin
- * 
- * Frontend: admin/payments.html → Metrics
- */
 router.get('/stats', protect, authorize('admin'), getPaymentStats);
+router.get('/', protect, authorize('admin'), validateBody(validateAdminPaymentFilter), getAllPayments);
+
+router.post('/chapa/initialize', protect, initializeChapaPayment);
+router.post('/chapa/callback', chapaCallback);
+router.get('/chapa/callback', chapaCallback);
+router.get('/chapa/verify/:txRef', protect, verifyChapaPayment);
+router.post('/telebirr/initialize', protect, initializeTelebirrPayment);
+router.post('/telebirr/callback', telebirrCallback);
+router.get('/telebirr/callback', telebirrCallback);
 
 module.exports = router;

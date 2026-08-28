@@ -1,3 +1,5 @@
+import api from "./api.js";
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const CART_KEY = "smart_cafeteria_cart";
@@ -187,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         radio.addEventListener(
             "change",
-            (event) => {
+            async (event) => {
 
                 radioCards.forEach((card) => {
                     card.classList.remove("active");
@@ -254,7 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         radio.addEventListener(
             "change",
-            (event) => {
+            async (event) => {
 
                 paymentCards.forEach((card) => {
                     card.classList.remove("active");
@@ -284,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         checkoutForm.addEventListener(
             "submit",
-            (event) => {
+            async (event) => {
 
                 event.preventDefault();
 
@@ -468,31 +470,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 };
 
 
-                localStorage.setItem(
-                    "latestOrder",
-                    JSON.stringify(newOrder)
-                );
+                try {
+                    const orderResponse = await api.post("/orders", newOrder);
+                    const createdOrderId = orderResponse.order?.orderId || orderId;
+                    const paymentEndpoint = paymentMethod === "TELEBIRR"
+                        ? "/payments/telebirr/initialize"
+                        : "/payments/chapa/initialize";
+                    const paymentResponse = await api.post(paymentEndpoint, {
+                        orderId: createdOrderId,
+                        returnUrl: `${window.location.origin}/Frontend/src/pages/customer/order-tracking.html?orderId=${encodeURIComponent(createdOrderId)}`
+                    });
 
+                    const checkoutUrl = paymentResponse.data?.checkoutUrl || paymentResponse.checkoutUrl;
+                    if (!checkoutUrl) {
+                        throw new Error(`${paymentMethod} did not return a checkout URL.`);
+                    }
 
-                localStorage.removeItem(
-                    CART_KEY
-                );
-
-
-                localStorage.removeItem(
-                    "checkoutCart"
-                );
-
-
-                window.dispatchEvent(
-                    new CustomEvent(
-                        "cart:updated"
-                    )
-                );
-
-
-                window.location.href =
-                    `order-tracking.html?orderId=${encodeURIComponent(orderId)}`;
+                    localStorage.removeItem(CART_KEY);
+                    localStorage.removeItem("checkoutCart");
+                    window.dispatchEvent(new CustomEvent("cart:updated"));
+                    window.location.href = checkoutUrl;
+                } catch (error) {
+                    alert(error.message || "Unable to start Chapa payment.");
+                }
 
             }
         );

@@ -1,10 +1,10 @@
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const MenuItem = require('../models/MenuItem');
 const Notification = require('../models/Notification');
-const { ORDER_STATUS,
-
-PAYMENT_STATUS, MESSAGES, HTTP_STATUS } = require('../config/constants');
+const { ORDER_STATUS, PAYMENT_STATUS, PAYMENT_METHODS, MESSAGES, HTTP_STATUS } = require('../config/constants');
+const { getSettingsMap } = require('../utils/settings');
 
 /**
 * @desc    Create new order
@@ -15,9 +15,7 @@ PAYMENT_STATUS, MESSAGES, HTTP_STATUS } = require('../config/constants');
 * Expected Body: { items, customerName, customerPhone, orderType, tableNumber, paymentMethod, totalAmount }
 * Response: { success, order }
 */
-exports.createOrder = async (req,
-
-res) => {
+exports.createOrder = async (req, res) => {
 try {
 const {
 items,
@@ -29,12 +27,11 @@ paymentMethod,
 totalAmount,
 notes
 } = req.body;
+const normalizedPaymentMethod = String(paymentMethod || '').toUpperCase();
 
 // ✅ Validate required fields
 if (!items || !Array.isArray(items) || items.length === 0) {
-return res.status(HTTP_STATUS.BAD_REQ
-
-UEST).json({
+return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
 error: 'Order must have at least one item'
 });
@@ -47,10 +44,10 @@ error: 'Customer name and phone are required'
 });
 }
 
-if (!paymentMethod) {
+if (!Object.values(PAYMENT_METHODS).includes(normalizedPaymentMethod)) {
 return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
-error: 'Payment method is required'
+error: 'Payment method must be TELEBIRR or CHAPA'
 });
 }
 
@@ -59,39 +56,61 @@ let subtotal = 0;
 const validatedItems = [];
 
 for (const item of items) {
-const menuItem = await MenuItem.findById(item.id);
+let menuItem = null;
 
-if (!menuItem) {
-return res.status(HTTP_STATUS.NOT_FOUND).json({
-success: false,
-error: `Item ${item.name} not found`
+if (item.id && mongoose.Types.ObjectId.isValid(item.id)) {
+menuItem = await MenuItem.findById(item.id);
+}
+
+if (!menuItem && item.name) {
+const cleanName = String(item.name).trim();
+menuItem = await MenuItem.findOne({
+$or: [
+{ 'name.en': { $regex: new RegExp(`^${cleanName.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}$`, 'i') } },
+{ 'name.am': cleanName }
+]
 });
 }
 
-if (!menuItem.availability) {
-return res.status(HTTP_STATUS.BAD_REQUEST).json({
-success: false,
-error: `${menuItem.name.en} is currently unavailable`
-
-});
-}
-
+const price = menuItem ? menuItem.price : (Number(item.price) || 0);
+const name = menuItem ? (menuItem.name?.en || menuItem.name) : (item.name || 'Food Item');
 const quantity = parseInt(item.quantity) || 1;
-const price = menuItem.price;
-const itemTotal = price * quantity;
-subtotal += itemTotal;
+      const itemTotal = price * quantity;
+      subtotal += itemTotal;
 
-validatedItems.push({
-itemId: menuItem._id,
-name: menuItem.name.en,
-quantity: quantity,
-price: price,
-notes: item.notes || ''
-});
-}
+      validatedItems.push({
+        itemId: menuItem ? menuItem._id : new mongoose.Types.ObjectId(),
+        name: name,
+        quantity: quantity,
+        price: price,
+        notes: item.notes || ''
+      });
+    }
 
+    // ✅ Enforce system settings: maintenance mode, order availability, max order quantity
+    const settings = await getSettingsMap();
+    if (settings.maintenance_mode) {
+      return res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
+        success: false,
+        error: 'System is under maintenance. Please try again later.'
+      });
+    }
+    if (settings.order_availability === false) {
+      return res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
+        success: false,
+        error: 'Online ordering is currently unavailable.'
+      });
+    }
+    const maxQty = Number(settings.max_order_quantity) || 10;
+    const totalQty = validatedItems.reduce((sum, i) => sum + i.quantity, 0);
+    if (totalQty > maxQty) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: `Maximum order quantity is ${maxQty} items.`
+      });
+    }
 
-// ✅ Calculate totals
+    // ✅ Calculate totals
 const serviceFee = 20;
 const total = subtotal + serviceFee;
 
@@ -107,8 +126,15 @@ subtotal: subtotal,
 
 serviceFee: serviceFee,
 totalAmount: total,
-paymentMethod: paymentMethod,
+paymentMethod: normalizedPaymentMethod,
 paymentStatus: PAYMENT_STATUS.PENDING,
+payment: {
+method: normalizedPaymentMethod,
+status: PAYMENT_STATUS.PENDING,
+amount: total,
+currency: 'ETB'
+},
+orderStatus: 'PENDING',
 status: ORDER_STATUS.PENDING,
 orderDate: new Date().toLocaleString(),
 notes: notes || ''
@@ -338,9 +364,7 @@ order: order.getSummary()
 
 } catch (error) {
 console.error('❌ Update Order Status Error:', error);
-res.status(HTTP_STATUS.INTERNAL
-
-_SERVER_ERROR).json({
+res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
 });
@@ -379,9 +403,7 @@ error: 'You can only cancel your own orders'
 
 // ✅ Check if order can be cancelled
 if (order.status === 'served' || order.status === 'cancelled') {
-return res.status(HTTP_STATUS.BAD_REQ
-
-UEST).json({
+return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
 error: `Order cannot be cancelled (status: ${order.status})`
 });
@@ -492,9 +514,7 @@ orderTime: order.orderTime
 });
 
 } catch (error) {
-console.error('❌ Get Kitchen
-
-Orders Error:', error);
+console.error('Get Kitchen Orders Error:', error);
 res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
