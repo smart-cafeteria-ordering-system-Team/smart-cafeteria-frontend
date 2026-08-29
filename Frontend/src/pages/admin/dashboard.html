@@ -20,7 +20,403 @@
     <header class="admin-navbar"></header>
     <div class="admin-container">
         <aside class="admin-sidebar" id="adminSidebar"></aside>
-        <main class="admin-main"></main>
+        <main class="admin-main">
+            <div class="page-header">
+                <div>
+                    <h1>Dashboard Overview</h1>
+                    <p class="subtitle">Real-time statistics from MongoDB — updated live from the database.</p>
+                    <small class="subtitle" id="lastUpdated"></small>
+                </div>
+                <div class="page-actions">
+                    <div class="btn-group" style="gap:8px;">
+                        <button class="btn btn-secondary" id="refreshMetricsBtn" title="Refresh (R)">
+                            <i class="fa-solid fa-rotate"></i> Refresh
+                        </button>
+                        <button class="btn btn-secondary" id="autoRefreshBtn" title="Toggle Auto-refresh (A)">
+                            <i class="fa-solid fa-play"></i> Auto-refresh OFF
+                        </button>
+                        <div class="btn-group-dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" id="refreshIntervalBtn" title="Refresh Interval">
+                                <i class="fa-solid fa-clock"></i> 30s
+                            </button>
+                            <div class="dropdown-menu">
+                                <button class="dropdown-item refresh-interval-btn active" data-interval="30000">30 seconds</button>
+                                <button class="dropdown-item refresh-interval-btn" data-interval="60000">1 minute</button>
+                                <button class="dropdown-item refresh-interval-btn" data-interval="300000">5 minutes</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="exportDashboardBtn" title="Export Data (E)">
+                            <i class="fa-solid fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DATE RANGE FILTER -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="section-title"><i class="fa-solid fa-calendar-days"></i> Date Range</h3>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group date-range-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary date-range-btn active" data-range="7d">Last 7 Days</button>
+                        <button type="button" class="btn btn-outline-secondary date-range-btn" data-range="30d">Last 30 Days</button>
+                        <button type="button" class="btn btn-outline-secondary date-range-btn" data-range="90d">Last 90 Days</button>
+                        <button type="button" class="btn btn-outline-secondary date-range-btn" data-range="custom">Custom</button>
+                    </div>
+                    <div class="custom-date-inputs mt-3" style="display:none;">
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" id="startDateInput" class="form-control custom-date-input">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">End Date</label>
+                                <input type="date" id="endDateInput" class="form-control custom-date-input">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="button" class="btn btn-primary" id="applyCustomDateBtn">
+                                    <i class="fa-solid fa-filter"></i> Apply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REAL-TIME CLOCK & AUTO-REFRESH STATUS -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted">Keyboard Shortcuts:</span>
+                    <kbd class="kbd">R</kbd> Refresh
+                    <kbd class="kbd">A</kbd> Auto-refresh
+                    <kbd class="kbd">E</kbd> Export
+                    <kbd class="kbd">F</kbd> Fullscreen Charts
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span id="realtimeClock" class="text-muted fw-monospace">--:--:--</span>
+                    <button class="btn btn-secondary btn-sm" id="autoRefreshBtn" title="Toggle Auto-refresh (A)">
+                        <i class="fa-solid fa-play"></i> Auto-refresh OFF
+                    </button>
+                    <div class="btn-group dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" id="refreshIntervalBtn" title="Refresh Interval">
+                            <i class="fa-solid fa-clock"></i> 30s
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <button class="dropdown-item refresh-interval-btn active" data-interval="30000">30 seconds</button>
+                            <button class="dropdown-item refresh-interval-btn" data-interval="60000">1 minute</button>
+                            <button class="dropdown-item refresh-interval-btn" data-interval="300000">5 minutes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALERTS PANEL -->
+            <div id="alertsContainer" class="mb-4"></div>
+
+            <!-- STATISTICS CARDS -->
+            <div class="row g-4 mb-4">
+                <!-- Users Stats -->
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="users.html">
+                        <div class="metric-icon bg-indigo">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Total Users</span>
+                            <h2 class="metric-value" id="statTotalUsers">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="users.html">
+                        <div class="metric-icon bg-blue">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Students</span>
+                            <h2 class="metric-value" id="statStudents">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="users.html">
+                        <div class="metric-icon bg-orange">
+                            <i class="fa-solid fa-kitchen-set"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Kitchen Staff</span>
+                            <h2 class="metric-value" id="statKitchenStaff">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="users.html">
+                        <div class="metric-icon bg-red">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Admins</span>
+                            <h2 class="metric-value" id="statAdmins">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="menu.html">
+                        <div class="metric-icon bg-indigo">
+                            <i class="fa-solid fa-bowl-food"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Total Menu Items</span>
+                            <h2 class="metric-value" id="statTotalMenu">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="menu.html">
+                        <div class="metric-icon bg-green">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Available Now</span>
+                            <h2 class="metric-value" id="statAvailableMenu">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="menu.html">
+                        <div class="metric-icon bg-orange">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Out of Stock</span>
+                            <h2 class="metric-value" id="statOutOfStockMenu">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="categories.html">
+                        <div class="metric-icon bg-red">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Categories</span>
+                            <h2 class="metric-value" id="statTotalCategories">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-indigo">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Total Orders</span>
+                            <h2 class="metric-value" id="statTotalOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-orange">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Pending</span>
+                            <h2 class="metric-value" id="statPendingOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-yellow">
+                            <i class="fa-solid fa-fire-burner"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Preparing</span>
+                            <h2 class="metric-value" id="statPreparingOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-cyan">
+                            <i class="fa-solid fa-bell-concierge"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Ready</span>
+                            <h2 class="metric-value" id="statReadyOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-green">
+                            <i class="fa-solid fa-check-double"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Completed</span>
+                            <h2 class="metric-value" id="statCompletedOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-red">
+                            <i class="fa-solid fa-ban"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Cancelled</span>
+                            <h2 class="metric-value" id="statCancelledOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="payments.html">
+                        <div class="metric-icon bg-green">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Successful Payments</span>
+                            <h2 class="metric-value" id="statSuccessfulPayments">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="payments.html">
+                        <div class="metric-icon bg-orange">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Pending Payments</span>
+                            <h2 class="metric-value" id="statPendingPayments">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="payments.html">
+                        <div class="metric-icon bg-red">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Failed Payments</span>
+                            <h2 class="metric-value" id="statFailedPayments">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card revenue-total" data-nav="payments.html">
+                        <div class="metric-icon bg-indigo">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Total Revenue</span>
+                            <h2 id="statTotalRevenue">0 <small>ETB</small></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALERTS PANEL -->
+            <div id="alertsContainer" class="mb-4"></div>
+
+            <!-- CHARTS -->
+            <div class="charts-grid mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title"><i class="fa-solid fa-chart-pie"></i> Order Status Overview</h3>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-secondary date-range-btn active" data-range="7d">7D</button>
+                            <button type="button" class="btn btn-outline-secondary date-range-btn" data-range="30d">30D</button>
+                            <button type="button" class="btn btn-outline-secondary date-range-btn" data-range="90d">90D</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title"><i class="fa-solid fa-chart-column"></i> Revenue (Last 7 Days)</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECENT TABLES -->
+            <div class="row g-4">
+                <!-- RECENT ORDERS -->
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="card-title"><i class="fa-solid fa-list-check"></i> Recent Orders</h3>
+                            <div class="d-flex gap-2">
+                                <input type="text" id="orderSearchInput" class="form-control form-control-sm" placeholder="Search orders..." style="width: 200px;">
+                                <a href="orders.html" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Amount</th>
+                                        <th>Payment</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentOrdersTableBody">
+                                    <tr><td colspan="6" class="table-empty">Loading recent orders...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT PAYMENTS -->
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="card-title"><i class="fa-solid fa-credit-card"></i> Recent Payments</h3>
+                            <div class="d-flex gap-2">
+                                <input type="text" id="paymentSearchInput" class="form-control form-control-sm" placeholder="Search payments..." style="width: 200px;">
+                                <a href="payments.html" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction</th>
+                                        <th>Customer</th>
+                                        <th>Amount</th>
+                                        <th>Provider</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentPaymentsTableBody">
+                                    <tr><td colspan="6" class="table-empty">Loading recent payments...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <!-- Chart.js -->
@@ -35,8 +431,7 @@
     <script>
         // Page-specific initialization
         function initPageSpecific() {
-            // Dashboard.js will handle the rest via its DOMContentLoaded
-            // This function is called by admin-layout.js after layout is rendered
+            // Dashboard.js handles initialization via its own DOMContentLoaded
         }
     </script>
 </body>
