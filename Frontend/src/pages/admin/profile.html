@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile - Smart Cafeteria</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Admin CSS stylesheet -->
+    <link rel="stylesheet" href="/frontend/src/css/admin.css">
+</head>
+<body class="admin-body">
+
+    <!-- Layout will be injected by admin-layout.js -->
+    <header class="admin-navbar"></header>
+    <div class="admin-container">
+        <aside class="admin-sidebar" id="adminSidebar"></aside>
+        <main class="admin-main"></main>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../../js/admin-api.js"></script>
+    <script src="../../js/admin-layout.js"></script>
+    <script src="../../js/admin-ui.js"></script>
+    <script src="../../js/admin-profile.js"></script>
+
+    <script>
+        // Page-specific initialization
+        function initPageSpecific() {
+            // admin-profile.js handles initialization via its own DOMContentLoaded
+        }
+    </script>
+</body>
+</html>
