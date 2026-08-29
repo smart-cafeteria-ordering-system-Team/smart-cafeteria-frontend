@@ -17,7 +17,171 @@
     <header class="admin-navbar"></header>
     <div class="admin-container">
         <aside class="admin-sidebar" id="adminSidebar"></aside>
-        <main class="admin-main"></main>
+        <main class="admin-main">
+            <div class="page-header">
+                <div>
+                    <h1>Order Management</h1>
+                    <p class="subtitle">View and manage all orders</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" id="refreshOrdersBtn">
+                        <i class="fa-solid fa-rotate"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATS CARDS -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-2 col-md-4">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-indigo">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Total Orders</span>
+                            <h2 class="metric-value" id="metricTotalOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-4">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-orange">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Pending</span>
+                            <h2 class="metric-value" id="metricPendingOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-4">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-yellow">
+                            <i class="fa-solid fa-fire-burner"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Preparing</span>
+                            <h2 class="metric-value" id="metricPreparingOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-4">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-cyan">
+                            <i class="fa-solid fa-bell-concierge"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Ready</span>
+                            <h2 class="metric-value" id="metricReadyOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-4">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-green">
+                            <i class="fa-solid fa-check-double"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Completed</span>
+                            <h2 class="metric-value" id="metricCompletedOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-4">
+                    <div class="metric-card" data-nav="orders.html">
+                        <div class="metric-icon bg-red">
+                            <i class="fa-solid fa-ban"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Cancelled</span>
+                            <h2 class="metric-value" id="metricCancelledOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTERS & SEARCH -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <input type="text" id="orderSearchInput" class="form-control" placeholder="Search by order ID, customer...">
+                        </div>
+                        <div class="col-md-2">
+                            <select id="orderStatusFilter" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="PREPARING">Preparing</option>
+                                <option value="READY">Ready</option>
+                                <option value="SERVED">Served</option>
+                                <option value="COMPLETED">Completed</option>
+                                <option value="CANCELLED">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="paymentStatusFilter" class="form-select">
+                                <option value="">All Payment Status</option>
+                                <option value="PAID">Paid</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="FAILED">Failed</option>
+                                <option value="CANCELLED">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="orderTypeFilter" class="form-select">
+                                <option value="">All Types</option>
+                                <option value="dine-in">Dine-in</option>
+                                <option value="takeaway">Takeaway</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="orderSortSelect" class="form-select">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-secondary w-100" id="resetOrderFiltersBtn">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORDERS TABLE -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title"><i class="fa-solid fa-list"></i> All Orders</h3>
+                    <span class="badge bg-secondary" id="orderPaginationInfo">Page 1 of 1 (0 orders)</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr><td colspan="8" class="table-empty">Loading orders...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" id="orderPrevPageBtn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="btn btn-sm btn-outline-secondary" id="orderNextPageBtn" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <!-- ===== ORDER DETAILS MODAL ===== -->

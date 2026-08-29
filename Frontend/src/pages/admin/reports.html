@@ -20,7 +20,162 @@
     <header class="admin-navbar"></header>
     <div class="admin-container">
         <aside class="admin-sidebar" id="adminSidebar"></aside>
-        <main class="admin-main"></main>
+        <main class="admin-main">
+            <div class="page-header">
+                <div>
+                    <h1>Reports & Analytics</h1>
+                    <p class="subtitle">View sales, orders, and payment reports</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" id="refreshReportsBtn">
+                        <i class="fa-solid fa-rotate"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" id="exportCsvBtn">
+                        <i class="fa-solid fa-download"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- PERIOD FILTER -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Period</label>
+                            <select id="periodSelect" class="form-select">
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="last7">Last 7 Days</option>
+                                <option value="last30">Last 30 Days</option>
+                                <option value="month" selected>This Month</option>
+                                <option value="custom">Custom Date Range</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" id="startDateInput" class="form-control" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">End Date</label>
+                            <input type="date" id="endDateInput" class="form-control" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" id="applyReportBtn">
+                                <i class="fa-solid fa-filter"></i> Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATS CARDS -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon bg-indigo">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label" id="metricRevenueTitle">Revenue (This Month)</span>
+                            <h2 class="metric-value" id="metricTotalRevenue">0.00 ETB</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon bg-blue">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Total Orders</span>
+                            <h2 class="metric-value" id="metricTotalOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon bg-green">
+                            <i class="fa-solid fa-check-circle"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Completed Orders</span>
+                            <h2 class="metric-value" id="metricCompletedOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon bg-red">
+                            <i class="fa-solid fa-ban"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Cancelled Orders</span>
+                            <h2 class="metric-value" id="metricCancelledOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon bg-green">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Successful Payments</span>
+                            <h2 class="metric-value" id="metricSuccessfulPayments">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon bg-red">
+                            <i class="fa-solid fa-times-circle"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Failed Payments</span>
+                            <h2 class="metric-value" id="metricFailedPayments">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon bg-orange">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Pending Payments</span>
+                            <h2 class="metric-value" id="metricPendingPayments">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOP FOODS TABLE -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title"><i class="fa-solid fa-trophy"></i> Most Ordered Foods</h3>
+                    <small class="text-muted" id="reportUpdatedAt">Loading...</small>
+                </div>
+                <div class="table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Food Item</th>
+                                <th>Total Quantity</th>
+                                <th>Times Ordered</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topFoodsBody">
+                            <tr><td colspan="5" class="table-empty">Loading report...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
 
     <!-- JavaScript Files -->

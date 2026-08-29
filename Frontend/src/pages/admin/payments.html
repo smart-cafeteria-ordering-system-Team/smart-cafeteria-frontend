@@ -17,7 +17,152 @@
     <header class="admin-navbar"></header>
     <div class="admin-container">
         <aside class="admin-sidebar" id="adminSidebar"></aside>
-        <main class="admin-main"></main>
+        <main class="admin-main">
+            <div class="page-header">
+                <div>
+                    <h1>Payment Management</h1>
+                    <p class="subtitle">View and manage all payments</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" id="refreshPaymentsBtn">
+                        <i class="fa-solid fa-rotate"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATS CARDS -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="payments.html">
+                        <div class="metric-icon bg-indigo">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Total Revenue</span>
+                            <h2 class="metric-value" id="metricTotalRevenue">0 ETB</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="payments.html">
+                        <div class="metric-icon bg-green">
+                            <i class="fa-solid fa-check-circle"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Successful</span>
+                            <h2 class="metric-value" id="metricSuccessfulPayments">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="payments.html">
+                        <div class="metric-icon bg-orange">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Pending</span>
+                            <h2 class="metric-value" id="metricPendingPayments">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card" data-nav="payments.html">
+                        <div class="metric-icon bg-red">
+                            <i class="fa-solid fa-times-circle"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Failed</span>
+                            <h2 class="metric-value" id="metricFailedPayments">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTERS & SEARCH -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <input type="text" id="paymentSearchInput" class="form-control" placeholder="Search by transaction ID, order ID, customer...">
+                        </div>
+                        <div class="col-md-2">
+                            <select id="paymentMethodFilter" class="form-select">
+                                <option value="">All Methods</option>
+                                <option value="CHAPA">Chapa</option>
+                                <option value="CASH">Cash</option>
+                                <option value="CARD">Card</option>
+                                <option value="WALLET">Wallet</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="paymentStatusFilter" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="PAID">Paid</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="FAILED">Failed</option>
+                                <option value="CANCELLED">Cancelled</option>
+                                <option value="REFUNDED">Refunded</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="paymentDateFilter" class="form-select">
+                                <option value="">All Dates</option>
+                                <option value="today">Today</option>
+                                <option value="7d">Last 7 Days</option>
+                                <option value="30d">Last 30 Days</option>
+                                <option value="90d">Last 90 Days</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="paymentSortSelect" class="form-select">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="amount-desc">Amount High to Low</option>
+                                <option value="amount-asc">Amount Low to High</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-secondary w-100" id="resetPaymentFiltersBtn">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAYMENTS TABLE -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title"><i class="fa-solid fa-list"></i> All Payments</h3>
+                    <span class="badge bg-secondary" id="paymentPaginationInfo">Page 1 of 1 (0 payments)</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Order</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsTableBody">
+                            <tr><td colspan="8" class="table-empty">Loading payments...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" id="paymentPrevPageBtn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="btn btn-sm btn-outline-secondary" id="paymentNextPageBtn" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <!-- ===== PAYMENT DETAILS MODAL (READ-ONLY) ===== -->

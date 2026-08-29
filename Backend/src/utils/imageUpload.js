@@ -61,7 +61,7 @@ function safeFileName(ext) {
  * Throws Error with a friendly message on invalid input.
  */
 function storeDataUrl(dataUrl) {
-  const match = /^data:([a-zA-Z0-9+.\-]+);base64,(.*)$/s.exec(dataUrl);
+  const match = /^data:([^;]+);base64,(.+)$/.exec(dataUrl);
   if (!match) {
     throw new Error('Invalid image data. Expected a data:image/...;base64,... value');
   }
