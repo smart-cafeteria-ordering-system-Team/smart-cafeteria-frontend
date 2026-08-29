@@ -1,7 +1,7 @@
-import Payment from '../models/Payment.js';
-import Order from '../models/Order.js';
+const Payment = require("../models/Payment");
+const Order = require("../models/Order");
 
-export const processPayment = async (
+const processPayment = async (
     orderId,
     userId,
     paymentMethod
@@ -62,3 +62,4 @@ export const processPayment = async (
 
     return transaction;
 };
+module.exports = { processPayment };

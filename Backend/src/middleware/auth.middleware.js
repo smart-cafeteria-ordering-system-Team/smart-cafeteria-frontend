@@ -1,6 +1,6 @@
 // middleware/auth.middleware.js
 
-import jwt from 'jsonwebtoken';
+const jwt = require("jsonwebtoken");
 
 /**
  * Authenticate user using JWT access token.
@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
  * Expected header:
  * Authorization: Bearer <token>
  */
-export const authenticateToken = (req, res, next) => {
+const authenticateToken = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
 
@@ -73,3 +73,4 @@ export const authenticateToken = (req, res, next) => {
         });
     }
 };
+module.exports = { authenticateToken };

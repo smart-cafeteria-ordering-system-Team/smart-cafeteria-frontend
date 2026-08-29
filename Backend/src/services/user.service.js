@@ -1,6 +1,6 @@
-import User from '../models/User.js';
+const User = require("../models/User");
 
-export const getUserById = async (userId) => {
+const getUserById = async (userId) => {
     const user = await User.findById(userId);
 
     if (!user) {
@@ -13,7 +13,7 @@ export const getUserById = async (userId) => {
 };
 
 
-export const updateUserProfile = async (
+const updateUserProfile = async (
     userId,
     updateData
 ) => {
@@ -60,7 +60,7 @@ export const updateUserProfile = async (
 };
 
 
-export const getAllUsers = async (roleFilter) => {
+const getAllUsers = async (roleFilter) => {
     const filter = {};
 
     if (roleFilter) {
@@ -70,3 +70,4 @@ export const getAllUsers = async (roleFilter) => {
     return await User.find(filter)
         .sort({ createdAt: -1 });
 };
+module.exports = { getUserById, updateUserProfile, getAllUsers };

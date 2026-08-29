@@ -1,6 +1,6 @@
-import { logger } from '../utils/logger.js';
+const { logger } = require("../utils/logger");
 
-export const registerOrderHandlers = (io, socket) => {
+const registerOrderHandlers = (io, socket) => {
 
     // Customer joins their order room to receive real-time updates
     socket.on('order:join', (orderId) => {
@@ -37,3 +37,4 @@ export const registerOrderHandlers = (io, socket) => {
         });
     });
 };
+module.exports = { registerOrderHandlers };

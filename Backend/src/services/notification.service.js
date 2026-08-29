@@ -1,6 +1,6 @@
-import Notification from '../models/Notification.js';
+const Notification = require("../models/Notification");
 
-export const sendNotification = async (
+const sendNotification = async (
     userId,
     title,
     message,
@@ -20,13 +20,13 @@ export const sendNotification = async (
 };
 
 
-export const getUserNotifications = async (userId) => {
+const getUserNotifications = async (userId) => {
     return await Notification.find({ userId })
         .sort({ createdAt: -1 });
 };
 
 
-export const markNotificationAsRead = async (
+const markNotificationAsRead = async (
     notificationId,
     userId
 ) => {
@@ -49,7 +49,7 @@ export const markNotificationAsRead = async (
 };
 
 
-export const markAllNotificationsAsRead = async (userId) => {
+const markAllNotificationsAsRead = async (userId) => {
     await Notification.updateMany(
         {
             userId,
@@ -64,3 +64,4 @@ export const markAllNotificationsAsRead = async (userId) => {
 
     return true;
 };
+module.exports = { sendNotification, getUserNotifications, markNotificationAsRead, markAllNotificationsAsRead };

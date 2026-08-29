@@ -1,6 +1,6 @@
 // validators/order.validator.js
 
-export const validateOrderInput = (data) => {
+const validateOrderInput = (data) => {
     const errors = {};
 
     // Items
@@ -33,3 +33,4 @@ export const validateOrderInput = (data) => {
         errors
     };
 };
+module.exports = { validateOrderInput };

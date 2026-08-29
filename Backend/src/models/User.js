@@ -14,10 +14,15 @@ const UserSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Full name is required"],
       trim: true,
       minlength: [2, "Name must be at least 2 characters"],
       maxlength: [50, "Name cannot exceed 50 characters"],
+    },
+    fullName: {
+      type: String,
+      trim: true,
+      minlength: [2, "Full name must be at least 2 characters"],
+      maxlength: [50, "Full name cannot exceed 50 characters"],
     },
     email: {
       type: String,
@@ -82,24 +87,34 @@ const UserSchema = new mongoose.Schema(
   },
 );
 
+UserSchema.pre("validate", async function () {
+  if (!this.name && this.fullName) {
+    this.name = this.fullName;
+  }
+  if (!this.fullName && this.name) {
+    this.fullName = this.name;
+  }
+  if (!this.name && !this.fullName) {
+    throw new Error("User name or fullName is required");
+  }
+});
+
 // Hash password before saving
-UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    return next();
+UserSchema.pre("save", async function () {
+  if (!this.isModified("password") || !this.password) {
+    return;
   }
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
   } catch (error) {
-    next(error);
+    throw error;
   }
 });
 
 // Update updatedAt on save
-UserSchema.pre("findOneAndUpdate", function (next) {
+UserSchema.pre("findOneAndUpdate", async function () {
   this.set({ updatedAt: new Date() });
-  next();
 });
 
 // Match password method
@@ -109,9 +124,11 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
 
 // Get user profile without sensitive data
 UserSchema.methods.getPublicProfile = function () {
+  const displayName = this.name || this.fullName || "User";
   return {
     id: this._id,
-    name: this.name,
+    name: displayName,
+    fullName: this.fullName || this.name || displayName,
     email: this.email,
     phone: this.phone,
     role: this.role,

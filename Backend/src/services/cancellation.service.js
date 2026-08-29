@@ -1,7 +1,7 @@
-import Order from '../models/Order.js';
-import { ORDER_STATUS } from '../utils/constants.js';
+const Order = require("../models/Order");
+const { ORDER_STATUS } = require("../utils/constants");
 
-export const requestCancellation = async (
+const requestCancellation = async (
     orderId,
     userId,
     reason
@@ -57,3 +57,4 @@ export const requestCancellation = async (
         cancellation: order.cancellation
     };
 };
+module.exports = { requestCancellation };

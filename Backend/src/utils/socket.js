@@ -1,11 +1,11 @@
 // utils/socket.js
 
-import { logger } from './logger.js';
+const { logger } = require("./logger");
 
 let ioInstance = null;
 
 // Store the Socket.io server instance
-export const initSocket = (io) => {
+const initSocket = (io) => {
     if (!io) {
         throw new Error('Socket.io instance is required');
     }
@@ -16,7 +16,7 @@ export const initSocket = (io) => {
 };
 
 // Get the Socket.io instance when needed
-export const getSocket = () => {
+const getSocket = () => {
     if (!ioInstance) {
         throw new Error('Socket.io has not been initialized');
     }
@@ -25,7 +25,7 @@ export const getSocket = () => {
 };
 
 // Emit an event to a room or all connected clients
-export const emitSocketEvent = (
+const emitSocketEvent = (
     room,
     eventName,
     payload
@@ -46,3 +46,4 @@ export const emitSocketEvent = (
 
     return true;
 };
+module.exports = { initSocket, getSocket, emitSocketEvent };

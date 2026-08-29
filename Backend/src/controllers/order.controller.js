@@ -32,9 +32,7 @@ notes
 
 // ✅ Validate required fields
 if (!items || !Array.isArray(items) || items.length === 0) {
-return res.status(HTTP_STATUS.BAD_REQ
-
-UEST).json({
+return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
 error: 'Order must have at least one item'
 });
@@ -338,9 +336,7 @@ order: order.getSummary()
 
 } catch (error) {
 console.error('❌ Update Order Status Error:', error);
-res.status(HTTP_STATUS.INTERNAL
-
-_SERVER_ERROR).json({
+res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
 });
@@ -379,9 +375,7 @@ error: 'You can only cancel your own orders'
 
 // ✅ Check if order can be cancelled
 if (order.status === 'served' || order.status === 'cancelled') {
-return res.status(HTTP_STATUS.BAD_REQ
-
-UEST).json({
+return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
 error: `Order cannot be cancelled (status: ${order.status})`
 });
@@ -492,9 +486,7 @@ orderTime: order.orderTime
 });
 
 } catch (error) {
-console.error('❌ Get Kitchen
-
-Orders Error:', error);
+console.error('❌ Get Kitchen Orders Error:', error);
 res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR

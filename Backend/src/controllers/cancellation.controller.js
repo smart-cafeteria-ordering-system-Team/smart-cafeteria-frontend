@@ -1,7 +1,5 @@
 const Order = require('../models/Order');
-const User = require('../models/
-
-User');
+const User = require('../models/User');
 const Payment = require('../models/Payment');
 const Notification = require('../models/Notification');
 const { ORDER_STATUS, PAYMENT_STATUS, MESSAGES, HTTP_STATUS } = require('../config/constants');

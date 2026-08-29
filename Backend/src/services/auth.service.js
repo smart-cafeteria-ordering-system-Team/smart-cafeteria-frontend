@@ -1,10 +1,10 @@
 // services/auth.service.js
 
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-export const registerUser = async (userData) => {
+const registerUser = async (userData) => {
     const email = userData.email.trim().toLowerCase();
 
     // Check if email already exists
@@ -39,7 +39,7 @@ export const registerUser = async (userData) => {
 };
 
 
-export const loginUser = async (email, password) => {
+const loginUser = async (email, password) => {
     const normalizedEmail = email.trim().toLowerCase();
 
     // Find user
@@ -90,3 +90,4 @@ export const loginUser = async (email, password) => {
         token
     };
 };
+module.exports = { registerUser, loginUser };

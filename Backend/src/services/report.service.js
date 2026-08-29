@@ -1,7 +1,7 @@
-import Order from '../models/Order.js';
-import { ORDER_STATUS } from '../utils/constants.js';
+const Order = require("../models/Order");
+const { ORDER_STATUS } = require("../utils/constants");
 
-export const generateSalesReport = async (
+const generateSalesReport = async (
     startDate,
     endDate
 ) => {
@@ -43,3 +43,4 @@ export const generateSalesReport = async (
         }
     };
 };
+module.exports = { generateSalesReport };

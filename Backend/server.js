@@ -1,58 +1,19 @@
-<<<<<<< HEAD
-const app = require("./app");
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
-=======
-<<<<<<< HEAD
-/**
- * ================================================================
- * SMART CAFETERIA ORDERING SYSTEM
- * SERVER ENTRY POINT
- * File: backend/server.js
- * ================================================================
- */
-
 require("dotenv").config();
 
 const http = require("http");
 const mongoose = require("mongoose");
 
 const app = require("./app");
+const { MONGODB_URI } = require("./src/config/env");
 
-/**
- * ------------------------------------------------
- * ENVIRONMENT VARIABLES
- * ------------------------------------------------
- */
-
-const PORT = Number(process.env.PORT) || 5000;
-
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb://127.0.0.1:27017/smart_cafeteria";
-
-/**
- * ------------------------------------------------
- * SERVER
- * ------------------------------------------------
- */
-
+const DEFAULT_PORT = Number(process.env.PORT || 5000);
 let server;
-
-/**
- * ------------------------------------------------
- * DATABASE CONNECTION
- * ------------------------------------------------
- */
 
 async function connectDatabase() {
   try {
+    mongoose.set("strictQuery", false);
     await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 10000
+      serverSelectionTimeoutMS: 10000,
     });
 
     console.log("================================================");
@@ -64,51 +25,59 @@ async function connectDatabase() {
     console.error("MongoDB connection failed");
     console.error(error.message);
     console.error("================================================");
-
     process.exit(1);
   }
 }
 
-/**
- * ------------------------------------------------
- * START SERVER
- * ------------------------------------------------
- */
+function startServer(port = DEFAULT_PORT, attemptsLeft = 10) {
+  if (!server) {
+    server = http.createServer(app);
+  }
 
-async function startServer() {
-  await connectDatabase();
+  server.on("error", (error) => {
+    if (error.code === "EADDRINUSE" && attemptsLeft > 0) {
+      const nextPort = port + 1;
+      console.warn(`Port ${port} is already in use. Retrying on port ${nextPort}...`);
+      process.env.PORT = String(nextPort);
+      server.removeAllListeners("error");
+      server.close(() => {
+        server = null;
+        startServer(nextPort, attemptsLeft - 1);
+      });
+      return;
+    }
 
-  server = http.createServer(app);
+    console.error("Server failed to start:", error);
+    process.exit(1);
+  });
 
-  server.listen(PORT, () => {
+  server.listen(port, () => {
+    process.env.PORT = String(port);
     console.log("");
     console.log("================================================");
     console.log(" SMART CAFETERIA ORDERING SYSTEM");
     console.log(" BACKEND SERVER");
     console.log("================================================");
     console.log(`Environment : ${process.env.NODE_ENV || "development"}`);
-    console.log(`Port        : ${PORT}`);
-    console.log(`API         : http://localhost:${PORT}/api`);
-    console.log(`Health      : http://localhost:${PORT}/api/health`);
+    console.log(`Port        : ${port}`);
+    console.log(`API         : http://localhost:${port}/api`);
+    console.log(`Health      : http://localhost:${port}/api/health`);
     console.log("================================================");
     console.log("");
   });
 }
 
-/**
- * ------------------------------------------------
- * UNHANDLED ERRORS
- * ------------------------------------------------
- */
+async function initializeServer() {
+  await connectDatabase();
+  startServer();
+}
 
 process.on("unhandledRejection", (error) => {
   console.error("Unhandled Promise Rejection:");
   console.error(error);
 
   if (server) {
-    server.close(() => {
-      process.exit(1);
-    });
+    server.close(() => process.exit(1));
   } else {
     process.exit(1);
   }
@@ -119,19 +88,11 @@ process.on("uncaughtException", (error) => {
   console.error(error);
 
   if (server) {
-    server.close(() => {
-      process.exit(1);
-    });
+    server.close(() => process.exit(1));
   } else {
     process.exit(1);
   }
 });
-
-/**
- * ------------------------------------------------
- * GRACEFUL SHUTDOWN
- * ------------------------------------------------
- */
 
 async function shutdown(signal) {
   console.log(`${signal} received. Shutting down server...`);
@@ -157,37 +118,4 @@ async function shutdown(signal) {
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
 
-/**
- * ------------------------------------------------
- * START APPLICATION
- * ------------------------------------------------
- */
-
-startServer();
-=======
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
-
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-app.use(cors());
-app.use(express.json());
-
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.log('❌ MongoDB error:', err));
-
-app.get('/', (req, res) => {
-  res.send('Smart Cafeteria API is running');
-});
-
-app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-});
->>>>>>> c9275e6e95495801102644943b7daafcf9e40368
->>>>>>> c5f9e0ff7ba8f512b6233b62b7c7421911f0c320
+initializeServer();

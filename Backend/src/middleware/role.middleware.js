@@ -1,6 +1,6 @@
 // middleware/role.middleware.js
 
-export const authorizeRoles = (...allowedRoles) => {
+const authorizeRoles = (...allowedRoles) => {
     return (req, res, next) => {
 
         // User must be authenticated first
@@ -22,3 +22,4 @@ export const authorizeRoles = (...allowedRoles) => {
         next();
     };
 };
+module.exports = { authorizeRoles };

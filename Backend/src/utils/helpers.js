@@ -2,7 +2,7 @@
 
 // Generates a readable reference ID.
 // Do NOT use for security-sensitive tokens.
-export const generateReferenceId = (prefix = 'REF') => {
+const generateReferenceId = (prefix = 'REF') => {
     const randomPart = Math.random()
         .toString(36)
         .substring(2, 8)
@@ -13,7 +13,7 @@ export const generateReferenceId = (prefix = 'REF') => {
 
 
 // Calculates an order total from trusted item prices.
-export const calculateOrderTotal = (items = []) => {
+const calculateOrderTotal = (items = []) => {
     if (!Array.isArray(items)) {
         throw new Error('Items must be an array');
     }
@@ -37,6 +37,7 @@ export const calculateOrderTotal = (items = []) => {
 
 // Delays execution.
 // Mainly useful for tests or mock operations.
-export const sleep = (ms = 500) => {
+const sleep = (ms = 500) => {
     return new Promise(resolve => setTimeout(resolve, ms));
 };
+module.exports = { generateReferenceId, calculateOrderTotal, sleep };

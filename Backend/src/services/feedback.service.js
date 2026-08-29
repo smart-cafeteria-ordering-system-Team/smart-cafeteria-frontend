@@ -1,8 +1,8 @@
-import Feedback from '../models/Feedback.js';
-import Order from '../models/Order.js';
-import { ORDER_STATUS } from '../utils/constants.js';
+const Feedback = require("../models/Feedback");
+const Order = require("../models/Order");
+const { ORDER_STATUS } = require("../utils/constants");
 
-export const submitFeedback = async (
+const submitFeedback = async (
     userId,
     orderId,
     rating,
@@ -74,6 +74,7 @@ export const submitFeedback = async (
 };
 
 
-export const getOrderFeedback = async (orderId) => {
+const getOrderFeedback = async (orderId) => {
     return await Feedback.findOne({ orderId });
 };
+module.exports = { submitFeedback, getOrderFeedback };
