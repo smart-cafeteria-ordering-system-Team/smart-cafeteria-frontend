@@ -28,7 +28,7 @@ const formatMeta = (meta) => {
     }
 };
 
-export const logger = {
+const logger = {
     info: (message, meta = null) => {
         console.log(
             formatMessage(LOG_LEVELS.INFO, message),
@@ -50,3 +50,4 @@ export const logger = {
         );
     }
 };
+module.exports = { logger };

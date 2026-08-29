@@ -1,8 +1,6 @@
 const Payment = require('../models/Payment');
 const Order = require('../models/Order');
-const User = require('../models/
-
-User');
+const User = require('../models/User');
 const { PAYMENT_STATUS, PAYMENT_METHODS, MESSAGES, HTTP_STATUS } = require('../config/constants');
 
 /**
@@ -83,9 +81,7 @@ order.paymentStatus = PAYMENT_STATUS.FAILED;
 await order.save();
 }
 
-// ✅ Response matches
-
-frontend expectations
+// ✅ Response matches frontend expectations
 res.status(HTTP_STATUS.OK).json({
 success: isSuccess,
 message: isSuccess ? 'Payment successful!' : 'Payment failed. Please try again.',
@@ -356,9 +352,7 @@ const errors = {};
 // ✅ Validate method
 const validMethods = ['cbe_birr', 'telebirr', 'cash', 'CBE Birr', 'Telebirr'];
 if (!method) {
-errors.method = 'Payment
-
-method is required';
+errors.method = 'Payment method is required';
 } else if (!validMethods.includes(method)) {
 errors.method = 'Invalid payment method';
 }

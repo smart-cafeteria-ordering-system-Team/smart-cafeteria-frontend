@@ -1,6 +1,6 @@
 // middleware/validation.middleware.js
 
-export const validateBody = (validatorFunction) => {
+const validateBody = (validatorFunction) => {
     return (req, res, next) => {
 
         if (typeof validatorFunction !== 'function') {
@@ -23,3 +23,4 @@ export const validateBody = (validatorFunction) => {
         next();
     };
 };
+module.exports = { validateBody };

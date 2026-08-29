@@ -1,6 +1,6 @@
 // validators/feedback.validator.js
 
-export const validateFeedbackInput = (data) => {
+const validateFeedbackInput = (data) => {
     const errors = {};
 
     // Order ID
@@ -35,3 +35,4 @@ export const validateFeedbackInput = (data) => {
         errors
     };
 };
+module.exports = { validateFeedbackInput };

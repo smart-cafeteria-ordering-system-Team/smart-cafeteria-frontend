@@ -344,9 +344,7 @@ message: `Order #${orderId} has been rejected`
 
 } catch (error) {
 console.error('❌ Reject Order Error:', error);
-res.status(HTTP_STATUS.INTERNAL
-
-_SERVER_ERROR).json({
+res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
 });
@@ -361,9 +359,7 @@ error: MESSAGES.SERVER_ERROR
 * Frontend: kitchen/dashboard.html → Live stats update
 * Response: { success, stats }
 */
-exports.getKitchenStats = async
-
-(req, res) => {
+exports.getKitchenStats = async (req, res) => {
 try {
 const pending = await Order.countDocuments({ status: 'pending' });
 const preparing = await Order.countDocuments({ status: 'preparing' });

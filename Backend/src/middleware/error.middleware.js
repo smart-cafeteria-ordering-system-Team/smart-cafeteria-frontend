@@ -1,6 +1,6 @@
 // middleware/error.middleware.js
 
-export const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
     console.error('Backend Error:', err);
 
     // Default status code
@@ -57,3 +57,4 @@ export const errorHandler = (err, req, res, next) => {
         })
     });
 };
+module.exports = { errorHandler };

@@ -31,7 +31,7 @@ const PaymentSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "simulated", "failed", "completed"],
+      enum: ["pending", "simulated", "failed", "paid", "completed"],
       default: "pending",
     },
     transactionId: {
@@ -58,12 +58,12 @@ const PaymentSchema = new mongoose.Schema(
 );
 
 // Generate transaction ID before saving
-PaymentSchema.pre("save", function (next) {
+PaymentSchema.pre("save", function () {
   if (!this.transactionId) {
-    const prefix = this.method.toUpperCase().replace(" ", "_");
+    const methodValue = this.method || "payment";
+    const prefix = String(methodValue).toUpperCase().replace(/\s+/g, "_");
     this.transactionId = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   }
-  next();
 });
 
 module.exports = mongoose.model("Payment", PaymentSchema);

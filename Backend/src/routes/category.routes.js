@@ -3,12 +3,12 @@ const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
 const { validateBody } = require('../middleware/validation.middleware');
 const {
-    getAllCategories,
-    getCategoryById,
-    createCategory,
-    updateCategory,
-    deleteCategory,
-    toggleCategoryStatus
+  getAllCategories,
+  getCategoryById,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  toggleCategoryStatus,
 } = require('../controllers/category.controller');
 const { validateCreateCategory, validateUpdateCategory } = require('../validators/category.validator');
 

@@ -8,9 +8,7 @@ const {
     replyToFeedback,
     deleteFeedback,
     getFeedbackStats
-} = require('../controllers/
-
-feedback.controller');
+} = require('../controllers/feedback.controller');
 
 // ============================================================
 //  PRIVATE ROUTES (Customer)

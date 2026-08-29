@@ -90,6 +90,7 @@ const OrderSchema = new mongoose.Schema(
         "cancelled",
         "Received",
         "Completed",
+        "completed",
       ],
       default: "pending",
     },
@@ -100,7 +101,7 @@ const OrderSchema = new mongoose.Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "simulated", "failed", "paid"],
+      enum: ["pending", "simulated", "failed", "paid", "completed"],
       default: "pending",
     },
     transactionId: {
@@ -123,9 +124,39 @@ const OrderSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    cancellationRequested: {
+      type: Boolean,
+      default: false,
+    },
     cancellationReason: {
       type: String,
       default: null,
+    },
+    cancellationDetails: {
+      type: String,
+      default: "",
+    },
+    cancellationStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: null,
+    },
+    cancellationRequestedAt: {
+      type: Date,
+      default: null,
+    },
+    cancellationProcessedAt: {
+      type: Date,
+      default: null,
+    },
+    cancellationProcessedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    cancellationAdminNote: {
+      type: String,
+      default: "",
     },
     notes: {
       type: String,
@@ -138,13 +169,12 @@ const OrderSchema = new mongoose.Schema(
 );
 
 // Generate orderId before saving
-OrderSchema.pre("save", async function (next) {
+OrderSchema.pre("save", async function () {
   if (!this.orderId) {
     const count = await mongoose.model("Order").countDocuments();
     const num = String(count + 1000).padStart(4, "0");
     this.orderId = `ET-${num}`;
   }
-  next();
 });
 
 // Get order summary

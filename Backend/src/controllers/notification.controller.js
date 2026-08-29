@@ -111,9 +111,7 @@ message: 'Notification marked as read'
 });
 
 } catch (error) {
-console.error('❌ Mark As Read
-
-Error:', error);
+console.error('❌ Mark As Read Error:', error);
 res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
@@ -181,9 +179,7 @@ await notification.deleteOne();
 
 res.status(HTTP_STATUS.OK).json({
 success: true,
-message: 'Notification
-
-deleted'
+message: 'Notification deleted'
 });
 
 } catch (error) {

@@ -1,6 +1,6 @@
 // validators/payment.validator.js
 
-export const validatePaymentInput = (data) => {
+const validatePaymentInput = (data) => {
     const errors = {};
 
     // Order ID
@@ -31,3 +31,4 @@ export const validatePaymentInput = (data) => {
         errors
     };
 };
+module.exports = { validatePaymentInput };

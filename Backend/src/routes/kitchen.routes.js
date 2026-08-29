@@ -11,9 +11,7 @@ const {
     getKitchenStats
 } = require('../controllers/kitchen.controller');
 
-// 
-
-============================================================
+// ============================================================
 //  ALL ROUTES REQUIRE KITCHEN ROLE
 // ============================================================
 router.use(protect);

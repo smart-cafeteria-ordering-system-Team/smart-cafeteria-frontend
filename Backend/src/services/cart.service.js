@@ -1,7 +1,7 @@
-import Cart from '../models/Cart.js';
-import Menu from '../models/Menu.js';
+const Cart = require("../models/Cart");
+const Menu = require("../models/Menu");
 
-export const getCart = async (userId) => {
+const getCart = async (userId) => {
     const cart = await Cart.findOne({ userId })
         .populate('items.menuItemId');
 
@@ -16,7 +16,7 @@ export const getCart = async (userId) => {
 };
 
 
-export const addToCart = async (userId, itemId, quantity = 1) => {
+const addToCart = async (userId, itemId, quantity = 1) => {
     const menuItem = await Menu.findById(itemId);
 
     if (!menuItem) {
@@ -67,7 +67,7 @@ export const addToCart = async (userId, itemId, quantity = 1) => {
 };
 
 
-export const clearCart = async (userId) => {
+const clearCart = async (userId) => {
     await Cart.findOneAndUpdate(
         { userId },
         { $set: { items: [] } }
@@ -75,3 +75,4 @@ export const clearCart = async (userId) => {
 
     return true;
 };
+module.exports = { getCart, addToCart, clearCart };

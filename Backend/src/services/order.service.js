@@ -1,10 +1,10 @@
-import Order from '../models/Order.js';
-import Cart from '../models/Cart.js';
-import Menu from '../models/Menu.js';
-import { ORDER_STATUS } from '../utils/constants.js';
-import { generateOrderId } from '../utils/formatters.js';
+const Order = require("../models/Order");
+const Cart = require("../models/Cart");
+const Menu = require("../models/Menu");
+const { ORDER_STATUS } = require("../utils/constants");
+const { generateOrderId } = require("../utils/formatters");
 
-export const createOrder = async (userId) => {
+const createOrder = async (userId) => {
     const cart = await Cart.findOne({ userId });
 
     if (!cart || cart.items.length === 0) {
@@ -64,3 +64,4 @@ export const createOrder = async (userId) => {
 
     return order;
 };
+module.exports = { createOrder };

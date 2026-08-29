@@ -1,6 +1,6 @@
-import { logger } from '../utils/logger.js';
+const { logger } = require("../utils/logger");
 
-export const registerNotificationHandlers = (io, socket) => {
+const registerNotificationHandlers = (io, socket) => {
     const userRoom = `user:${socket.user.id}`;
 
     // Automatically subscribe authenticated user
@@ -12,3 +12,4 @@ export const registerNotificationHandlers = (io, socket) => {
         room: userRoom
     });
 };
+module.exports = { registerNotificationHandlers };

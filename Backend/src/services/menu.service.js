@@ -1,6 +1,6 @@
-import Menu from '../models/Menu.js';
+const Menu = require("../models/Menu");
 
-export const getAllMenuItems = async (filters = {}) => {
+const getAllMenuItems = async (filters = {}) => {
     const query = {};
 
     if (filters.category) {
@@ -19,7 +19,7 @@ export const getAllMenuItems = async (filters = {}) => {
 };
 
 
-export const createMenuItem = async (itemData) => {
+const createMenuItem = async (itemData) => {
     const existingItem = await Menu.findOne({
         name: itemData.name.trim()
     });
@@ -43,7 +43,7 @@ export const createMenuItem = async (itemData) => {
 };
 
 
-export const updateItemAvailability = async (
+const updateItemAvailability = async (
     itemId,
     isAvailable
 ) => {
@@ -61,3 +61,4 @@ export const updateItemAvailability = async (
 
     return item;
 };
+module.exports = { getAllMenuItems, createMenuItem, updateItemAvailability };

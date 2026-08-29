@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 /**
  * Feedback Schema - Customer feedback on orders
@@ -11,12 +11,12 @@ const FeedbackSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     orderId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Order",
+      ref: 'Order',
       required: true,
     },
     rating: {
@@ -27,38 +27,39 @@ const FeedbackSchema = new mongoose.Schema(
     },
     comment: {
       type: String,
-      default: "",
+      default: '',
+      trim: true,
     },
     category: {
       type: String,
-      default: "Food Quality",
+      default: 'Food Quality',
     },
     dishName: {
       type: String,
-      default: "",
+      default: '',
     },
     status: {
       type: String,
-      enum: ["PENDING", "RESOLVED", "ARCHIVED"],
-      default: "PENDING",
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
     },
     reply: {
       type: String,
-      default: "",
-    },
-    repliedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
+      default: '',
     },
     repliedAt: {
       type: Date,
       default: null,
     },
+    repliedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-module.exports = mongoose.model("Feedback", FeedbackSchema);
+module.exports = mongoose.model('Feedback', FeedbackSchema);

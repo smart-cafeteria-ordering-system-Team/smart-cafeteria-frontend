@@ -94,9 +94,7 @@ sortOrder: category.sortOrder
 
 } catch (error) {
 console.error('❌ Get Category By ID Error:', error);
-res.status(HTTP_STATUS.INTERNAL
-
-_SERVER_ERROR).json({
+res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
 });
@@ -338,9 +336,7 @@ isActive: category.isActive
 
 } catch (error) {
 console.error('❌ Toggle Category Status Error:', error);
-res.status(HTTP_STATUS.INTERNAL
-
-_SERVER_ERROR).json({
+res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
 });

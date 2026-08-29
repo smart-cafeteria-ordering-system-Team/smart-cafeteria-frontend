@@ -1,12 +1,12 @@
 // socket/index.js
 
-import { Server } from 'socket.io';
-import { logger } from '../utils/logger.js';
-import { initSocket } from '../utils/socket.js';
-import { registerOrderHandlers } from './order.socket.js';
-import { registerNotificationHandlers } from './notification.socket.js';
+const { Server } = require("socket.io");
+const { logger } = require("../utils/logger");
+const { initSocket } = require("../utils/socket");
+const { registerOrderHandlers } = require("./order.socket");
+const { registerNotificationHandlers } = require("./notification.socket");
 
-export const setupSocketIO = (server) => {
+const setupSocketIO = (server) => {
     const io = new Server(server, {
         cors: {
             origin: process.env.FRONTEND_URL,
@@ -37,3 +37,4 @@ export const setupSocketIO = (server) => {
 
     return io;
 };
+module.exports = { setupSocketIO };

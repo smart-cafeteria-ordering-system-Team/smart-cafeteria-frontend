@@ -1,8 +1,8 @@
 // utils/email.js
 
-import { logger } from './logger.js';
+const { logger } = require("./logger");
 
-export const sendEmail = async ({ to, subject, htmlBody }) => {
+const sendEmail = async ({ to, subject, htmlBody }) => {
     try {
         if (!to || typeof to !== 'string') {
             const error = new Error(
@@ -54,3 +54,4 @@ export const sendEmail = async ({ to, subject, htmlBody }) => {
         throw emailError;
     }
 };
+module.exports = { sendEmail };

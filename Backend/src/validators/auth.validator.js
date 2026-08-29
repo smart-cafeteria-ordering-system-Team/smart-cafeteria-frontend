@@ -1,6 +1,6 @@
 // validators/auth.validator.js
 
-export const validateRegisterInput = (data) => {
+const validateRegisterInput = (data) => {
     const errors = {};
 
     // Full name
@@ -49,3 +49,4 @@ export const validateRegisterInput = (data) => {
         errors
     };
 };
+module.exports = { validateRegisterInput };

@@ -1,6 +1,6 @@
 // validators/user.validator.js
 
-export const validateUpdateProfileInput = (data) => {
+const validateUpdateProfileInput = (data) => {
     const errors = {};
 
     // Full name
@@ -54,3 +54,4 @@ export const validateUpdateProfileInput = (data) => {
         errors
     };
 };
+module.exports = { validateUpdateProfileInput };

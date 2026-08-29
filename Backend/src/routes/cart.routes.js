@@ -12,9 +12,7 @@ const {
 } = require("../controllers/cart.controller");
 
 // ============================================================
-//  ALL ROUTES REQUIRE
-
-AUTHENTICATION;
+//  ALL ROUTES REQUIRE AUTHENTICATION
 // ============================================================
 router.use(protect);
 

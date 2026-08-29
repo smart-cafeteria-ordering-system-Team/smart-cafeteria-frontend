@@ -1,8 +1,8 @@
-import Order from '../models/Order.js';
-import { ORDER_STATUS } from '../utils/constants.js';
-import { updateOrderStatus } from './order.service.js';
+const Order = require("../models/Order");
+const { ORDER_STATUS } = require("../utils/constants");
+const { updateOrderStatus } = require("./order.service");
 
-export const getKitchenQueue = async () => {
+const getKitchenQueue = async () => {
     return await Order.find({
         status: {
             $in: [
@@ -13,16 +13,17 @@ export const getKitchenQueue = async () => {
     }).sort({ createdAt: 1 });
 };
 
-export const markOrderPreparing = async (orderId) => {
+const markOrderPreparing = async (orderId) => {
     return await updateOrderStatus(
         orderId,
         ORDER_STATUS.PREPARING
     );
 };
 
-export const markOrderReady = async (orderId) => {
+const markOrderReady = async (orderId) => {
     return await updateOrderStatus(
         orderId,
         ORDER_STATUS.READY
     );
 };
+module.exports = { getKitchenQueue, markOrderPreparing, markOrderReady };

@@ -6,7 +6,7 @@ const DEFAULT_ALLOWED_TYPES = [
     'image/webp'
 ];
 
-export const uploadMiddleware = (
+const uploadMiddleware = (
     allowedTypes = DEFAULT_ALLOWED_TYPES
 ) => {
     return (req, res, next) => {
@@ -31,3 +31,4 @@ export const uploadMiddleware = (
         next();
     };
 };
+module.exports = { uploadMiddleware };

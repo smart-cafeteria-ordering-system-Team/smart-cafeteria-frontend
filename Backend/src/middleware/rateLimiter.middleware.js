@@ -9,7 +9,7 @@ const requestCounts = new Map();
  * @param {number} options.windowMs
  * @param {number} options.maxRequests
  */
-export const rateLimiter = ({
+const rateLimiter = ({
     windowMs = 15 * 60 * 1000,
     maxRequests = 100
 } = {}) => {
@@ -41,3 +41,4 @@ export const rateLimiter = ({
         next();
     };
 };
+module.exports = { rateLimiter };

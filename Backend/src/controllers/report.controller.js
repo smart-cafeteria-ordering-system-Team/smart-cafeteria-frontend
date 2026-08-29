@@ -114,9 +114,7 @@ error: MESSAGES.SERVER_ERROR
 * Query Params: fromDate, toDate
 * Response: { success, report }
 */
-exports.getSalesReport = async
-
-(req, res) => {
+exports.getSalesReport = async (req, res) => {
 try {
 const { fromDate, toDate } = req.query;
 
@@ -458,9 +456,7 @@ try {
 const report = await Report.findByIdAndDelete(req.params.id);
 
 if (!report) {
-return res.status(HTTP_STATUS.NOT_FOU
-
-ND).json({
+return res.status(HTTP_STATUS.NOT_FOUND).json({
 success: false,
 error: 'Report not found'
 });
@@ -473,9 +469,7 @@ message: 'Report deleted successfully'
 
 } catch (error) {
 console.error('❌ Delete Report Error:', error);
-res.status(HTTP_STATUS.INTERNAL
-
-_SERVER_ERROR).json({
+res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
 });

@@ -1,12 +1,12 @@
 // utils/constants.js
 
-export const ROLES = {
+const ROLES = {
     CUSTOMER: 'customer',
     KITCHEN: 'kitchen',
     ADMIN: 'admin'
 };
 
-export const ORDER_STATUS = {
+const ORDER_STATUS = {
     PENDING: 'pending',
     PREPARING: 'preparing',
     READY: 'ready',
@@ -14,14 +14,15 @@ export const ORDER_STATUS = {
     CANCELLED: 'cancelled'
 };
 
-export const PAYMENT_METHODS = {
+const PAYMENT_METHODS = {
     TELEBIRR: 'telebirr',
     CBE_BIRR: 'cbe_birr',
     CASH: 'cash'
 };
 
-export const PAYMENT_STATUS = {
+const PAYMENT_STATUS = {
     PENDING: 'pending',
     SUCCESS: 'success',
     FAILED: 'failed'
 };
+module.exports = { ROLES, ORDER_STATUS, PAYMENT_METHODS, PAYMENT_STATUS };

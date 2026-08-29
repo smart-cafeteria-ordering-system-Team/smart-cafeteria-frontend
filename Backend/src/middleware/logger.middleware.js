@@ -1,8 +1,8 @@
 // middleware/logger.middleware.js
 
-import { logger } from '../utils/logger.js';
+const { logger } = require("../utils/logger");
 
-export const requestLogger = (req, res, next) => {
+const requestLogger = (req, res, next) => {
     const start = Date.now();
 
     res.on('finish', () => {
@@ -19,3 +19,4 @@ export const requestLogger = (req, res, next) => {
 
     next();
 };
+module.exports = { requestLogger };

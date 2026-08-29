@@ -1,10 +1,13 @@
 require('dotenv').config();
 
-const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
+const mongoose = require('mongoose');
+
+const { MONGODB_URI } = require('./src/config/env');
 const connectDatabase = require('./src/config/database');
 const paymentRoutes = require('./src/routes/payment.routes');
 const orderRoutes = require('./src/routes/order.routes');
@@ -30,37 +33,43 @@ const { errorHandler, notFoundHandler } = require('./src/middleware/errorHandler
 const app = express();
 const port = Number(process.env.PORT || 5000);
 
-app.use(helmet({
+app.use(
+  helmet({
     contentSecurityPolicy: false,
-    crossOriginResourcePolicy: { policy: 'cross-origin' }
-}));
-app.use(cors({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
+
+app.use(
+  cors({
     origin: process.env.CORS_ORIGIN || true,
-    credentials: true
-}));
+    credentials: true,
+  })
+);
 
 const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 200,
-    message: { success: false, error: 'Too many requests, please try again later' },
-    standardHeaders: true,
-    legacyHeaders: false
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { success: false, error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 20,
-    message: { success: false, error: 'Too many login attempts, please try again later' },
-    standardHeaders: true,
-    legacyHeaders: false
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { success: false, error: 'Too many login attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.use(express.json({ limit: '4mb' }));
 app.use(express.urlencoded({ extended: false }));
-
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.get('/health', (req, res) => res.json({ success: true, service: 'smart-cafeteria-backend' }));
+app.get('/health', (req, res) =>
+  res.json({ success: true, service: 'smart-cafeteria-backend' })
+);
 
 app.use('/api/v1', apiLimiter);
 
@@ -91,16 +100,16 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 const start = async () => {
-    await connectDatabase();
-    await ensureDefaultSettings();
-    app.listen(port, () => console.log(`Backend listening on port ${port}`));
+  await connectDatabase();
+  await ensureDefaultSettings();
+  app.listen(port, () => console.log(`Backend listening on port ${port}`));
 };
 
 if (require.main === module) {
-    start().catch((error) => {
-        console.error('Backend startup failed:', error.message);
-        process.exitCode = 1;
-    });
+  start().catch((error) => {
+    console.error('Backend startup failed:', error.message);
+    process.exitCode = 1;
+  });
 }
 
 module.exports = { app, start };

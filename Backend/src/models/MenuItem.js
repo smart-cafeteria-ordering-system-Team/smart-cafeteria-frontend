@@ -30,6 +30,7 @@ const MenuItemSchema = new mongoose.Schema(
         "main-meals",
         "fasting",
         "beverages",
+        "drinks",
         "snacks",
         "Lunch",
         "Dinner",

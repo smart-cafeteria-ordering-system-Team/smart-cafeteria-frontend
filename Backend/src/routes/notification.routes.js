@@ -7,9 +7,7 @@ const {
     markAsRead,
     markAllRead,
     deleteNotification
-} = require('../controllers/
-
-notification.controller');
+} = require('../controllers/notification.controller');
 
 // ============================================================
 //  ALL ROUTES REQUIRE AUTHENTICATION

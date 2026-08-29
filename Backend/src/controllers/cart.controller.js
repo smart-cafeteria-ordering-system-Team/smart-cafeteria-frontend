@@ -58,9 +58,7 @@ error: 'Item ID is required'
 // ✅ Verify item exists and is available
 const menuItem = await MenuItem.findById(itemId);
 if (!menuItem) {
-return res.status(HTTP_STATUS.NOT_FOU
-
-ND).json({
+return res.status(HTTP_STATUS.NOT_FOUND).json({
 success: false,
 error: 'Item not found'
 });
@@ -176,9 +174,7 @@ error: 'Item not found'
 
 res.status(HTTP_STATUS.OK).json({
 success: true,
-message: 'Item removed
-
-from cart'
+message: 'Item removed from cart'
 });
 
 } catch (error) {
@@ -207,9 +203,7 @@ message: 'Cart cleared successfully'
 });
 
 } catch (error) {
-console.error('❌ Clear Cart
-
-Error:', error);
+console.error('❌ Clear Cart Error:', error);
 res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR

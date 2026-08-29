@@ -224,9 +224,7 @@ error: MESSAGES.SERVER_ERROR
 * Frontend: index.html → Popular Menu Items
 * Response: { success, items: [...] }
 */
-exports.getFeaturedItems = async
-
-(req, res) => {
+exports.getFeaturedItems = async (req, res) => {
 try {
 const { limit = 6 } = req.query;
 
@@ -301,9 +299,7 @@ icon: item.icon
 });
 
 } catch (error) {
-console.error('❌ Get Related
-
-Items Error:', error);
+console.error('❌ Get Related Items Error:', error);
 res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
@@ -639,9 +635,7 @@ totalCategories
 
 } catch (error) {
 console.error('❌ Get Menu Stats Error:', error);
-res.status(HTTP_STATUS.INTERNAL
-
-_SERVER_ERROR).json({
+res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
 });

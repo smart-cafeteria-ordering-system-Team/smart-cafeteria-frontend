@@ -82,9 +82,7 @@ createdAt: user.createdAt
 } catch (error) {
 console.error('❌ Get User By ID Error:', error);
 if (error.kind === 'ObjectId') {
-return res.status(HTTP_STATUS.NOT_FOU
-
-ND).json({
+return res.status(HTTP_STATUS.NOT_FOUND).json({
 success: false,
 error: 'User not found'
 });
@@ -168,9 +166,7 @@ createdAt: user.createdAt
 
 } catch (error) {
 console.error('❌ Create User Error:', error);
-res.status(HTTP_STATUS.INTERNAL
-
-_SERVER_ERROR).json({
+res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
 });
@@ -296,9 +292,7 @@ const { status } = req.body;
 // ✅ Validate status (matches users.js)
 const validStatuses = ['ACTIVE', 'BLOCKED'];
 if (!status || !validStatuses.includes(status)) {
-return res.status(HTTP_STATUS.BAD_REQ
-
-UEST).json({
+return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
 error: 'Invalid status. Must be ACTIVE or BLOCKED'
 });

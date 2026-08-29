@@ -1,6 +1,6 @@
 // validators/menu.validator.js
 
-export const validateMenuItemInput = (data) => {
+const validateMenuItemInput = (data) => {
     const errors = {};
 
     // Name
@@ -39,3 +39,4 @@ export const validateMenuItemInput = (data) => {
         errors
     };
 };
+module.exports = { validateMenuItemInput };
