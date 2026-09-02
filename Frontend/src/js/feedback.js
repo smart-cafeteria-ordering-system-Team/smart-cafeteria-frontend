@@ -44,11 +44,105 @@ const MOCK_FEEDBACK = [
  * Initialize feedback with mock data if empty
  */
 function initFeedback() {
+
+/**
+ * Initialize user profile header - replace "Loading..." with stored name immediately
+ */
+function initUserProfileHeader() {
+  const userStr = localStorage.getItem("user");
+  const token = localStorage.getItem("token");
+  const nameElements = document.querySelectorAll("#userNameDisplay, #userProfileName, .user-profile-name");
+
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      const name = user.fullName || user.name || user.email || "User";
+      nameElements.forEach(el => { el.textContent = name; });
+      return;
+    } catch (err) {
+      console.error("Error parsing stored user:", err);
+    }
+  }
+
+  // Fallback fetch if token exists
+  if (token) {
+    fetch("http://localhost:5000/api/v1/auth/me", {
+      headers: { "Authorization": "Bearer " + token }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        const name = data.user.fullName || data.user.name || "User";
+        nameElements.forEach(el => { el.textContent = name; });
+      }
+    })
+    .catch(err => {
+      console.error("Auth check failed:", err);
+      nameElements.forEach(el => { el.textContent = "Account"; });
+    })
+  } else {
+    nameElements.forEach(el => { el.textContent = "Account"; });
+  }
+}
+
     if (feedbackList.length === 0) {
         feedbackList = [...MOCK_FEEDBACK];
     }
 }
 initFeedback();
+
+/**
+ * Initialize star rating UI on feedback form with click/hover support
+ */
+let selectedRatingValue = 0;
+
+function setupStarRating() {
+  // Target all star icons inside the rating container
+  const starContainer = document.querySelector(".rating-stars, .star-rating, #starRating") || document.querySelector(".mb-3 .d-flex");
+  if (!starContainer) return;
+
+  const stars = starContainer.querySelectorAll("i, svg, span");
+  if (stars.length === 0) return;
+
+  stars.forEach((star, index) => {
+    star.style.cursor = "pointer";
+    star.style.fontSize = "1.8rem";
+    star.style.marginRight = "5px";
+
+    // Mouseover visual highlighting
+    star.addEventListener("mouseover", () => {
+      stars.forEach((s, i) => {
+        s.style.color = i <= index ? "#ffc107" : "#e4e5e9";
+      });
+    });
+
+    // Mouseout reset to selected state
+    starContainer.addEventListener("mouseleave", () => {
+      stars.forEach((s, i) => {
+        s.style.color = i < selectedRatingValue ? "#ffc107" : "#e4e5e9";
+      });
+    });
+
+    // Click event to register rating value
+    star.addEventListener("click", () => {
+      selectedRatingValue = index + 1;
+      const label = document.querySelector(".rating-label, #ratingText");
+      if (label) {
+        const labels = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
+        label.textContent = labels[index] || `${selectedRatingValue} Stars`;
+      }
+      stars.forEach((s, i) => {
+        s.style.color = i < selectedRatingValue ? "#ffc107" : "#e4e5e9";
+      });
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+	 initUserProfileHeader();
+	 setupStarRating();
+});
 
 /**
  * Get all feedback (Admin only)
@@ -290,6 +384,64 @@ function notifyFeedbackListeners() {
             console.error('Feedback listener error:', error);
         }
     });
+}
+
+/**
+ * Submit feedback form from customer page
+ */
+async function handleFeedbackFormSubmit(e) {
+	 e.preventDefault();
+
+	 var ratingInput = document.getElementById("ratingValue");
+	 var rating = ratingInput ? parseInt(ratingInput.value, 10) : selectedRatingValue;
+
+	 var comment = document.getElementById("feedback-comments")?.value.trim() || "";
+	 var category = document.getElementById("feedback-category")?.value || "Food Quality";
+	 var dishName = document.getElementById("dish-reviewed")?.value.trim() || "";
+
+	 // Get orderId from URL search params, then localStorage
+	 var urlParams = new URLSearchParams(window.location.search);
+	 var orderId = urlParams.get("orderId") || localStorage.getItem("lastOrderId");
+
+	 var feedbackPayload = {
+	   rating: rating,
+	   topic: category,
+	   dishName: dishName,
+	   comment: comment
+	 };
+
+	 // Attach orderId ONLY if present in URL search params
+	 if (orderId) {
+	   feedbackPayload.orderId = orderId;
+ };
+
+
+	 var token = localStorage.getItem("token");
+	 if (!token) {
+	   alert("Please login to submit feedback");
+	   return;
+ };
+
+
+	 try {
+	   var res = await fetch("http://localhost:5000/api/v1/feedback", {
+		 method: "POST",
+		 headers: {
+		   "Content-Type": "application/json",
+		   "Authorization": `Bearer ${token}`
+		 },
+		 body: JSON.stringify(feedbackPayload)
+	   });
+	   var data = await res.json();
+	   if (!res.ok) {
+		 throw new Error(data.error || "Failed to submit feedback");
+	   }
+	   alert("Feedback submitted successfully!");
+	   window.location.reload();
+	 } catch (err) {
+	   console.error("Feedback submit error:", err);
+	   alert("Error: " + (err.message || "Failed to send feedback"));
+	 }
 }
 // ===== 5. EXPORTS =====
 export default {

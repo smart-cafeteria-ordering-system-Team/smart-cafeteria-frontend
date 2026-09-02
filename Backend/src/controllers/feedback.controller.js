@@ -23,11 +23,36 @@ exports.submitFeedback = async (req, res) => {
     const { orderId, rating, comment, category, dishName } = req.body;
 
     // ✅ Validate required fields
-    if (!orderId || !rating) {
+    if (!rating) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: "Order ID and rating are required",
+        error: "Rating is required",
       });
+    }
+
+    // ✅ If orderId is provided, validate the order exists
+    if (orderId) {
+      const order = await Order.findOne({ orderId: orderId });
+      if (!order) {
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
+          success: false,
+          error: "Order not found",
+        });
+      }
+    }
+
+    // ✅ Check if feedback already (only when orderId is provided)
+    if (orderId) {
+      const existingFeedback = await Feedback.findOne({
+        orderId: orderId,
+        userId: req.user.id,
+      });
+      if (existingFeedback) {
+        return res.status(HTTP_STATUS.CONFLICT).json({
+          success: false,
+          error: "Feedback already submitted for this order",
+        });
+      }
     }
 
     // ✅ Validate rating
