@@ -31,9 +31,10 @@ exports.submitFeedback = async (req, res) => {
     }
 
     // ✅ If orderId is provided, validate the order exists
+    let orderDoc = null;
     if (orderId) {
-      const order = await Order.findOne({ orderId: orderId });
-      if (!order) {
+      orderDoc = await Order.findOne({ orderId: orderId });
+      if (!orderDoc) {
         return res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
           error: "Order not found",
@@ -41,10 +42,10 @@ exports.submitFeedback = async (req, res) => {
       }
     }
 
-    // ✅ Check if feedback already (only when orderId is provided)
-    if (orderId) {
+    // ✅ Check if feedback already exists (only when orderId is provided)
+    if (orderDoc) {
       const existingFeedback = await Feedback.findOne({
-        orderId: orderId,
+        orderId: orderDoc._id,
         userId: req.user.id,
       });
       if (existingFeedback) {
@@ -59,38 +60,14 @@ exports.submitFeedback = async (req, res) => {
     if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-
         error: "Rating must be between 1 and 5",
       });
     }
 
-    // ✅ Check if order exists
-    const order = await Order.findOne({ orderId: orderId });
-    if (!order) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({
-        success: false,
-        error: "Order not found",
-      });
-    }
-
-    // ✅ Check if feedback already
-
-    exists;
-    const existingFeedback = await Feedback.findOne({
-      orderId: order._id,
-      userId: req.user.id,
-    });
-    if (existingFeedback) {
-      return res.status(HTTP_STATUS.CONFLICT).json({
-        success: false,
-        error: "Feedback already submitted for this order",
-      });
-    }
-
-    // ✅ Create feedback
+    // ✅ Create feedback (orderId is optional per schema)
     const feedback = await Feedback.create({
       userId: req.user.id,
-      orderId: order._id,
+      ...(orderDoc && { orderId: orderDoc._id }),
       rating: rating,
       comment: comment || "",
       category: category || "Food Quality",

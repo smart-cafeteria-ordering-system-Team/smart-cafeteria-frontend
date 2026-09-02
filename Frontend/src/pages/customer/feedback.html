@@ -251,7 +251,6 @@
                     e.preventDefault();
 
                     var rating = parseInt(document.getElementById("ratingValue").value, 10);
-                    var orderId = document.getElementById("feedback-order-id").value.trim();
                     var comment = document.getElementById("feedback-comments").value.trim();
                     var category = document.getElementById("feedback-category").value;
                     var dishName = document.getElementById("dish-reviewed").value.trim();
@@ -266,8 +265,7 @@
                     }
 
                     // Get orderId from URL search params, then localStorage
-                    const urlParams = new URLSearchParams(window.location.search);
-                    let orderId = urlParams.get('orderId') || localStorage.getItem('lastOrderId') || null;
+                    var orderId = new URLSearchParams(window.location.search).get('orderId') || localStorage.getItem('lastOrderId') || null;
 
                     var token = getToken();
 
