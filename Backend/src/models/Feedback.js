@@ -17,7 +17,7 @@ const FeedbackSchema = new mongoose.Schema(
     orderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Order',
-      required: true,
+      required: false,
     },
     rating: {
       type: Number,

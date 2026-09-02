@@ -33,12 +33,18 @@
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span class="cart-badge" id="cart-badge-count">0</span>
                 </a>
-                
+
+                <!-- Back to Admin (admin only) -->
+                <a id="adminBackBtn" href="../../admin/dashboard.html" class="nav-link-item d-none" style="display:none;">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Back to Admin</span>
+                </a>
+
                 <!-- User Profile Dropdown using requested image element -->
                 <div class="user-profile-menu">
                     <button class="user-profile-btn" id="user-menu-btn">
                        
-                        <span class="user-name">Abebe K.</span>
+                        <span class="user-name user-profile-name" id="userProfileName">Loading...</span>
                         <i class="fa-solid fa-chevron-down"></i>
                     </button>
                     <div class="dropdown-menu" id="user-dropdown-menu">
@@ -99,6 +105,8 @@
                         <i class="fa-solid fa-star star-btn" data-value="4"></i>
                         <i class="fa-solid fa-star star-btn" data-value="5"></i>
                     </div>
+                    <input type="hidden" id="ratingValue" value="0">
+                    <input type="hidden" id="feedback-order-id" value="">
                     <span id="rating-text" class="rating-label-text">Select a rating</span>
                 </div>
 
@@ -147,5 +155,178 @@
 
     <script src="/frontend/src/js/profile.js" defer></script>
     <script src="/frontend/src/js/feedback.js" defer></script>
+    <script src="/frontend/src/js/global-auth.js" defer></script>
+
+    <!-- Feedback logic: star rating, user name, Back-to-Admin, form submit -->
+    <script>
+        (function () {
+            var API = "http://localhost:5000/api/v1";
+
+            function getToken() {
+                return localStorage.getItem("auth_token") ||
+                    localStorage.getItem("scos_token") ||
+                    localStorage.getItem("token") || "";
+            }
+
+            function getStoredUser() {
+                var raw =
+                    localStorage.getItem("current_user") ||
+                    localStorage.getItem("scos_user") ||
+                    localStorage.getItem("user") ||
+                    localStorage.getItem("loggedUser") ||
+                    localStorage.getItem("userProfile");
+                if (!raw) return null;
+                try { return JSON.parse(raw); } catch (e) { return null; }
+            }
+
+            function getRole() {
+                var r = (localStorage.getItem("userRole") || localStorage.getItem("role") || "").toLowerCase();
+                if (r === "admin") return "admin";
+                if (getStoredUser() && (getStoredUser().role || "").toLowerCase() === "admin") return "admin";
+                return r;
+            }
+
+            function loadUserProfile() {
+                var display = document.getElementById("userProfileName");
+                if (!display) return;
+                var user = getStoredUser();
+                var name = user && (user.name || user.fullName || user.fname);
+                if (name) {
+                    display.textContent = name;
+                } else {
+                    display.textContent = "Customer";
+                }
+
+                var adminBtn = document.getElementById("adminBackBtn");
+                if (adminBtn) {
+                    if (getRole() === "admin") {
+                        adminBtn.classList.remove("d-none");
+                        adminBtn.style.display = "";
+                    } else {
+                        adminBtn.classList.add("d-none");
+                        adminBtn.style.display = "none";
+                    }
+                }
+            }
+
+            function initStars() {
+                var group = document.getElementById("star-rating-group");
+                var ratingInput = document.getElementById("ratingValue");
+                var ratingText = document.getElementById("rating-text");
+                if (!group || !ratingInput) return;
+
+                var labels = ["Select a rating", "Poor", "Fair", "Good", "Very Good", "Excellent"];
+
+                function highlight(value) {
+                    group.querySelectorAll(".star-btn").forEach(function (star) {
+                        var v = parseInt(star.getAttribute("data-value"), 10);
+                        star.classList.toggle("active", v <= value);
+                        star.classList.toggle("text-warning", v <= value);
+                    });
+                }
+
+                group.querySelectorAll(".star-btn").forEach(function (star) {
+                    star.addEventListener("click", function () {
+                        var value = parseInt(star.getAttribute("data-value"), 10);
+                        ratingInput.value = value;
+                        highlight(value);
+                        if (ratingText) ratingText.textContent = labels[value] || "";
+                    });
+                });
+            }
+
+            function initForm() {
+                var form = document.getElementById("feedback-form");
+                if (!form) return;
+
+                // Prefill order id from query string when provided (?orderId=...)
+                (function prefillOrderId() {
+                    var params = new URLSearchParams(window.location.search);
+                    var orderId = params.get("orderId");
+                    var orderInput = document.getElementById("feedback-order-id");
+                    if (orderId && orderInput) orderInput.value = orderId;
+                })();
+
+                form.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+
+                    var rating = parseInt(document.getElementById("ratingValue").value, 10);
+                    var orderId = document.getElementById("feedback-order-id").value.trim();
+                    var comment = document.getElementById("feedback-comments").value.trim();
+                    var category = document.getElementById("feedback-category").value;
+                    var dishName = document.getElementById("dish-reviewed").value.trim();
+
+                    if (!rating || rating < 1 || rating > 5) {
+                        alert("Please select a star rating between 1 and 5.");
+                        return;
+                    }
+                    if (!comment) {
+                        alert("Please enter your comments / review.");
+                        return;
+                    }
+
+                    // Get orderId from URL search params, then localStorage
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let orderId = urlParams.get('orderId') || localStorage.getItem('lastOrderId') || null;
+
+                    var token = getToken();
+
+                    var submitBtn = form.querySelector(".btn-primary");
+                    if (submitBtn) { submitBtn.disabled = true; }
+
+                    try {
+                        var feedbackPayload = {
+                            rating: Number(rating),
+                            comment: comment,
+                            category: category,
+                            dishName: dishName
+                        };
+                        if (orderId) {
+                            feedbackPayload.orderId = orderId;
+                        }
+                        var res = await fetch(API + "/feedback", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": "Bearer " + token
+                            },
+                            body: JSON.stringify(feedbackPayload)
+                        });
+                        var data = await res.json();
+                        if (!res.ok) {
+                            throw new Error(data.error || "Failed to submit feedback.");
+                        }
+                        alert(data.message || "Thank you for your feedback!");
+                        form.reset();
+                        document.getElementById("ratingValue").value = "0";
+                        highlightStars(0);
+                        if (document.getElementById("rating-text")) {
+                            document.getElementById("rating-text").textContent = "Select a rating";
+                        }
+                    } catch (err) {
+                        alert(err.message);
+                    } finally {
+                        if (submitBtn) { submitBtn.disabled = false; }
+                    }
+                });
+            }
+
+            function highlightStars(value) {
+                var group = document.getElementById("star-rating-group");
+                if (!group) return;
+                group.querySelectorAll(".star-btn").forEach(function (star) {
+                    var v = parseInt(star.getAttribute("data-value"), 10);
+                    star.classList.toggle("active", v <= value);
+                    star.classList.toggle("text-warning", v <= value);
+                });
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                loadUserProfile();
+                initStars();
+                initForm();
+            });
+        })();
+    </script>
 </body>
 </html>

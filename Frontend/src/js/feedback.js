@@ -109,55 +109,65 @@ export function getFeedbackByOrder(orderId) {
 
 /**
  * Submit feedback for an order
- * @param {string} orderId - Order ID
  * @param {number} rating - Rating (1-5)
  * @param {string} comment - Feedback comment
  * @returns {Promise<Object>} Submitted feedback or error
  */
-export async function submitFeedback(orderId, rating, comment = '') {
-    try {
-        const user = getCurrentUser();
-        if (!user) {
-            return { success: false, error: 'Please login to submit feedback' };
-        }
+export async function submitFeedback(rating, comment = '') {
+	try {
+		const user = getCurrentUser();
+		if (!user) {
+			return { success: false, error: 'Please login to submit feedback' };
+		}
 
-        const order = getOrderById(orderId);
-        if (!order) {
-            return { success: false, error: 'Order not found' };
-        }
+		// Get orderId from URL search params, then localStorage
+		const urlParams = new URLSearchParams(window.location.search);
+		let orderId = urlParams.get('orderId');
+		if (!orderId) {
+			orderId = localStorage.getItem('lastOrderId');
+		}
 
-        // Check if feedback already exists
-        const existing = getFeedbackByOrder(orderId);
-        if (existing) {
-            return { success: false, error: 'Feedback already submitted for this order' };
-        }
+		// If orderId is available, validate the order
+		if (orderId) {
+			const order = getOrderById(orderId);
+			if (!order) {
+				return { success: false, error: 'Order not found' };
+			}
 
-        // Validate rating
-        if (rating < 1  rating > 5  !Number.isInteger(rating)) {
-            return { success: false, error: 'Rating must be between 1 and 5' };
-        }
-        const feedback = {
-            id: 'f' + Date.now(),
-            userId: user.id,
-            orderId: orderId,
-            rating: rating,
-            comment: comment.trim() || '',
-            createdAt: new Date().toISOString(),
-            status: 'pending',
-            reply: null,
-        };
+			// Check if feedback already exists
+			const existing = getFeedbackByOrder(orderId);
+			if (existing) {
+				return { success: false, error: 'Feedback already submitted for this order' };
+			}
+		}
 
-        feedbackList.push(feedback);
-        notifyFeedbackListeners();
+		// Validate rating
+		if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+			return { success: false, error: 'Rating must be between 1 and 5' };
+		}
 
-        showToast('Thank you for your feedback!', 'success');
+		const feedback = {
+			id: 'f' + Date.now(),
+			userId: user.id,
+			...(orderId && { orderId }),
+			rating: rating,
+			comment: comment.trim() || '',
+			createdAt: new Date().toISOString(),
+			status: 'pending',
+			reply: null,
+		};
 
-        return { success: true, feedback };
+		feedbackList.push(feedback);
+		notifyFeedbackListeners();
 
-    } catch (error) {
-        console.error('Submit feedback error:', error);
-        return { success: false, error: 'Failed to submit feedback' };
-    }
+		showToast('Thank you for your feedback!', 'success');
+
+		return { success: true, feedback };
+
+	} catch (error) {
+		console.error('Submit feedback error:', error);
+		return { success: false, error: 'Failed to submit feedback' };
+	}
 }
 
 /**

@@ -69,16 +69,16 @@ export function createHeader(options = {}) {
         };
         const roleLabel = roleLabels[user.role] || user.role;
 
-        userSectionHTML = `
-            <div class="user-menu" style="display:flex; align-items:center; gap:12px;">
-                <button class="notification-btn" id="notificationBell" title="Notifications" style="position:relative; background:none; border:none; font-size:20px; color:#64748b; cursor:pointer; padding:8px; border-radius:50%; transition:background 0.2s;">
+userSectionHTML = `
+            <div class="user-menu" style="display:flex; align-items:center; gap:12px;">
+                <button class="notification-btn" id="notificationBell" title="Notifications" style="position:relative; background:none; border:none; font-size:20px; color:#64748b; cursor:pointer; padding:8px; border-radius:50%; transition:background 0.2s;">
                     <i class="fas fa-bell"></i>
                     ${notificationCount > 0 ? `<span class="dot" style="position:absolute; top:4px; right:4px; width:8px; height:8px; background:#dc2626; border-radius:50%; border:2px solid white;"></span>` : ''}
                 </button>
 
                 <div class="admin-profile" style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px 8px; border-radius:8px; transition:background 0.2s;">
                     <div class="avatar" style="width:36px; height:36px; border-radius:50%; background:#2563eb; color:white; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px;">
-[8/15/2026 4:45 AM] ቅዱስ:                         ${user.avatar ? <img src="${user.avatar}" alt="${user.name}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"> : user.name.charAt(0).toUpperCase()}
+[8/15/2026 4:45 AM]                     ${user.avatar ? <img src="${user.avatar}" alt="${user.name}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"> : user.name.charAt(0).toUpperCase()}
                     </div>
                     <div style="text-align:left; line-height:1.3;">
                         <div style="font-weight:600; font-size:14px; color:#1e293b;">${user.name}</div>
@@ -88,8 +88,9 @@ export function createHeader(options = {}) {
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
                 </div>
-            </div>
-        ;
+                <a id="backToAdminBtn" href="http://127.0.0.1:5501/Frontend/src/pages/admin/dashboard.html" class="btn btn-outline-warning btn-sm ms-2 d-none">
+                    <i class="bi bi-speedometer2"></i> Back to Admin
+                </div>
     } else {
         userSectionHTML = 
             <div class="auth-buttons" style="display:flex; gap:8px;">
