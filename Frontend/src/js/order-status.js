@@ -1,7 +1,7 @@
 /**
  * Order status/tracking page.
  * Phase 4: fetches the live order from MongoDB (GET /orders/:id) when the
- * student is logged in, and cancels through PATCH /orders/:id/cancel.
+ * student is logged in, and submits cancellation requests for admin review.
  * Falls back to localStorage when offline / not authenticated.
  */
 
@@ -83,14 +83,14 @@ window.cancelOrderFromStatusPage = function (orderId) {
     const token = window.getApiToken();
 
     if (token) {
-        fetch(`http://localhost:5000/api/v1/orders/${encodeURIComponent(orderId)}/cancel`, {
-            method: "PATCH",
+        fetch(`http://localhost:5000/api/v1/cancellations/request/${encodeURIComponent(orderId)}`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ reason: "Cancelled by customer" })
+            body: JSON.stringify({ reason: "Customer requested cancellation from tracker" })
         })
             .then(function (response) {
                 if (!response.ok) {
@@ -102,7 +102,7 @@ window.cancelOrderFromStatusPage = function (orderId) {
             })
             .then(function () {
                 applyLocalCancellation(orderId);
-                alert(`Order #${orderId} has been successfully cancelled.`);
+                alert("Cancellation request submitted successfully! An administrator will review it.");
                 location.reload();
             })
             .catch(function (error) {
@@ -127,6 +127,92 @@ window.cancelOrderFromStatusPage = function (orderId) {
         location.reload();
     } else {
         alert("Unable to find order to cancel.");
+    }
+};
+
+window.renderKitchenStatus = function (status) {
+    if (!status) return;
+    const normalizedStatus = String(status).trim().toUpperCase();
+    const stepReceived = document.querySelector('#step-received, [data-step="received"], .step-received, #step-1');
+    const stepPreparing = document.querySelector('#step-preparing, [data-step="preparing"], .step-preparing, #step-2');
+    const stepReady = document.querySelector('#step-ready, [data-step="ready"], .step-ready, #step-3');
+    const line1 = document.querySelector('#line-1, .tracker-line-1');
+    const line2 = document.querySelector('#line-2, .tracker-line-2');
+    const steps = [stepReceived, stepPreparing, stepReady].filter(Boolean);
+
+    steps.forEach((step) => {
+        step.classList.remove("active", "completed", "bg-warning", "text-white");
+        step.style.backgroundColor = "#f8f9fa";
+        step.style.borderColor = "#dee2e6";
+    });
+
+    const setActive = (step) => {
+        if (!step) return;
+        step.classList.add("active", "text-white");
+        step.style.backgroundColor = "#ff5722";
+        step.style.borderColor = "#ff5722";
+    };
+    const setCompleted = (step) => {
+        if (!step) return;
+        step.classList.add("completed");
+        step.style.backgroundColor = "#ff5722";
+        step.style.borderColor = "#ff5722";
+    };
+
+    if (["PENDING", "RECEIVED", "ORDER_RECEIVED"].includes(normalizedStatus)) {
+        setActive(stepReceived);
+        if (line1) line1.style.borderColor = "#e0e0e0";
+        if (line2) line2.style.borderColor = "#e0e0e0";
+    } else if (["PREPARING", "COOKING", "IN_PROGRESS", "KITCHEN"].includes(normalizedStatus)) {
+        setCompleted(stepReceived);
+        setActive(stepPreparing);
+        if (line1) line1.style.borderColor = "#ff5722";
+        if (line2) line2.style.borderColor = "#e0e0e0";
+    } else if (["READY", "SERVED", "COMPLETED", "DELIVERED"].includes(normalizedStatus)) {
+        setCompleted(stepReceived);
+        setCompleted(stepPreparing);
+        setActive(stepReady);
+        if (line1) line1.style.borderColor = "#ff5722";
+        if (line2) line2.style.borderColor = "#ff5722";
+    }
+};
+
+window.updateTrackerUI = function (order) {
+    const status = String(order && (order.status || order.orderStatus) || "").toUpperCase();
+    const stepReceived = document.querySelector('[data-step="received"], .step-1, #step-1');
+    const stepPreparing = document.querySelector('[data-step="preparing"], .step-2, #step-2');
+    const stepReady = document.querySelector('[data-step="ready"], .step-3, #step-3');
+    const steps = [stepReceived, stepPreparing, stepReady].filter(Boolean);
+
+    steps.forEach((step) => step.classList.remove("active", "completed", "bg-warning", "text-white"));
+
+    if (["PENDING", "ORDER_RECEIVED", "RECEIVED"].includes(status)) {
+        if (stepReceived) stepReceived.classList.add("active", "bg-warning");
+    } else if (["PREPARING", "IN_PROGRESS", "COOKING"].includes(status)) {
+        if (stepReceived) stepReceived.classList.add("completed");
+        if (stepPreparing) stepPreparing.classList.add("active", "bg-warning");
+    } else if (["READY", "COMPLETED", "SERVED"].includes(status)) {
+        if (stepReceived) stepReceived.classList.add("completed");
+        if (stepPreparing) stepPreparing.classList.add("completed");
+        if (stepReady) stepReady.classList.add("active", "bg-warning");
+    }
+
+    const cancelBtn = document.querySelector("#cancelOrderBtn, .btn-cancel-order, #cancel-btn-wrapper button");
+    if (!cancelBtn) return;
+    const restricted = ["PREPARING", "IN_PROGRESS", "READY", "COMPLETED", "COOKING", "SERVED"].includes(status);
+    cancelBtn.style.display = restricted ? "none" : "inline-block";
+    cancelBtn.disabled = restricted;
+    let notice = document.getElementById("cancelRestrictionNotice");
+    if (restricted) {
+        if (!notice) {
+            notice = document.createElement("div");
+            notice.id = "cancelRestrictionNotice";
+            notice.className = "text-muted small mt-2 text-center";
+            cancelBtn.parentNode.appendChild(notice);
+        }
+        notice.textContent = status === "READY" ? "Food is ready! Order cannot be cancelled." : "Kitchen is currently preparing your food. Cancellation is no longer available.";
+    } else if (notice) {
+        notice.remove();
     }
 };
 
@@ -312,6 +398,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 </button>
             `;
         }
+
+        window.updateTrackerUI(orderData);
+        window.renderKitchenStatus(orderData.status || orderData.orderStatus);
     }
 
     // 1. Render immediately from localStorage fallback so the page is never blank
@@ -330,20 +419,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 2. Phase 4 - replace with live MongoDB data when logged in
     if (window.getApiToken() && requestedId) {
-        window.getOrderFromApi(requestedId)
-            .then(apiOrder => {
-                if (apiOrder && (apiOrder.orderId === requestedId || apiOrder.id === requestedId)) {
-                    renderOrderStatus(apiOrder);
-                    // Keep the local cache in sync for offline rendering
-                    localStorage.setItem("latestOrder", JSON.stringify(apiOrder));
-                    const hist = JSON.parse(localStorage.getItem("orderHistory")) || [];
-                    const exists = hist.some(o => (o.orderId || o.id) === requestedId);
-                    if (!exists) hist.unshift(apiOrder);
-                    localStorage.setItem("orderHistory", JSON.stringify(hist));
-                }
-            })
-            .catch(() => {
-                // stay on localStorage fallback
-            });
+        const refreshOrder = async function () {
+            const apiOrder = await window.getOrderFromApi(requestedId);
+            if (apiOrder && (apiOrder.orderId === requestedId || apiOrder.id === requestedId)) {
+                renderOrderStatus(apiOrder);
+                localStorage.setItem("latestOrder", JSON.stringify(apiOrder));
+                const hist = JSON.parse(localStorage.getItem("orderHistory")) || [];
+                const exists = hist.some(o => (o.orderId || o.id) === requestedId);
+                if (!exists) hist.unshift(apiOrder);
+                localStorage.setItem("orderHistory", JSON.stringify(hist));
+            }
+        };
+
+        refreshOrder().catch(() => {});
+        window.setInterval(() => refreshOrder().catch(() => {}), 5000);
     }
 });

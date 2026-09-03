@@ -10,8 +10,9 @@ class OrderCancellationService {
     async cancelOrder(orderId, reason = "") {
         if (!orderId) throw new Error("Order ID is required.");
         return api.post(
-            `/orders/${orderId}/cancel`,
+            "/cancellations/request",
             {
+                orderId,
                 reason
             }
         );

@@ -6,7 +6,8 @@ const {
     getUnreadCount,
     markAsRead,
     markAllRead,
-    deleteNotification
+    deleteNotification,
+    clearNotifications
 } = require('../controllers/notification.controller');
 
 // ============================================================
@@ -44,6 +45,8 @@ getUnreadCount);
  * Frontend: notifications.html → Mark all as read
  */
 router.patch('/read-all', markAllRead);
+router.put('/read-all', markAllRead);
+router.delete('/clear-all', clearNotifications);
 
 /**
  * @route   PATCH /api/notifications/:id/read

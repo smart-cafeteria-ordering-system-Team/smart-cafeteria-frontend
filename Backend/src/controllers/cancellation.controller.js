@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const Cancellation = require('../models/Cancellation');
 const User = require('../models/User');
 const Payment = require('../models/Payment');
 const Notification = require('../models/Notification');
@@ -17,7 +18,8 @@ Request cancellation
 */
 exports.requestCancellation = async (req, res) => {
 try {
-const { orderId, reason, details } = req.body;
+const { reason, details } = req.body;
+const orderId = req.params.orderId || req.body.orderId;
 
 // ✅ Validate required fields
 if (!orderId || !reason) {
@@ -29,7 +31,10 @@ error: 'Order ID and reason are required'
 }
 
 // ✅ Find order
-const order = await Order.findOne({ orderId: orderId });
+const mongoose = require('mongoose');
+const order = await (mongoose.Types.ObjectId.isValid(orderId)
+? Order.findById(orderId)
+: Order.findOne({ orderId: orderId }));
 if (!order) {
 return res.status(HTTP_STATUS.NOT_FOUND).json({
 success: false,
@@ -46,12 +51,21 @@ error: 'You can only cancel your own orders'
 });
 }
 
-// ✅ Check if order can be cancelled
-if (order.status === 'served' || order.status === 'cancelled') {
+// ✅ Kitchen-owned statuses cannot be cancelled by customers.
+const currentStatus = String(order.status || order.orderStatus || '').toUpperCase();
+const nonCancellableStatuses = ['PREPARING', 'IN_PROGRESS', 'READY', 'COMPLETED', 'COOKING', 'SERVED'];
+if (nonCancellableStatuses.includes(currentStatus)) {
 return res.status(HTTP_STATUS.BAD_REQUEST).json({
 
 success: false,
-error: `Order cannot be cancelled (status: ${order.status})`
+error: `Cannot cancel order. The kitchen staff is already ${String(order.status || order.orderStatus).toLowerCase()}.`
+});
+}
+
+if (currentStatus === 'CANCELLED') {
+return res.status(HTTP_STATUS.BAD_REQUEST).json({
+success: false,
+error: `Order cannot be cancelled (status: ${String(order.status).toLowerCase()})`
 });
 }
 
@@ -63,9 +77,28 @@ error: 'Cancellation already requested for this order'
 });
 }
 
+const existingRequest = await Cancellation.findOne({ orderId: order._id, status: 'pending' });
+if (existingRequest) {
+return res.status(HTTP_STATUS.CONFLICT).json({
+success: false,
+error: 'Cancellation request already submitted for this order'
+});
+}
+
+const cancellation = await Cancellation.create({
+orderId: order._id,
+userId: order.userId,
+reason: reason || 'Customer requested cancellation from Live Tracker',
+details: details || '',
+status: 'pending',
+refundAmount: order.totalAmount || 0,
+requestedAt: new Date()
+});
+
 
 // ✅ Create cancellation request
 order.cancellationRequested = true;
+order.status = ORDER_STATUS.CANCELLED;
 order.cancellationReason = reason;
 order.cancellationDetails = details || '';
 order.cancellationStatus = 'pending';
@@ -90,6 +123,7 @@ success: true,
 
 message: 'Cancellation request submitted successfully',
 cancellation: {
+id: cancellation._id,
 orderId: order.orderId,
 reason: reason,
 details: details || '',
@@ -122,6 +156,37 @@ cancellations: [...] }
 exports.getCancellations = async (req, res) => {
 try {
 const { status, date, limit = 50, page = 1 } = req.query;
+
+const cancellationFilter = status && status !== 'all' ? { status: status.toLowerCase() } : {};
+const cancellationSkip = (parseInt(page) - 1) * parseInt(limit);
+const cancellationRecords = await Cancellation.find(cancellationFilter)
+.populate('orderId', 'orderNumber orderId customerName customerPhone totalAmount status')
+.populate('userId', 'name email phone')
+.sort({ createdAt: -1 })
+.skip(cancellationSkip)
+.limit(parseInt(limit));
+const cancellationTotal = await Cancellation.countDocuments(cancellationFilter);
+
+if (cancellationTotal > 0) {
+return res.status(HTTP_STATUS.OK).json({
+success: true,
+count: cancellationRecords.length,
+total: cancellationTotal,
+page: parseInt(page),
+cancellations: cancellationRecords.map(record => ({
+id: record._id,
+orderId: record.orderId?.orderNumber || record.orderId?.orderId || record.orderId?._id,
+customerName: record.orderId?.customerName || record.userId?.name || 'Customer',
+customerPhone: record.orderId?.customerPhone || record.userId?.phone,
+user: record.userId,
+reason: record.reason,
+details: record.details,
+status: record.status,
+totalAmount: record.orderId?.totalAmount || record.refundAmount || 0,
+requestedAt: record.requestedAt || record.createdAt
+}))
+});
+}
 
 // ✅ Build filter
 let filter = { cancellationRequested: true };
@@ -232,6 +297,11 @@ order.cancellationProcessedBy = req.user.id;
 
 await order.save();
 
+await Cancellation.findOneAndUpdate(
+{ orderId: order._id, status: 'pending' },
+{ status: 'approved', processedAt: new Date(), processedBy: req.user.id, adminNote: adminNote || '' }
+);
+
 // ✅ Process refund if payment was made
 if (order.paymentStatus === PAYMENT_STATUS.SIMULATED) {
 await Payment.findOneAndUpdate(
@@ -315,6 +385,11 @@ order.cancellationProcessedAt = new Date();
 order.cancellationProcessedBy = req.user.id;
 
 await order.save();
+
+await Cancellation.findOneAndUpdate(
+{ orderId: order._id, status: 'pending' },
+{ status: 'rejected', processedAt: new Date(), processedBy: req.user.id, adminNote: adminNote || '' }
+);
 
 // ✅ Create notification for customer
 await Notification.create({

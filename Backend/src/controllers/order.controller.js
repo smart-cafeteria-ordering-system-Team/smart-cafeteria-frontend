@@ -343,11 +343,12 @@ error: MESSAGES.SERVER_ERROR
 */
 exports.updateOrderStatus = async (req, res) => {
 try {
-const { status } = req.body;
+const requestedStatus = String(req.body.status || '').toLowerCase();
+const status = requestedStatus === 'delivered' ? 'completed' : requestedStatus;
 
 // ✅ Validate status
 
-const validStatuses = ['pending', 'preparing', 'ready', 'served', 'cancelled'];
+const validStatuses = ['pending', 'preparing', 'ready', 'served', 'completed', 'cancelled'];
 if (!validStatuses.includes(status)) {
 return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
@@ -384,19 +385,32 @@ order.status = status;
 
 await order.save();
 
-// ✅ Create notification for customer
-if (status === 'ready' || status === 'preparing') {
-await Notification.create({
-userId: order.userId,
-title: status === 'ready' ? 'Order Ready!' : 'Order Preparing',
-message: status === 'ready'
-? `Your order #${order.orderId} is ready for pickup!`
-: `Your order #${order.orderId} is being prepared`,
-type: 'order',
-orderId: order.orderId,
-isRead: false
-});
+// ✅ Create a notification for every kitchen status update.
+const orderReference = order.orderNumber || order.orderId || order._id.toString().slice(-4);
+let title = 'Order Update';
+let message = `Your order #${orderReference} status changed to ${status}.`;
+if (status === 'ready') {
+  title = 'Food is Ready!';
+  message = `Your order #${orderReference} has been finished by the kitchen and is ready for pickup/serving!`;
+} else if (status === 'preparing') {
+  title = 'Kitchen Started Cooking';
+  message = `The kitchen staff started preparing your order #${orderReference}.`;
+} else if (status === 'completed' || status === 'served') {
+  title = 'Order Completed';
+  message = `Your order #${orderReference} is completed. Enjoy your meal!`;
+} else if (status === 'cancelled') {
+  title = 'Order Cancelled';
+  message = `Your order #${orderReference} has been cancelled.`;
 }
+
+const notification = await Notification.create({
+  userId: order.userId,
+  title,
+  message,
+  type: 'status_update',
+  orderId: order.orderNumber || order.orderId,
+  isRead: false
+});
 
 // ✅ Emit real-time Socket.IO event to the customer
 try {
@@ -420,7 +434,8 @@ console.warn('[Order] Socket emit failed (non-critical):', socketErr.message);
 res.status(HTTP_STATUS.OK).json({
 success: true,
 message: `Order status updated to ${status}`,
-order: order.getSummary()
+order: order.getSummary(),
+notification
 });
 
 } catch (error) {
