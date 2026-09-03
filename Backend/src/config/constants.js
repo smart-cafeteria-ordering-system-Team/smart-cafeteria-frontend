@@ -31,12 +31,20 @@ const PAYMENT_STATUS = {
   FAILED: 'failed',
   SIMULATED: 'simulated',
   PAID: 'paid',
+  CANCELLED: 'cancelled',
 };
 
 const PAYMENT_METHODS = {
   TELEBIRR: 'telebirr',
   CBE_BIRR: 'cbe_birr',
   CASH: 'cash',
+  CHAPA: 'chapa',
+};
+
+const FEEDBACK_STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
 };
 
 const MENU_CATEGORIES = [
@@ -68,6 +76,7 @@ module.exports = {
   ORDER_STATUS,
   PAYMENT_STATUS,
   PAYMENT_METHODS,
+  FEEDBACK_STATUS,
   MENU_CATEGORIES,
   MESSAGES,
 };

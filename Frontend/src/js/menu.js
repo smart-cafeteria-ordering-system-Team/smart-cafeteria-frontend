@@ -5,8 +5,9 @@
 
 document.addEventListener("DOMContentLoaded", function () {
     const CART_KEY = "smart_cafeteria_cart";
+    const API_BASE_URL = "http://localhost:5000";
     const categoryButtons = document.querySelectorAll(".category-pill");
-    const foodCards = document.querySelectorAll(".food-card");
+    let foodCards = [];
     const noResults = document.getElementById("no-results");
     const resetSearchButton = document.getElementById("reset-search-btn");
     const searchInput = document.getElementById("menu-search-input");
@@ -17,6 +18,20 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentCategory = "all";
     let currentSearch = "";
     let currentSort = "recommended";
+
+    function getImageUrl(imagePath) {
+        if (!imagePath) return "";
+        const value = String(imagePath);
+        if (
+            value.startsWith("http://") ||
+            value.startsWith("https://") ||
+            value.startsWith("data:")
+        ) {
+            return value;
+        }
+        const cleanPath = value.startsWith("/") ? value : `/${value}`;
+        return API_BASE_URL + cleanPath;
+    }
 
     function getCart() {
         try {
@@ -96,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const id = getFoodId(card, button);
         const name = card.querySelector(".food-title") ? card.querySelector(".food-title").textContent.trim() : "Unknown Food";
         const price = button.dataset.price ? Number(button.dataset.price) : getFoodPrice(card);
-        const image = button.dataset.image || (card.querySelector("img") ? card.querySelector("img").src : "");
+        const image = getImageUrl(button.dataset.image || (card.querySelector("img") ? card.querySelector("img").src : ""));
 
         if (!id) {
             console.error("Food ID not found.", card);
@@ -110,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const cart = getCart();
         const existingItem = cart.find(function (entry) {
-            return String(entry.menuItemId || entry.id) === String(id);
+            return String(entry._id || entry.menuItemId || entry.id) === String(id);
         });
 
         if (existingItem) {
@@ -118,6 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             cart.push({
                 id: id,
+                _id: id,
                 menuItemId: id,
                 name: name,
                 price: price,
@@ -141,6 +157,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function filterMenu() {
         let visibleCards = [];
+
+        foodCards = Array.from(document.querySelectorAll(".food-card"));
 
         foodCards.forEach(function (card) {
             const categories = getCardCategories(card);

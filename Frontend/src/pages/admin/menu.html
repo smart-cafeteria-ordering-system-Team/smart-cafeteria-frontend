@@ -11,12 +11,14 @@
     <!-- Admin CSS stylesheet -->
     <link rel="stylesheet" href="/frontend/src/css/admin.css">
     <link rel="stylesheet" href="/frontend/src/css/style.css">
+    <link rel="stylesheet" href="/frontend/src/css/theme.css">
+    <link rel="stylesheet" href="/frontend/src/css/themes/dark-theme.css">
+    <script src="/frontend/src/js/theme.js"></script>
 
     <!-- Auth Guard Check -->
     <script>
         const role = localStorage.getItem('userRole');
         if (!role || role !== 'ADMIN') {
-            alert('Access denied! Admins only.');
             window.location.href = '/Frontend/src/pages/common/login.html';
         }
     </script>
@@ -94,8 +96,8 @@
                     </a>
                     <a href="cancellations.html" class="sidebar-link">
                         <i class="fa-solid fa-hand-holding-dollar"></i>
-                        <span>cancellations</span>
-                        <span class="sidebar-badge" id="sidebarRefundBadge">0</span>
+                        <span>Cancellations</span>
+                        <span class="sidebar-badge" id="sidebarCancellationBadge" style="display: none;">0</span>
                     </a>
                 </div>
 
@@ -236,8 +238,12 @@
                 <input type="hidden" id="itemId">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="itemName">Food Item Name</label>
+                        <label for="itemName">Food Item Name (English)</label>
                         <input type="text" id="itemName" class="form-control" placeholder="e.g. Special Doro Wat" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemNameAm">Food Item Name (Amharic)</label>
+                        <input type="text" id="itemNameAm" class="form-control" placeholder="e.g. ዶሮ ወጥ" required>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -260,9 +266,18 @@
                         <label for="itemImageUrl">Image URL (Optional)</label>
                         <input type="url" id="itemImageUrl" class="form-control" placeholder="https://example.com/image.jpg">
                     </div>
+                    <div class="form-group mb-3">
+                        <label for="itemImageFile" class="form-label">Food Image File</label>
+                        <input type="file" id="itemImageFile" name="image" class="form-control" accept="image/*" />
+                        <small class="text-muted">Upload an image file (PNG, JPG, WEBP) or provide a URL above.</small>
+                    </div>
                     <div class="form-group">
-                        <label for="itemDescription">Description</label>
+                        <label for="itemDescription">Description (English)</label>
                         <textarea id="itemDescription" class="form-control" rows="3" placeholder="Brief description of the item..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemDescriptionAm">Description (Amharic)</label>
+                        <textarea id="itemDescriptionAm" class="form-control" rows="2" placeholder="የእቃው መግለጫ..."></textarea>
                     </div>
                     <div class="form-group checkbox-group">
                         <label class="switch-label">
@@ -280,11 +295,9 @@
     </div>
 
     <!-- JavaScript Files -->
-    <script src="../../js/api.js"></script>
-    <script src="../../js/auth.js"></script>
+    <script src="../../js/admin-api.js"></script>
     <script src="/frontend/src/js/admin.js"></script>
-    <script src="/frontend/src/js/menu.js"></script>
-    <script src="/Frontend/src/components/sidebar.js"></script>
+    <script src="/frontend/src/js/admin-menu.js"></script>
 
 </body>
 </html>

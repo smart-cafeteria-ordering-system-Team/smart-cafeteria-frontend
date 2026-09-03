@@ -60,7 +60,7 @@
         html += '<i class="fa-solid ' + page.icon + '"></i>';
         html += '<span>' + page.label + '</span>';
         if (pageId === 'cancellations') {
-          html += '<span class="sidebar-badge" id="sidebarRefundBadge">0</span>';
+          html += '<span class="sidebar-badge" id="sidebarCancellationBadge" style="display:none;">0</span>';
         }
         html += '</a>';
       });
@@ -186,8 +186,7 @@
   }
 
   // Auth guard + profile population
-  function initAuthGuard() {
-    var userRole = localStorage.getItem('userRole');
+  function initAuthGuard() {    var userRole = localStorage.getItem('userRole');
     if (!userRole || (userRole !== 'ADMIN' && userRole !== 'Admin' && userRole !== 'admin')) {
       window.location.href = '../../pages/common/login.html';
       return false;
@@ -213,6 +212,30 @@
     } catch (e) { return null; }
   }
 
+  // Refresh the red Cancellations sidebar badge (shown only when pending > 0)
+  function updateCancellationBadge() {
+    var badgeEl = document.getElementById('sidebarCancellationBadge');
+    if (!badgeEl) return;
+
+    var token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+    if (!token) return;
+
+    fetch('http://localhost:5000/api/v1/cancellations/stats', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data && data.success && data.stats) {
+          var pendingCount = data.stats.pendingApproval || data.stats.pendingCount || 0;
+          badgeEl.textContent = pendingCount;
+          badgeEl.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+        }
+      })
+      .catch(function () {
+        // Non-critical; keep badge hidden
+      });
+  }
+
   // Initialize everything on DOM ready
   document.addEventListener('DOMContentLoaded', function() {
     // 1. Auth guard
@@ -222,10 +245,18 @@
     renderNavbar();
     renderSidebar(getCurrentPageId());
 
+    // Re-inject theme toggle (admin-layout may have replaced the header)
+    if (typeof window.injectThemeToggle === 'function') {
+      window.injectThemeToggle();
+    }
+
     // 3. Initialize tooltips, etc.
     if (typeof initPageSpecific === 'function') {
       initPageSpecific();
     }
+
+    // 4. Refresh the cancellations sidebar badge
+    updateCancellationBadge();
   });
 
   // Expose utilities globally

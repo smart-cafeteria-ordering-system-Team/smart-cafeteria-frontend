@@ -2,6 +2,12 @@ const Order = require('../models/Order');
 const Payment = require('../models/Payment');
 const { PAYMENT_STATUS, MESSAGES, HTTP_STATUS } = require('../config/constants');
 
+// Matches all variations of "completed" / "paid" / "delivered" / "served" / "ready"
+// order statuses regardless of casing, so revenue is never missed.
+const COMPLETED_STATUS_REGEX = /^(completed|paid|delivered|served|ready)$/i;
+const CANCELLED_STATUS_REGEX = /^(cancelled|canceled)$/i;
+const PAID_PAYMENT_REGEX = /^(paid|completed|success|simulated)$/i;
+
 const FLOW = ['PENDING', 'PREPARING', 'READY', 'SERVED', 'COMPLETED'];
 
 const PERIODS = ['today', 'yesterday', 'last7', 'last30', 'month', 'custom'];
@@ -134,11 +140,13 @@ function toISODate(date) {
  *   period      today | yesterday | last7 | last30 | month | custom   (default: month)
  *   startDate   required only when period=custom (YYYY-MM-DD)
  *   endDate     required only when period=custom (YYYY-MM-DD)
+ *   reportType  daily | monthly | yearly | popular   (default: daily)
  *
- * Revenue is computed exclusively from payments the provider verified
- * as PAID within the selected period. Most ordered foods are aggregated
- * from the server-side Order collection - never from frontend data.
- * Currency reported is ETB.
+ * Revenue is computed directly from completed/paid ORDER totals within the
+ * selected period (robust against casing/field variations), falling back to
+ * verified PAID payments when no completed order data exists. Most ordered
+ * foods are aggregated from the server-side Order collection - never from
+ * frontend data. Currency reported is ETB.
  */
 exports.getReportSummary = async (req, res) => {
   try {
@@ -158,14 +166,37 @@ exports.getReportSummary = async (req, res) => {
 
     const dateFilter = { $gte: range.start, $lt: range.end };
 
-    const [revenueTotal, orders, paymentCounts, mostOrderedFoods] = await Promise.all([
-      // Revenue: PAID payments only, within the period.
+    // Resolve reportType: daily | monthly | yearly | popular
+    const reportType = String(req.query.reportType || 'daily').toLowerCase();
+    let dateFormat = '%Y-%m-%d';
+    if (reportType === 'monthly') dateFormat = '%Y-%m';
+    if (reportType === 'yearly') dateFormat = '%Y';
+
+    const [
+      orderRevenue,
+      paymentRevenue,
+      orders,
+      paymentCounts,
+      mostOrderedFoods,
+      reportBreakdown,
+    ] = await Promise.all([
+      // Primary revenue: orders that are completed/paid/served/delivered,
+      // summed from totalAmount (robust against differing status casing).
+      Order.aggregate([
+        { $match: { createdAt: dateFilter, $or: [
+          { status: { $regex: COMPLETED_STATUS_REGEX } },
+          { orderStatus: { $regex: COMPLETED_STATUS_REGEX } },
+          { paymentStatus: { $regex: PAID_PAYMENT_REGEX } },
+        ] } },
+        { $group: { _id: null, total: { $sum: { $ifNull: ['$totalAmount', { $ifNull: ['$totalPrice', '$amount'] }] } } } },
+      ]),
+      // Fallback revenue: verified PAID payments within the period.
       Payment.aggregate([
-        { $match: { status: PAYMENT_STATUS.PAID, paymentDate: dateFilter } },
+        { $match: { status: { $regex: PAID_PAYMENT_REGEX }, paymentDate: dateFilter } },
         { $group: { _id: null, total: { $sum: '$amount' } } },
       ]),
       // Orders created within the period.
-      Order.find({ createdAt: dateFilter }).select('status orderStatus createdAt').lean(),
+      Order.find({ createdAt: dateFilter }).select('status orderStatus createdAt paymentStatus').lean(),
       // Payment counts within the period.
       Payment.aggregate([
         { $match: { paymentDate: dateFilter } },
@@ -187,11 +218,81 @@ exports.getReportSummary = async (req, res) => {
         { $sort: { totalQuantity: -1 } },
         { $limit: 10 },
       ]),
+      // Daily / monthly / yearly grouped breakdown.
+      Order.aggregate([
+        { $match: { createdAt: dateFilter } },
+        {
+          $group: {
+            _id: { $dateToString: { format: dateFormat, date: '$createdAt' } },
+            orderCount: { $sum: 1 },
+            completed: {
+              $sum: {
+                $cond: [
+                  {
+                    $or: [
+                      { $regexMatch: { input: { $ifNull: ['$status', ''] }, regex: COMPLETED_STATUS_REGEX } },
+                      { $regexMatch: { input: { $ifNull: ['$orderStatus', ''] }, regex: COMPLETED_STATUS_REGEX } },
+                      { $regexMatch: { input: { $ifNull: ['$paymentStatus', ''] }, regex: PAID_PAYMENT_REGEX } },
+                    ]
+                  },
+                  1,
+                  0
+                ]
+              }
+            },
+            cancelled: {
+              $sum: {
+                $cond: [
+                  {
+                    $or: [
+                      { $regexMatch: { input: { $ifNull: ['$status', ''] }, regex: CANCELLED_STATUS_REGEX } },
+                      { $regexMatch: { input: { $ifNull: ['$orderStatus', ''] }, regex: CANCELLED_STATUS_REGEX } },
+                    ]
+                  },
+                  1,
+                  0
+                ]
+              }
+            },
+            revenue: {
+              $sum: {
+                $cond: [
+                  {
+                    $or: [
+                      { $regexMatch: { input: { $ifNull: ['$status', ''] }, regex: COMPLETED_STATUS_REGEX } },
+                      { $regexMatch: { input: { $ifNull: ['$orderStatus', ''] }, regex: COMPLETED_STATUS_REGEX } },
+                      { $regexMatch: { input: { $ifNull: ['$paymentStatus', ''] }, regex: PAID_PAYMENT_REGEX } },
+                    ]
+                  },
+                  { $ifNull: ['$totalAmount', { $ifNull: ['$totalPrice', '$amount'] }] },
+                  0
+                ]
+              }
+            },
+          },
+        },
+        { $sort: { _id: -1 } },
+      ]),
     ]);
 
     const totalOrders = orders.length;
-    const completedOrders = orders.filter((o) => effectiveOrderStatus(o) === 'COMPLETED').length;
-    const cancelledOrders = orders.filter((o) => effectiveOrderStatus(o) === 'CANCELLED').length;
+    const completedOrders = orders.filter(
+      (o) =>
+        COMPLETED_STATUS_REGEX.test(String(o.status || '')) ||
+        COMPLETED_STATUS_REGEX.test(String(o.orderStatus || '')) ||
+        PAID_PAYMENT_REGEX.test(String(o.paymentStatus || ''))
+    ).length;
+    const cancelledOrders = orders.filter(
+      (o) =>
+        CANCELLED_STATUS_REGEX.test(String(o.status || '')) ||
+        CANCELLED_STATUS_REGEX.test(String(o.orderStatus || ''))
+    ).length;
+
+    // Prefer order-derived revenue; fall back to verified payments when zero.
+    const orderRevenueTotal = orderRevenue[0] ? orderRevenue[0].total : 0;
+    const paymentRevenueTotal = paymentRevenue[0] ? paymentRevenue[0].total : 0;
+    const revenue =
+      orderRevenueTotal > 0 ? orderRevenueTotal : paymentRevenueTotal;
 
     const countByStatus = (status) => {
       const row = paymentCounts.find((r) => String(r._id || '').toUpperCase() === String(status || '').toUpperCase());
@@ -203,12 +304,13 @@ exports.getReportSummary = async (req, res) => {
       report: {
         generatedAt: now,
         period: range.period,
+        reportType,
         range: {
           startDate: toISODate(range.start),
           endDate: toISODate(new Date(range.end.getTime() - DAY_MS)),
         },
         currency: 'ETB',
-        revenue: revenueTotal[0] ? revenueTotal[0].total : 0,
+        revenue,
         orders: {
           totalOrders,
           completedOrders,
@@ -225,6 +327,13 @@ exports.getReportSummary = async (req, res) => {
           totalQuantity: item.totalQuantity,
           totalRevenue: item.totalRevenue,
           orderCount: item.orderCount,
+        })),
+        breakdown: reportBreakdown.map((row) => ({
+          period: row._id,
+          orderCount: row.orderCount,
+          completed: row.completed,
+          cancelled: row.cancelled,
+          revenue: row.revenue,
         })),
       },
     });

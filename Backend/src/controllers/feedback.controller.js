@@ -20,81 +20,42 @@ const {
 */
 exports.submitFeedback = async (req, res) => {
   try {
-    const { orderId, rating, comment, category, dishName } = req.body;
+    const { rating, topic, category, dishName, comment, orderId } = req.body;
 
-    // ✅ Validate required fields
-    if (!rating) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: "Rating is required",
-      });
+    const userId = req.user?._id || req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'User authentication failed.' });
     }
 
-    // ✅ If orderId is provided, validate the order exists
-    let orderDoc = null;
-    if (orderId) {
-      orderDoc = await Order.findOne({ orderId: orderId });
-      if (!orderDoc) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
-          success: false,
-          error: "Order not found",
-        });
-      }
+    if (!rating || Number(rating) < 1 || Number(rating) > 5) {
+      return res.status(400).json({ success: false, error: 'Rating must be between 1 and 5.' });
     }
 
-    // ✅ Check if feedback already exists (only when orderId is provided)
-    if (orderDoc) {
-      const existingFeedback = await Feedback.findOne({
-        orderId: orderDoc._id,
-        userId: req.user.id,
-      });
-      if (existingFeedback) {
-        return res.status(HTTP_STATUS.CONFLICT).json({
-          success: false,
-          error: "Feedback already submitted for this order",
-        });
-      }
+    const feedbackPayload = {
+      userId,
+      rating: Number(rating),
+      topic: topic || category || 'General',
+      category: category || topic || 'General',
+      dishName: dishName || '',
+      comment: comment || ''
+    };
+
+    if (orderId && typeof orderId === 'string' && orderId.match(/^[0-9a-fA-F]{24}$/)) {
+      feedbackPayload.orderId = orderId;
     }
 
-    // ✅ Validate rating
-    if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: "Rating must be between 1 and 5",
-      });
-    }
+    const newFeedback = await Feedback.create(feedbackPayload);
 
-    // ✅ Create feedback (orderId is optional per schema)
-    const feedback = await Feedback.create({
-      userId: req.user.id,
-      ...(orderDoc && { orderId: orderDoc._id }),
-      rating: rating,
-      comment: comment || "",
-      category: category || "Food Quality",
-      dishName: dishName || "",
-      status: FEEDBACK_STATUS.PENDING,
-    });
-
-    res.status(HTTP_STATUS.CREATED).json({
+    return res.status(201).json({
       success: true,
-      message: "Thank you for your feedback!",
-
-      feedback: {
-        id: feedback._id,
-        rating: feedback.rating,
-        comment: feedback.comment,
-        category: feedback.category,
-        dishName: feedback.dishName,
-        status: feedback.status,
-        createdAt: feedback.createdAt,
-      },
+      message: 'Feedback submitted successfully',
+      data: newFeedback
     });
   } catch (error) {
-    console.error("❌ Submit Feedback Error:", error);
-
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+    console.error('Feedback Submission Server Error:', error);
+    return res.status(500).json({
       success: false,
-      error: MESSAGES.SERVER_ERROR,
+      error: error.message || 'Internal server error while submitting feedback'
     });
   }
 };
@@ -318,42 +279,61 @@ exports.deleteFeedback = async (req, res) => {
 exports.getFeedbackStats = async (req, res) => {
   try {
     const totalFeedback = await Feedback.countDocuments();
-    const pending = await Feedback.countDocuments({
-      status: FEEDBACK_STATUS.PENDING,
+
+    // ✅ Calculate average rating across all feedback via aggregation
+    const avgRatingResult = await Feedback.aggregate([
+      {
+        $group: {
+          _id: null,
+          avgRating: { $avg: "$rating" }
+        }
+      }
+    ]);
+    const averageRating =
+      avgRatingResult.length > 0 ? Number(avgRatingResult[0].avgRating).toFixed(1) : "0.0";
+
+    // ✅ Positive Reviews count (rating >= 4)
+    const positiveReviews = await Feedback.countDocuments({
+      rating: { $gte: 4 }
     });
+
+    // ✅ Pending Issues count (case-insensitive status match)
+    const pendingIssues = await Feedback.countDocuments({
+      status: { $regex: /^pending$/i }
+    });
+
     const approved = await Feedback.countDocuments({
-      status: FEEDBACK_STATUS.APPROVED,
+      status: FEEDBACK_STATUS.APPROVED
     });
     const rejected = await Feedback.countDocuments({
-      status: FEEDBACK_STATUS.REJECTED,
+      status: FEEDBACK_STATUS.REJECTED
     });
 
-    // ✅ Calculate average rating
-    const allFeedback = await Feedback.find();
-    const ratings = allFeedback.map((fb) => fb.rating);
-    const averageRating =
-      ratings.length > 0
-        ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1)
-        : 0;
-
     // ✅ Rating distribution
-    const ratingDistribution = {
-      1: allFeedback.filter((fb) => fb.rating === 1).length,
-      2: allFeedback.filter((fb) => fb.rating === 2).length,
-      3: allFeedback.filter((fb) => fb.rating === 3).length,
-
-      4: allFeedback.filter((fb) => fb.rating === 4).length,
-      5: allFeedback.filter((fb) => fb.rating === 5).length,
-    };
+    const ratingAggregation = await Feedback.aggregate([
+      {
+        $group: {
+          _id: '$rating',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    ratingAggregation.forEach((r) => {
+      if (r._id >= 1 && r._id <= 5) ratingDistribution[r._id] = r.count;
+    });
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
       stats: {
         totalFeedback,
-        pending,
+        averageRating: parseFloat(averageRating),
+        averageRatingText: averageRating,
+        positiveReviews,
+        pendingIssues,
+        pending: pendingIssues,
         approved,
         rejected,
-        averageRating: parseFloat(averageRating),
         ratingDistribution,
       },
     });

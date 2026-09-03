@@ -16,7 +16,10 @@ const protect = (req, res, next) => {
 };
 
 const authorize = (...roles) => (req, res, next) => {
-  if (!req.user || !roles.includes(req.user.role)) {
+  const allowed = (roles || []).map((role) => String(role).toLowerCase());
+  const userRole = String(req.user?.role || '').toLowerCase();
+
+  if (!userRole || !allowed.includes(userRole)) {
     return res.status(403).json({ success: false, error: 'Forbidden' });
   }
 

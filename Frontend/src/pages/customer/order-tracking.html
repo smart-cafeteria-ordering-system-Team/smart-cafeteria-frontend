@@ -7,6 +7,10 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/frontend/src/css/style.css">
+    <!-- Theme -->
+    <link rel="stylesheet" href="/frontend/src/css/theme.css">
+    <link rel="stylesheet" href="/frontend/src/css/themes/dark-theme.css">
+    <script src="/frontend/src/js/theme.js"></script>
     
 
 </head>
@@ -100,6 +104,10 @@
                     <strong id="receipt-payment">-</strong>
                 </div>
                 <div>
+                    <span class="info-label">Payment Status:</span>
+                    <strong id="receipt-payment-status">-</strong>
+                </div>
+                <div>
                     <span class="info-label">Order Date & Time:</span>
                     <strong id="receipt-time">-</strong>
                 </div>
@@ -135,7 +143,7 @@
                 <a href="menu.html" class="btn btn-primary" style="flex: 1;">
                     <i class="fa-solid fa-plus"></i> Order More Food
                 </a>
-                
+
                 <!-- Cancel Button container -->
                 <div id="cancel-btn-wrapper" style="flex: 1;">Cancel order</div>
             </div>
@@ -144,6 +152,8 @@
     </main>
 
     <!-- Connect Script -->
+    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+    <script src="/frontend/src/js/order-notifications.js"></script>
     <script src="/frontend/src/js/order-status.js" defer></script>
     <script src="/frontend/src/js/order-history.js" defer></script>
 

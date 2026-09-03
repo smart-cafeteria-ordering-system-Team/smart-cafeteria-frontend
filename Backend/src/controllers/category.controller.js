@@ -313,7 +313,7 @@ error: 'Status is required'
 const category = await Category.findOneAndUpdate(
 { id: req.params.id },
 { isActive: isActive },
-{ new: true }
+{ returnDocument: 'after' }
 );
 
 if (!category) {

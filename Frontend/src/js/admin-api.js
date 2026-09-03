@@ -147,15 +147,54 @@
     });
   }
 
+  /**
+   * Upload files with FormData (multipart/form-data)
+   * Automatically handled by browser, don't set Content-Type header
+   */
+  function formDataRequest(method, path, formData, query) {
+    var url = API_BASE + path + (query ? qs(query) : "");
+    var init = {
+      method: method
+      // DO NOT set Content-Type - browser will set it with boundary
+    };
+    var token = getToken();
+    if (token) init.headers = { Authorization: "Bearer " + token };
+    if (formData) init.body = formData;
+
+    return fetch(url, init).then(function (res) {
+      return res.json().catch(function () {
+        return { success: false, error: "Invalid server response" };
+      }).then(function (data) {
+        data._status = res.status;
+        if (!res.ok) {
+          var err = new Error(handleErrorStatus(res.status, data));
+          err.status = res.status;
+          err.data = data;
+          throw err;
+        }
+        if (!data.success) {
+          var err = new Error(data.error || data.message || "Request failed");
+          err.status = data._status;
+          err.data = data;
+          throw err;
+        }
+        return data;
+      });
+    });
+  }
+
   function get(path, query) { return request("GET", path, undefined, query); }
   function post(path, body) { return request("POST", path, body); }
   function put(path, body) { return request("PUT", path, body); }
   function patch(path, body) { return request("PATCH", path, body); }
   function del(path) { return request("DELETE", path); }
+  function postFormData(path, formData) { return formDataRequest("POST", path, formData); }
+  function putFormData(path, formData) { return formDataRequest("PUT", path, formData); }
 
   window.AdminAPI = {
     base: API_BASE,
     get: get, post: post, put: put, patch: patch, del: del, request: request,
+    postFormData: postFormData, putFormData: putFormData,
     esc: esc, formatDate: formatDate, formatDateTime: formatDateTime, formatCurrency: formatCurrency,
     getToken: getToken, getProfile: getProfile, qs: qs
   };

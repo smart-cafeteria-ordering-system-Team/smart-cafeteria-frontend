@@ -53,10 +53,15 @@ async function handleLogin(event) {
 
         showMessage("Login successful.", "success");
 
-        const redirect =
-            result?.user?.role === "admin"
-                ? "../admin/dashboard.html"
-                : "../customer/index.html";
+        const role = String(result?.user?.role || "").toLowerCase();
+        let redirect;
+        if (role === "admin") {
+            redirect = "../admin/dashboard.html";
+        } else if (role === "kitchen" || role === "staff" || role === "kitchen_staff") {
+            redirect = "../kitchen/dashboard.html";
+        } else {
+            redirect = "../customer/menu.html";
+        }
 
         setTimeout(() => {
             window.location.href = redirect;

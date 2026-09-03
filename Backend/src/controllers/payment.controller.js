@@ -282,25 +282,33 @@ error: MESSAGES.SERVER_ERROR
 */
 exports.getPaymentStats = async (req, res) => {
 try {
+// Case-insensitive regex matching every successful status variant written
+// by our simulators, Chapa, Telebirr, and admin flows.
+const successStatusRegex = /^(paid|success|completed|successful|simulated)$/i;
+const pendingStatusRegex = /^(pending|in_progress|processing)$/i;
+const failedStatusRegex = /^(failed|cancelled|canceled|rejected|reversed)$/i;
+
+const [successfulPaymentsCount, pendingTransactionsCount, failedPaymentsCount] = await Promise.all([
+Payment.countDocuments({ status: { $regex: successStatusRegex } }),
+Payment.countDocuments({ status: { $regex: pendingStatusRegex } }),
+Payment.countDocuments({ status: { $regex: failedStatusRegex } })
+]);
+
+// ✅ Calculate total revenue from successful payments (reads amount or totalAmount)
+const revenueAggregation = await Payment.aggregate([
+{ $match: { status: { $regex: successStatusRegex } } },
+{
+$group: {
+_id: null,
+totalRevenue: { $sum: { $ifNull: ["$amount", "$totalAmount"] } }
+}
+}
+]);
+const totalRevenue = revenueAggregation.length > 0 ? revenueAggregation[0].totalRevenue : 0;
 const totalPayments = await Payment.countDocuments();
-const successfulPayments = await Payment.countDocuments({
-
-status: PAYMENT_STATUS.SIMULATED
-});
-const pendingPayments = await Payment.countDocuments({
-status: PAYMENT_STATUS.PENDING
-});
-const failedPayments = await Payment.countDocuments({
-status: PAYMENT_STATUS.FAILED
-});
-
-// ✅ Calculate total revenue
-const successfulPaymentsData = await Payment.find({
-status:
-
-PAYMENT_STATUS.SIMULATED
-});
-const totalRevenue = successfulPaymentsData.reduce((sum, p) => sum + p.amount, 0);
+const successfulPayments = successfulPaymentsCount;
+const pendingPayments = pendingTransactionsCount;
+const failedPayments = failedPaymentsCount;
 
 // ✅ Payment method breakdown
 const cbeBirr = await Payment.countDocuments({ method: 'cbe_birr' });

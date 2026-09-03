@@ -171,6 +171,9 @@ exports.getMenuItemById = async (req, res) => {
  */
 exports.createMenuItem = async (req, res) => {
   try {
+    console.log('Incoming body:', req.body);
+    console.log('Incoming file:', req.file);
+
     const {
       name,
       category,
@@ -210,7 +213,11 @@ exports.createMenuItem = async (req, res) => {
 
     let imageValue;
     try {
-      imageValue = processImageValue(image !== undefined ? image : imageUrl);
+      if (req.file && req.file.filename) {
+        imageValue = `/uploads/menu/${req.file.filename}`;
+      } else {
+        imageValue = processImageValue(image !== undefined ? image : imageUrl);
+      }
     } catch (e) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, error: e.message });
     }
@@ -319,12 +326,13 @@ exports.updateMenuItem = async (req, res) => {
     if (icon !== undefined) item.icon = icon;
 
     // Image handling: explicit "provided" check to support clearing.
-    const imageProvided = req.body.image !== undefined || req.body.imageUrl !== undefined;
+    const fileUploaded = req.file && req.file.filename;
+    const imageProvided = fileUploaded || req.body.image !== undefined || req.body.imageUrl !== undefined;
     if (imageProvided) {
       const rawImage = req.body.image !== undefined ? req.body.image : req.body.imageUrl;
       const previous = item.image;
       try {
-        item.image = processImageValue(rawImage);
+        item.image = fileUploaded ? `/uploads/menu/${req.file.filename}` : processImageValue(rawImage);
       } catch (e) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, error: e.message });
       }

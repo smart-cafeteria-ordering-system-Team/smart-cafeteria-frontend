@@ -30,7 +30,7 @@ class PaymentService {
 
     async getMyPayments() {
         return api.get(
-            "/payments/my-payments"
+            "/payments/my"
         );
     }
 

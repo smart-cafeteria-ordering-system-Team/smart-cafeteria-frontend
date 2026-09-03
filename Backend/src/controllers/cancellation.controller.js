@@ -351,40 +351,60 @@ error: MESSAGES.SERVER_ERROR
 */
 exports.getCancellationStats = async (req, res) => {
 try {
-const totalCancellations = await Order.countDocuments({
+const startOfToday = new Date();
+startOfToday.setHours(0, 0, 0, 0);
 
+const totalCancellations = await Order.countDocuments({
 cancellationRequested: true
 });
 
 const pendingApproval = await Order.countDocuments({
 cancellationRequested: true,
-cancellationStatus: 'pending'
-});
-
-// ✅ Today's refunded cancellations
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-const refundedToday = await Order.countDocuments({
-cancellationRequested: true,
-cancellationStatus: 'approved',
-cancellationProcessedAt: {
-
-$gte: today }
+cancellationStatus: { $regex: /^pending$/i }
 });
 
 const rejectedRequests = await Order.countDocuments({
 cancellationRequested: true,
-cancellationStatus: 'rejected'
+cancellationStatus: { $regex: /^rejected$/i }
 });
 
-// ✅ Calculate total refund amount (approved cancellations)
-const approvedCancellations = await Order.find({
+// ✅ Refunded amount summed for cancellations approved (refunded) today
+const refundedAggregation = await Order.aggregate([
+{
+$match: {
 cancellationRequested: true,
-cancellationStatus: 'approved',
-paymentStatus: PAYMENT_STATUS.SIMULATED
-});
+cancellationStatus: { $regex: /^(approved|refunded)$/i },
+$or: [
+{ cancellationProcessedAt: { $gte: startOfToday } },
+{ updatedAt: { $gte: startOfToday } }
+]
+}
+},
+{
+$group: {
+_id: null,
+totalRefunded: { $sum: "$totalAmount" }
+}
+}
+]);
+const refundedToday = refundedAggregation.length > 0 ? refundedAggregation[0].totalRefunded : 0;
 
-const totalRefundAmount = approvedCancellations.reduce((sum, order) => sum + order.totalAmount, 0);
+// ✅ Total refund amount across all approved cancellations (legacy metric)
+const totalRefundAggregation = await Order.aggregate([
+{
+$match: {
+cancellationRequested: true,
+cancellationStatus: { $regex: /^(approved|refunded)$/i }
+}
+},
+{
+$group: {
+_id: null,
+total: { $sum: "$totalAmount" }
+}
+}
+]);
+const totalRefundAmount = totalRefundAggregation.length > 0 ? totalRefundAggregation[0].total : 0;
 
 res.status(HTTP_STATUS.OK).json({
 success: true,

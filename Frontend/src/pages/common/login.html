@@ -16,6 +16,10 @@
         href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
         rel="stylesheet"
     >
+    <!-- Theme -->
+    <link rel="stylesheet" href="../../css/theme.css">
+    <link rel="stylesheet" href="../../css/themes/dark-theme.css">
+    <script src="../../js/theme.js"></script>
     <style>
         * {
             margin: 0;
@@ -578,8 +582,54 @@
         const errorMsg = document.getElementById("errorMsg");
         const successMsg = document.getElementById("successMsg");
         const submitBtn = document.getElementById("submitBtn");
+        const API = "http://localhost:5000/api/v1";
 
-        form.addEventListener("submit", function (e) {
+        function guardRole(role) {
+            const r = String(role || "customer").toLowerCase();
+            if (r === "admin") return "ADMIN";
+            if (r === "kitchen" || r === "staff" || r === "kitchen_staff") return "KITCHEN_STAFF";
+            return "CUSTOMER";
+        }
+
+        function storeSession(token, user) {
+            const userRole = guardRole(user.role);
+            localStorage.setItem("auth_token", token);
+            localStorage.setItem("current_user", JSON.stringify(user));
+            localStorage.setItem("scos_token", token);
+            localStorage.setItem("scos_user", JSON.stringify(user));
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("userRole", userRole);
+            localStorage.setItem("role", userRole);
+            localStorage.setItem(
+                "userProfile",
+                JSON.stringify({
+                    name: user.name || user.fullName || "",
+                    email: user.email || "",
+                    role: userRole
+                })
+            );
+
+            if (userRole === "KITCHEN_STAFF") {
+                localStorage.setItem("kitchenLoggedIn", "true");
+            }
+            if (userRole === "ADMIN") {
+                localStorage.setItem("adminLoggedIn", "true");
+            }
+            if (userRole === "CUSTOMER") {
+                localStorage.setItem("customerLoggedIn", "true");
+            }
+            return userRole;
+        }
+
+        function redirectFor(userRole) {
+            if (userRole === "ADMIN") return "../admin/dashboard.html";
+            if (userRole === "KITCHEN_STAFF") return "../kitchen/dashboard.html";
+            return "../customer/menu.html";
+        }
+
+        form.addEventListener("submit", async function (e) {
             e.preventDefault();
             errorMsg.style.display = "none";
             successMsg.style.display = "none";
@@ -596,86 +646,36 @@
                 return;
             }
 
-            let userRole = "";
-            let userName = "";
-            let userEmail = "";
-            let redirectUrl = "";
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
 
-            /* ADMIN */
-            if (identifier.toLowerCase() === "sintayehu@22.com" && password === "123456") {
-                userRole = "ADMIN";
-                userName = "Admin";
-                userEmail = identifier;
-                redirectUrl = "../admin/dashboard.html";
-            }
-            /* KITCHEN STAFF */
-            else if (identifier.toLowerCase() === "wondesengemechu0533@gmail.com" && password === "123456") {
-                userRole = "KITCHEN_STAFF";
-                userName = "Kitchen Staff";
-                userEmail = identifier;
-                redirectUrl = "../kitchen/dashboard.html";
-            }
-            /* REGISTERED CUSTOMER */
-            else {
-                let registeredUsers = [];
-                try {
-                    registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-                } catch (error) {
-                    registeredUsers = [];
-                }
-
-                const normalizedIdentifier = identifier.toLowerCase();
-                const foundUser = registeredUsers.find(function (user) {
-                    const email = String(user.email || "").trim().toLowerCase();
-                    const phone = String(user.phone || "").trim();
-                    const savedPassword = String(user.password || "");
-                    const identifierMatches = email === normalizedIdentifier || phone === identifier;
-                    return identifierMatches && savedPassword === password;
+            try {
+                const response = await fetch(API + "/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ identifier, password })
                 });
 
-                if (!foundUser) {
-                    showError("Invalid email/phone or password.");
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> &nbsp; Login to Account';
+                    showError(data.message || data.error || "Invalid email/phone or password.");
                     return;
                 }
 
-                userRole = "CUSTOMER";
-                userName = foundUser.name || foundUser.fullName || "Customer";
-                userEmail = foundUser.email || "";
-                redirectUrl = "../customer/menu.html";
+                const userRole = storeSession(data.token, data.user);
+                showSuccess("Login successful! Redirecting...");
+
+                setTimeout(function () {
+                    window.location.href = redirectFor(userRole);
+                }, 800);
+            } catch (error) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> &nbsp; Login to Account';
+                showError("Unable to connect to the server. Please try again.");
             }
-
-            /* SAVE LOGIN SESSION */
-            localStorage.setItem("isLoggedIn", "true");
-            localStorage.setItem("userRole", userRole);
-            localStorage.setItem("role", userRole);
-
-            /* SAVE USER PROFILE */
-            localStorage.setItem(
-                "userProfile",
-                JSON.stringify({
-                    name: userName,
-                    email: userEmail,
-                    role: userRole
-                })
-            );
-
-            if (userRole === "KITCHEN_STAFF") {
-                localStorage.setItem("kitchenLoggedIn", "true");
-            }
-            if (userRole === "ADMIN") {
-                localStorage.setItem("adminLoggedIn", "true");
-            }
-            if (userRole === "CUSTOMER") {
-                localStorage.setItem("customerLoggedIn", "true");
-            }
-
-            showSuccess("Login successful! Redirecting...");
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Redirecting...';
-
-            setTimeout(function () {
-                window.location.href = redirectUrl;
-            }, 800);
         });
 
         function showError(message) {

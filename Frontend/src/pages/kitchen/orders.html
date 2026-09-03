@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Shared Kitchen Stylesheet -->
     <link rel="stylesheet" href="../../css/kitchen.css">
+    <!-- Theme -->
+    <link rel="stylesheet" href="../../css/theme.css">
+    <link rel="stylesheet" href="../../css/themes/dark-theme.css">
+    <script src="../../js/theme.js"></script>
     <style>
         :root {
 
@@ -132,6 +136,8 @@
         .badge-pending { background-color: rgba(245, 158, 11, 0.2); color: #f59e0b; }
         .badge-preparing { background-color: rgba(59, 130, 246, 0.2); color: #3b82f6; }
         .badge-ready { background-color: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge-served { background-color: rgba(107, 114, 128, 0.2); color: #6b7280; }
+        .badge-cancelled { background-color: rgba(239, 68, 68, 0.2); color: #ef4444; }
     </style>
 </head>
 <body class="admin-body">
@@ -160,7 +166,14 @@
                 <p class="subtitle">Detailed list view for tracking, filtering, and completing kitchen orders.</p>
             </div>
             
-           <div class="filter-group">
+           <div style="display:flex; gap:12px; align-items:center;">
+                <span class="subtitle" id="lastUpdated"></span>
+                <button id="refreshBtn" class="btn">
+                    <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                </button>
+            </div>
+
+            <div class="filter-group">
     <button class="btn active" data-status="all">All Active</button>
     <button class="btn" data-status="Pending">Pending</button>
     <button class="btn" data-status="Preparing">Preparing</button>
@@ -183,26 +196,14 @@
                     </tr>
                 </thead>
                 <tbody id="kitchenOrdersBody">
-                    <!-- Dynamic Order Rows Injected Here -->
-                    <tr>
-                        <td><strong>#1042</strong></td>
-                        <td>John Doe</td>
-                        <td>2x Burger, 1x Fries</td>
-                        <td><span class="badge badge-preparing">Preparing</span></td>
-                        <td>08 mins</td>
-                        <td>
-                            <button class="btn"><i class="fa-solid fa-check"></i> Mark Ready</button>
-                        </td>
-                    </tr>
+                    <!-- Dynamic Order Rows Injected via kitchen.js -->
                 </tbody>
             </table>
         </div>
     </main>
 
-       <!-- JavaScript Dependencies -->
-    <script src="/frontend/src/js/api.js"></script>
-    <script src="/frontend/src/js/auth.js"></script>
-    <script src="/Frontend/src/pages/kitchen/kitchen.js"></script>
+       <!-- JavaScript Dependency -->
+    <script src="/frontend/src/pages/kitchen/kitchen.js"></script>
 
 </body>
 

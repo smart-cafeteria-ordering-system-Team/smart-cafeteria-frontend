@@ -168,43 +168,30 @@ function setupStarRating() {
 function handleFeedbackFormSubmit(e) {
     e.preventDefault();
 
-    var ratingInput = document.getElementById('ratingValue');
-    var rating = ratingInput ? parseInt(ratingInput.value, 10) : selectedRatingValue;
-
-    var comment = document.getElementById('feedback-comments') ? document.getElementById('feedback-comments').value.trim() : '';
-    var category = document.getElementById('feedback-category') ? document.getElementById('feedback-category').value : 'Food Quality';
-    var dishName = document.getElementById('dish-reviewed') ? document.getElementById('dish-reviewed').value.trim() : '';
-
-    if (!rating || rating < 1 || rating > 5) {
-        alert('Please select a star rating between 1 and 5.');
-        return;
-    }
-    if (!comment) {
-        alert('Please enter your comments / review.');
-        return;
-    }
-
     var token = localStorage.getItem('token');
     if (!token) {
-        alert('Please login to submit feedback.');
+        alert('Please log in to submit feedback.');
         return;
     }
 
-    // Extrapolate orderId from URL query params, fallback to localStorage
-    var urlParams = new URLSearchParams(window.location.search);
-    var orderId = urlParams.get('orderId') || localStorage.getItem('lastOrderId') || null;
+    var rating = window.selectedRatingValue || selectedRatingValue || 5;
 
-    // Construct dynamic payload independent of order context
-    var feedbackPayload = {
+    var topicSelect = document.getElementById('feedbackTopic') || document.getElementById('feedback-category') || document.querySelector('select');
+    var dishInput = document.getElementById('specificDish') || document.getElementById('dish-reviewed') || document.querySelector('input[placeholder*="Kitfo"]');
+    var commentTextarea = document.getElementById('feedbackComments') || document.getElementById('feedback-comments') || document.querySelector('textarea');
+
+    var payload = {
         rating: Number(rating),
-        comment: comment,
-        category: category,
-        dishName: dishName
+        topic: topicSelect ? topicSelect.value : 'Food & Drink Quality',
+        category: topicSelect ? topicSelect.value : 'Food & Drink Quality',
+        dishName: dishInput ? dishInput.value.trim() : '',
+        comment: commentTextarea ? commentTextarea.value.trim() : ''
     };
 
-    // Attach orderId ONLY if present
-    if (orderId) {
-        feedbackPayload.orderId = orderId;
+    var urlParams = new URLSearchParams(window.location.search);
+    var orderId = urlParams.get('orderId') || localStorage.getItem('lastOrderId') || null;
+    if (orderId && typeof orderId === 'string' && orderId.match(/^[0-9a-fA-F]{24}$/)) {
+        payload.orderId = orderId;
     }
 
     var submitBtn = document.querySelector('#feedback-form .btn-primary, #feedbackForm .btn-primary');
@@ -216,19 +203,20 @@ function handleFeedbackFormSubmit(e) {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
         },
-        body: JSON.stringify(feedbackPayload)
+        body: JSON.stringify(payload)
     })
-    .then(function (res) { return res.json(); })
-    .then(function (data) {
-        if (!res.ok && !data.success) {
-            throw new Error(data.error || 'Failed to submit feedback.');
+    .then(function (response) { return response.json().then(function (result) { return { ok: response.ok, result: result }; }); })
+    .then(function (outcome) {
+        if (outcome.ok && (outcome.result.success || outcome.result.data)) {
+            alert('Thank you! Your feedback has been submitted successfully.');
+            window.location.reload();
+        } else {
+            alert('Submission Error: ' + (outcome.result.error || outcome.result.message || 'Failed to submit feedback'));
         }
-        alert(data.message || 'Thank you for your feedback!');
-        window.location.reload();
     })
     .catch(function (err) {
-        console.error('Feedback submit error:', err);
-        alert('Error: ' + (err.message || 'Failed to send feedback'));
+        console.error('Network or client error during feedback submit:', err);
+        alert('Network error. Please make sure the backend server is running on port 5000.');
     })
     .finally(function () {
         if (submitBtn) submitBtn.disabled = false;

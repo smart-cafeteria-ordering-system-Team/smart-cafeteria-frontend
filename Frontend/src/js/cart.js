@@ -36,6 +36,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return div.innerHTML;
     }
 
+    function getItemId(item) {
+        return String(item._id || item.menuItemId || item.id || "");
+    }
+
     function renderCart(cart) {
         if (!cartContainer) return;
 
@@ -65,14 +69,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     <div class="cart-item-controls">
                         <div class="qty-control">
-                            <button type="button" class="btn-qty decrease-btn" data-id="${escapeHTML(String(item.id))}">-</button>
+                            <button type="button" class="btn-qty decrease-btn" data-id="${escapeHTML(getItemId(item))}">-</button>
                             <span class="qty-value">${quantity}</span>
-                            <button type="button" class="btn-qty increase-btn" data-id="${escapeHTML(String(item.id))}">+</button>
+                            <button type="button" class="btn-qty increase-btn" data-id="${escapeHTML(getItemId(item))}">+</button>
                         </div>
 
                         <strong class="item-total-price">${itemTotal.toFixed(2)} ETB</strong>
 
-                        <button type="button" class="btn-remove remove-btn" data-id="${escapeHTML(String(item.id))}" title="Remove item">
+                        <button type="button" class="btn-remove remove-btn" data-id="${escapeHTML(getItemId(item))}" title="Remove item">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -117,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const id = String(increaseButton.dataset.id || "");
             const cart = getCart();
             const item = cart.find(function (entry) {
-                return String(entry.id) === id;
+                return getItemId(entry) === id;
             });
 
             if (item) {
@@ -132,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const id = String(decreaseButton.dataset.id || "");
             const cart = getCart();
             const item = cart.find(function (entry) {
-                return String(entry.id) === id;
+                return getItemId(entry) === id;
             });
 
             if (item) {
@@ -140,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (item.quantity <= 0) {
                     const newCart = cart.filter(function (entry) {
-                        return String(entry.id) !== id;
+                        return getItemId(entry) !== id;
                     });
                     saveCart(newCart);
                 } else {
@@ -155,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (removeButton) {
             const id = String(removeButton.dataset.id || "");
             const newCart = getCart().filter(function (item) {
-                return String(item.id) !== id;
+                return getItemId(item) !== id;
             });
             saveCart(newCart);
             updateCart();

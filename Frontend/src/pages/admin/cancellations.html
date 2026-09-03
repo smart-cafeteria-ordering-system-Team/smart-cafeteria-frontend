@@ -11,24 +11,30 @@
     <!-- Admin CSS stylesheet -->
     <link rel="stylesheet" href="/frontend/src/css/admin.css">
     <link rel="stylesheet" href="/frontend/src/css/style.css">
+    <link rel="stylesheet" href="/frontend/src/css/theme.css">
+    <link rel="stylesheet" href="/frontend/src/css/themes/dark-theme.css">
+    <script src="/frontend/src/js/theme.js"></script>
 
     <!-- Auth Guard Check -->
     <script>
         const role = localStorage.getItem('userRole');
         if (!role || role !== 'ADMIN') {
-            alert('Access denied! Admins only.');
            window.location.href = '/Frontend/src/pages/common/login.html';
         }
     </script>
 </head>
 <body class="admin-body">
 
-    <!-- TOP NAVBAR --> 
+    <!-- TOP NAVBAR -->
+    <header class="admin-navbar">
+        <div class="nav-left">
+            <button id="sidebarToggle" class="btn-icon" aria-label="Toggle Sidebar">
+                <i class="fa-solid fa-bars"></i>
             </button>
             <div class="brand-logo">
                 <i class="fa-solid fa-utensils"></i>
                 <span>Smart Cafeteria <small>Admin</small></span>
-            </div> 
+            </div>
         </div>
 
         <div class="nav-right">
@@ -91,7 +97,7 @@
                     <a href="cancellations.html" class="sidebar-link active">
                         <i class="fa-solid fa-ban"></i>
                         <span>Cancellations</span>
-                        <span class="sidebar-badge" id="sidebarCancellationBadge">0</span>
+                        <span class="sidebar-badge" id="sidebarCancellationBadge" style="display: none;">0</span>
                     </a>
                 </div>
 
@@ -255,11 +261,9 @@
     </div>
 
     <!-- JavaScript Files -->
-    <script src="../../js/api.js"></script>
-    <script src="../../js/auth.js"></script>
+    <script src="../../js/admin-api.js"></script>
     <script src="/frontend/src/js/admin.js"></script>
-    <script src="/frontend/src/js/cancellations.js"></script>
-    <script src="/Frontend/src/components/sidebar.js"></script>
+    <script src="/frontend/src/js/admin-cancellations.js"></script>
 
 </body>
 </html>

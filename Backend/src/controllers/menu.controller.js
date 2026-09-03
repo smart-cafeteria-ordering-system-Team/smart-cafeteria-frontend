@@ -567,7 +567,7 @@ req.params.id,
 availability: available,
 isAvailable: available
 },
-{ new: true }
+{ returnDocument: 'after' }
 );
 
 if (!item) {

@@ -56,12 +56,12 @@ class AuthService {
     }
 
     async getProfile() {
-        return api.get("/auth/profile");
+        return api.get("/auth/me");
     }
 
     async updateProfile(data) {
         const response = await api.put(
-            "/auth/profile",
+            "/auth/me",
             data
         );
 
@@ -82,7 +82,7 @@ class AuthService {
 
     async changePassword(data) {
         return api.put(
-            "/auth/change-password",
+            "/auth/password",
             data
         );
     }

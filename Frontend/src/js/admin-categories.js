@@ -2,174 +2,257 @@
  * ==========================================================================
  * SMART CAFETERIA ORDERING SYSTEM - ADMIN CATEGORIES
  * ==========================================================================
- * Admin Category Management driven by the backend API:
- *   GET    /admin/categories        (list)
- *   GET    /admin/categories/:id    (details)
- *   POST   /admin/categories        (create)
- *   PUT    /admin/categories/:id    (update)
- *   PATCH  /admin/categories/:id/status (toggle active)
- *   DELETE /admin/categories/:id    (delete)
+ * Admin Category Management driven by the live backend API:
+ *   GET    /categories               (list)
+ *   POST   /categories               (create)
+ *   PUT    /categories/:id           (update)
+ *   PATCH  /categories/:id/status    (toggle active)
+ *   DELETE /categories/:id           (delete)
  *
+ * Search + status filtering are done client-side on the fetched list.
  * Requires window.AdminAPI (admin-api.js) loaded first.
- * ============================================================================
+ * ==========================================================================
  */
 (function () {
   "use strict";
 
   var state = {
     page: 1,
-    limit: 10,
+    perPage: 8,
     search: "",
     status: ""
   };
 
-  function escapeHtml(value) {
+  var allCategories = [];
+  var total = 0;
+  var pages = 1;
+
+  function esc(value) {
     return window.esc(value);
   }
 
-  function openModal(id) { var el = document.getElementById(id); if (el) el.classList.add("open"); }
-  function closeModal(id) { var el = document.getElementById(id); if (el) el.classList.remove("open"); }
-  function closeAllModals() { document.querySelectorAll(".modal-overlay.open").forEach(function(m) { m.classList.remove("open"); }); }
+  function catName(cat) {
+    var name = cat.name;
+    if (name && typeof name === "object") return name.en || name.am || "";
+    return name || "";
+  }
 
-  document.addEventListener("click", function(e) {
-    var closeBtn = e.target.closest("[data-close-modal]");
-    if (closeBtn) closeModal(closeBtn.getAttribute("data-close-modal"));
-    var overlay = e.target.closest(".modal-overlay");
-    if (overlay && e.target === overlay) closeAllModals();
-  });
+  function catDescription(cat) {
+    var desc = cat.description;
+    if (desc && typeof desc === "object") return desc.en || desc.am || "";
+    return desc || "";
+  }
 
-  document.addEventListener("keydown", function(e) {
-    if (e.key === "Escape") closeAllModals();
-  });
+  function setText(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
 
+  /* ============================================================
+   * MODALS
+   * ============================================================ */
+  function openModal() {
+    var modal = document.getElementById("categoryModal");
+    if (modal) modal.style.display = "flex";
+  }
+
+  function closeModal() {
+    var modal = document.getElementById("categoryModal");
+    if (modal) modal.style.display = "none";
+  }
+
+  /* ============================================================
+   * DATA LOADING
+   * ============================================================ */
   async function loadCategories() {
-    var tbody = document.getElementById("categoriesTableBody");
+    var tbody = document.getElementById("categoryTableBody");
     if (!tbody || !window.AdminAPI) return;
 
-    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading categories...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading...</td></tr>';
 
     try {
-      var data = await window.AdminAPI.get("/admin/categories", {
-        page: state.page,
-        limit: state.limit,
-        search: state.search,
-        status: state.status
-      });
-
-      state.total = data.total || 0;
-      state.pages = data.pages || Math.max(Math.ceil(state.total / state.limit), 1);
-      window.__categoriesCache = data.categories || [];
-      renderCategories(window.__categoriesCache);
+      var data = await window.AdminAPI.get("/categories");
+      allCategories = data.categories || [];
+      total = allCategories.length;
+      pages = Math.max(Math.ceil(total / state.perPage), 1);
+      if (state.page > pages) state.page = pages;
+      renderMetrics();
+      renderCategories();
       renderPagination();
     } catch (error) {
-      tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Failed to load categories: ' + window.esc(error.message || "Server error") + '</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Failed to load categories: ' + esc(error.message || "Server error") + "</td></tr>";
     }
   }
 
-  function renderCategories(categories) {
-    var tbody = document.getElementById("categoriesTableBody");
+  function renderMetrics() {
+    var activeTotal = 0;
+    var linkedItems = 0;
+    allCategories.forEach(function (cat) {
+      if (cat.isActive) activeTotal++;
+      linkedItems += Number(cat.itemCount) || 0;
+    });
+    setText("metricTotalCategories", allCategories.length);
+    setText("metricActiveCategories", activeTotal);
+    setText("metricTotalLinkedItems", linkedItems);
+    setText("metricInactiveCategories", allCategories.length - activeTotal);
+  }
+
+  function filteredCategories() {
+    var query = state.search.toLowerCase();
+    return allCategories.filter(function (cat) {
+      if (state.status === "ACTIVE" && !cat.isActive) return false;
+      if (state.status === "INACTIVE" && cat.isActive) return false;
+      if (!query) return true;
+      var name = catName(cat).toLowerCase();
+      var id = String(cat.id || "").toLowerCase();
+      return name.indexOf(query) !== -1 || id.indexOf(query) !== -1;
+    });
+  }
+
+  /* ============================================================
+   * TABLE
+   * ============================================================ */
+  function renderCategories() {
+    var tbody = document.getElementById("categoryTableBody");
     if (!tbody) return;
 
-    if (!categories.length) {
+    var filtered = filteredCategories();
+    var start = (state.page - 1) * state.perPage;
+    var rows = filtered.slice(start, start + state.perPage);
+
+    if (!rows.length) {
       tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No categories found.</td></tr>';
       return;
     }
 
-    tbody.innerHTML = categories.map(function (cat) {
-      var isActive = cat.isActive !== false;
+    tbody.innerHTML = rows.map(function (cat) {
+      var name = catName(cat);
+      var desc = catDescription(cat);
+      var statusBadge = cat.isActive
+        ? '<span class="status-badge status-active">Active</span>'
+        : '<span class="status-badge status-blocked">Inactive</span>';
+      var toggleIcon = cat.isActive ? "fa-toggle-on" : "fa-toggle-off";
+      var toggleTitle = cat.isActive ? "Deactivate" : "Activate";
+
       return (
         "<tr>" +
-        '<td><strong>' + window.esc(cat.name) + '</strong><br><small class="table-muted">' + window.esc(cat.icon || "fa-solid fa-tag") + '</small></td>' +
-        '<td><span class="category-pill">' + window.esc(cat.category || "-") + '</span></td>' +
-        '<td>' + (cat.isActive !== false ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>') + '</td>' +
-        '<td>' + window.esc(cat.description || "-") + '</td>' +
-        '<td>' + window.AdminAPI.formatDate(cat.createdAt) + '</td>' +
-        '<td>' +
-        '<div class="table-actions">' +
-          '<button class="action-btn" data-action="edit" data-id="' + cat.id + '" title="Edit category"><i class="fa-solid fa-pen"></i></button>' +
-          '<button class="action-btn" data-action="toggle" data-id="' + cat.id + '" title="' + (isActive ? "Deactivate" : "Activate") + '"><i class="fa-solid ' + (isActive ? "fa-toggle-on" : "fa-toggle-off") + '"></i></button>' +
-          '<button class="action-btn danger" data-action="delete" data-id="' + cat.id + '" title="Delete category"><i class="fa-solid fa-trash"></i></button>' +
-        '</div>' +
-        '</td>' +
-        '</tr>'
+        "<td><strong>" + esc(cat.id) + "</strong></td>" +
+        "<td>" + (cat.icon ? '<span class="cat-pill">' + esc(cat.icon) + "</span> " : "") + "<strong>" + esc(name) + "</strong></td>" +
+        "<td>" + esc(desc || "—") + "</td>" +
+        "<td>" + (Number(cat.itemCount) || 0) + "</td>" +
+        "<td>" + statusBadge + "</td>" +
+        "<td>" +
+          '<div class="table-actions">' +
+            '<button class="action-btn" data-action="edit" data-id="' + esc(cat.id) + '" title="Edit category"><i class="fa-solid fa-pen"></i></button>' +
+            '<button class="action-btn" data-action="toggle" data-id="' + esc(cat.id) + '" title="' + toggleTitle + '"><i class="fa-solid ' + toggleIcon + '"></i></button>' +
+            '<button class="action-btn danger" data-action="delete" data-id="' + esc(cat.id) + '" title="Delete category"><i class="fa-solid fa-trash"></i></button>' +
+          "</div>" +
+        "</td>" +
+        "</tr>"
       );
     }).join("");
   }
 
   function renderPagination() {
-    var info = document.getElementById("paginationInfo");
-    var prevBtn = document.getElementById("prevPageBtn");
-    var nextBtn = document.getElementById("nextPageBtn");
+    var container = document.getElementById("categoryPaginationControls");
+    if (!container) return;
 
-    if (info) info.textContent = "Page " + state.page + " of " + Math.max(state.pages, 1) + " (" + state.total + " categories)";
-    if (prevBtn) prevBtn.disabled = state.page <= 1;
-    if (nextBtn) nextBtn.disabled = state.page >= state.pages;
+    container.innerHTML =
+      '<div class="pagination-info">Page ' + state.page + " of " + pages + " (" + total + " categories)</div>" +
+      '<div class="pagination">' +
+        '<button class="page-btn" id="categoryPrevPageBtn"' + (state.page <= 1 ? " disabled" : "") + '><i class="fa-solid fa-chevron-left"></i> Prev</button>' +
+        '<button class="page-btn" id="categoryNextPageBtn"' + (state.page >= pages ? " disabled" : "") + '>Next <i class="fa-solid fa-chevron-right"></i></button>' +
+      "</div>";
+
+    var prevBtn = document.getElementById("categoryPrevPageBtn");
+    var nextBtn = document.getElementById("categoryNextPageBtn");
+    if (prevBtn) prevBtn.addEventListener("click", function () { changePage(-1); });
+    if (nextBtn) nextBtn.addEventListener("click", function () { changePage(1); });
   }
 
   function changePage(delta) {
     state.page += delta;
     if (state.page < 1) state.page = 1;
-    loadCategories();
+    renderCategories();
+    renderPagination();
   }
 
+  /* ============================================================
+   * ADD / EDIT MODAL
+   * ============================================================ */
   function openAddCategoryModal() {
-    closeAllModals();
-    document.getElementById("categoryForm").reset();
+    var form = document.getElementById("categoryForm");
+    if (form) form.reset();
     document.getElementById("categoryId").value = "";
+    document.getElementById("categoryIsActive").checked = true;
     document.getElementById("categoryModalTitle").textContent = "Add New Category";
     document.getElementById("saveCategoryBtn").textContent = "Save Category";
-    document.getElementById("categoryIsActive").checked = true;
-    openModal("categoryModal");
+    openModal();
   }
 
-  function openEditCategoryModal(category) {
-    closeAllModals();
-    document.getElementById("categoryForm").reset();
-    document.getElementById("categoryId").value = category.id;
-    document.getElementById("categoryName").value = category.name || "";
-    document.getElementById("categoryIcon").value = category.icon || "fa-solid fa-tag";
-    document.getElementById("categoryDescription").value = category.description || "";
-    document.getElementById("categoryIsActive").checked = category.isActive !== false;
+  function openEditCategoryModal(cat) {
+    var form = document.getElementById("categoryForm");
+    if (form) form.reset();
+    document.getElementById("categoryId").value = cat.id;
+    document.getElementById("categoryName").value = catName(cat);
+    document.getElementById("categoryDescription").value = catDescription(cat);
+    document.getElementById("categoryIsActive").checked = cat.isActive !== false;
     document.getElementById("categoryModalTitle").textContent = "Edit Category";
     document.getElementById("saveCategoryBtn").textContent = "Update Category";
-    openModal("categoryModal");
+    openModal();
+  }
+
+  function slugify(value) {
+    return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+
+  function buildPayload(includeId) {
+    var nameEn = document.getElementById("categoryName").value.trim();
+    var desc = document.getElementById("categoryDescription").value.trim();
+    var payload = {
+      name: { en: nameEn, am: nameEn },
+      description: { en: desc, am: desc },
+      icon: "🍽️",
+      isActive: document.getElementById("categoryIsActive").checked
+    };
+    if (includeId) payload.id = slugify(nameEn);
+    return payload;
   }
 
   async function handleCategoryFormSubmit(event) {
     event.preventDefault();
 
     var id = document.getElementById("categoryId").value;
-    var payload = {
-      name: document.getElementById("categoryName").value.trim(),
-      icon: document.getElementById("categoryIcon").value.trim() || "fa-solid fa-tag",
-      description: document.getElementById("categoryDescription").value.trim(),
-      isActive: document.getElementById("categoryIsActive").checked
-    };
+    var payload = buildPayload(!id);
+    if (!payload.id || !payload.name.en) {
+      if (window.AdminToast) window.AdminToast.error("Category name is required");
+      return;
+    }
 
     try {
-      var data;
-      var id = document.getElementById("categoryId").value;
-      if (!id) {
-        data = await window.AdminAPI.post("/admin/categories", payload);
+      if (id) {
+        await window.AdminAPI.put("/categories/" + encodeURIComponent(id), payload);
       } else {
-        data = await window.AdminAPI.put("/admin/categories/" + id, payload);
+        await window.AdminAPI.post("/categories", payload);
       }
-      closeModal("categoryModal");
-      if (window.AdminToast) window.AdminToast.success("Category saved successfully");
+      closeModal();
+      if (window.AdminToast) window.AdminToast.success(id ? "Category updated successfully" : "Category created successfully");
       loadCategories();
     } catch (error) {
       if (window.AdminToast) window.AdminToast.error(error.message || "Failed to save category");
     }
   }
 
-  async function toggleCategoryStatus(category) {
-    var nextStatus = category.isActive !== false ? false : true;
-    var message = (category.isActive !== false ? "Deactivate" : "Activate") + ' category "' + category.name + '"?';
-
-    if (!window.confirm(message)) return;
+  /* ============================================================
+   * ACTIONS
+   * ============================================================ */
+  async function toggleCategoryStatus(cat) {
+    var nextStatus = cat.isActive ? false : true;
+    var label = (cat.isActive ? "Deactivate" : "Activate") + ' category "' + catName(cat) + '"?';
+    if (!window.confirm(label)) return;
 
     try {
-      await window.AdminAPI.patch("/admin/categories/" + category.id + "/status", { isActive: nextStatus });
+      await window.AdminAPI.patch("/categories/" + encodeURIComponent(cat.id) + "/status", { isActive: nextStatus });
       if (window.AdminToast) window.AdminToast.success(nextStatus ? "Category activated" : "Category deactivated");
       loadCategories();
     } catch (error) {
@@ -177,43 +260,83 @@
     }
   }
 
-  async function deleteCategory(category) {
-    if (!window.confirm('Delete category "' + category.name + '"? This action cannot be undone.')) return;
+  async function deleteCategory(cat) {
+    if (!window.confirm('Delete category "' + catName(cat) + '"? This action cannot be undone.')) return;
 
     try {
-      await window.AdminAPI.del("/admin/categories/" + category.id);
+      await window.AdminAPI.del("/categories/" + encodeURIComponent(cat.id));
       if (window.AdminToast) window.AdminToast.success("Category deleted successfully");
-      if (state.total === 1 && state.page > 1) state.page--;
       loadCategories();
     } catch (error) {
       if (window.AdminToast) window.AdminToast.error(error.message || "Failed to delete category");
     }
   }
 
-  function findCategoryById(id) {
-    return window.AdminAPI.get("/admin/categories/" + id).then(function(d) { return d.category; }).catch(function() { return null; });
+  /* ============================================================
+   * EVENT BINDINGS
+   * ============================================================ */
+  function bindEvents() {
+    var openBtn = document.getElementById("openAddCategoryModalBtn");
+    if (openBtn) openBtn.addEventListener("click", openAddCategoryModal);
+
+    var closeBtn = document.getElementById("closeCategoryModalBtn");
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    var cancelBtn = document.getElementById("cancelCategoryModalBtn");
+    if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+    var modal = document.getElementById("categoryModal");
+    if (modal) modal.addEventListener("click", function (e) {
+      if (e.target === modal) closeModal();
+    });
+
+    var form = document.getElementById("categoryForm");
+    if (form) form.addEventListener("submit", handleCategoryFormSubmit);
+
+    var searchInput = document.getElementById("categorySearchInput");
+    if (searchInput) {
+      var debounceTimer = null;
+      searchInput.addEventListener("input", function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+          state.search = searchInput.value.trim();
+          state.page = 1;
+          renderCategories();
+          renderPagination();
+        }, 400);
+      });
+    }
+
+    var statusFilter = document.getElementById("categoryStatusFilter");
+    if (statusFilter) {
+      statusFilter.addEventListener("change", function () {
+        state.status = statusFilter.value;
+        state.page = 1;
+        renderCategories();
+        renderPagination();
+      });
+    }
+
+    var tbody = document.getElementById("categoryTableBody");
+    if (tbody) {
+      tbody.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        var id = btn.getAttribute("data-id");
+        var action = btn.getAttribute("data-action");
+        if (!id) return;
+
+        var cat = allCategories.find(function (c) { return String(c.id) === String(id); });
+        if (!cat) return;
+
+        if (action === "edit") openEditCategoryModal(cat);
+        else if (action === "toggle") toggleCategoryStatus(cat);
+        else if (action === "delete") deleteCategory(cat);
+      });
+    }
   }
 
-  function renderPagination() {
-    var info = document.getElementById("paginationInfo");
-    var prevBtn = document.getElementById("prevPageBtn");
-    var nextBtn = document.getElementById("nextPageBtn");
-
-    if (info) info.textContent = "Page " + state.page + " of " + Math.max(state.pages, 1) + " (" + state.total + " categories)";
-    if (prevBtn) prevBtn.disabled = state.page <= 1;
-    if (nextBtn) nextBtn.disabled = state.page >= state.pages;
-  }
-
-  function changePage(delta) {
-    state.page += delta;
-    if (state.page < 1) state.page = 1;
-    loadCategories();
-  }
-
-  function init() {
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!window.AdminAPI) return;
     bindEvents();
     loadCategories();
-  }
-
-  document.addEventListener("DOMContentLoaded", init);
+  });
 })();

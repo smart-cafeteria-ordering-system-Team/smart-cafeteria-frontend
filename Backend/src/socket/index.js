@@ -9,22 +9,36 @@ const { registerNotificationHandlers } = require("./notification.socket");
 const setupSocketIO = (server) => {
     const io = new Server(server, {
         cors: {
-            origin: process.env.FRONTEND_URL,
+            origin: '*',
             methods: ['GET', 'POST']
         }
     });
 
-    // Store Socket.io instance
+    // Store Socket.io instance globally for use in controllers
     initSocket(io);
 
     io.on('connection', (socket) => {
         logger.info('Socket client connected', {
-            socketId: socket.id,
-            userId: socket.user?.id,
-            role: socket.user?.role
+            socketId: socket.id
         });
 
+        // Customer joins their user-specific notification room
+        socket.on('joinUserRoom', (userId) => {
+            if (!userId) return;
+            const room = `user_${userId}`;
+            socket.join(room);
+            socket.userId = userId;
+            logger.info('User joined notification room', {
+                socketId: socket.id,
+                userId,
+                room
+            });
+        });
+
+        // Customer joins a specific order room
         registerOrderHandlers(io, socket);
+
+        // Auto-join notification room if socket carries user info
         registerNotificationHandlers(io, socket);
 
         socket.on('disconnect', (reason) => {
@@ -37,4 +51,5 @@ const setupSocketIO = (server) => {
 
     return io;
 };
+
 module.exports = { setupSocketIO };

@@ -26,6 +26,11 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Theme (Light / Dark) -->
+    <link rel="stylesheet" href="/frontend/src/css/theme.css">
+    <link rel="stylesheet" href="/frontend/src/css/themes/dark-theme.css">
+    <script src="/frontend/src/js/theme.js"></script>
 </head>
 
 <body>
@@ -45,7 +50,7 @@
                title="Back to Home Page">
 
                 <i class="fa-solid fa-arrow-left"></i>
-                <span>Home</span>
+                <span data-i18n="nav_home">Home</span>
 
             </a>
 
@@ -67,6 +72,7 @@
             <input
                 type="text"
                 id="menu-search-input"
+                data-i18n-placeholder="search_placeholder"
                 placeholder="Search food, coffee, cakes..."
             >
 
@@ -82,7 +88,7 @@
                title="Track Live Order">
 
                 <i class="fa-solid fa-location-crosshairs"></i>
-                <span>Track Order</span>
+                <span data-i18n="nav_track">Track Order</span>
 
             </a>
 
@@ -93,7 +99,7 @@
                title="View Order History">
 
                 <i class="fa-solid fa-clock-rotate-left"></i>
-                <span>History</span>
+                <span data-i18n="nav_history">History</span>
 
             </a>
 
@@ -128,8 +134,8 @@
                         onerror="this.src='https://via.placeholder.com/40'"
                     >
 
-                    <span class="user-name">
-                        Abebe K.
+                    <span class="user-name user-profile-name" id="userProfileName">
+                        Loading...
                     </span>
 
                     <i class="fa-solid fa-chevron-down"></i>
@@ -143,27 +149,27 @@
 
                     <a href="profile.html">
                         <i class="fa-solid fa-user"></i>
-                        My Profile
+                        <span data-i18n="nav_profile">My Profile</span>
                     </a>
 
                     <a href="order-tracking.html">
                         <i class="fa-solid fa-spinner"></i>
-                        Track Active Order
+                        <span data-i18n="nav_track">Track Active Order</span>
                     </a>
 
                     <a href="order-history.html">
                         <i class="fa-solid fa-receipt"></i>
-                        Order History
+                        <span data-i18n="nav_orders">Order History</span>
                     </a>
 
                     <a href="notifications.html">
                         <i class="fa-solid fa-bell"></i>
-                        Notifications
+                        <span data-i18n="nav_notifications">Notifications</span>
                     </a>
 
                     <a href="feedback.html">
                         <i class="fa-solid fa-comment-dots"></i>
-                        Feedback
+                        <span data-i18n="nav_feedback">Feedback</span>
                     </a>
 
                     <hr>
@@ -172,7 +178,7 @@
                        class="logout-link">
 
                         <i class="fa-solid fa-right-from-bracket"></i>
-                        Logout
+                        <span data-i18n="nav_logout">Logout</span>
 
                     </a>
 
@@ -228,6 +234,7 @@
             <input
                 type="text"
                 id="mobile-search-input"
+                data-i18n-placeholder="search_placeholder"
                 placeholder="Search menu items..."
             >
 
@@ -246,7 +253,7 @@
                 data-category="all">
 
                 <i class="fa-solid fa-border-all"></i>
-                All
+                <span data-i18n="cat_all">All</span>
 
             </button>
 
@@ -258,7 +265,7 @@
                 data-category="breakfast">
 
                 <i class="fa-solid fa-sun"></i>
-                Breakfast
+                <span data-i18n="cat_breakfast">Breakfast</span>
 
             </button>
 
@@ -270,7 +277,7 @@
                 data-category="mains">
 
                 <i class="fa-solid fa-bowl-food"></i>
-                Main Meals
+                <span data-i18n="cat_mains">Main Meals</span>
 
             </button>
 
@@ -282,7 +289,7 @@
                 data-category="fasting">
 
                 <i class="fa-solid fa-leaf"></i>
-                Fasting Meals
+                <span data-i18n="cat_fasting">Fasting Meals</span>
 
             </button>
 
@@ -294,7 +301,7 @@
                 data-category="beverages">
 
                 <i class="fa-solid fa-glass-water"></i>
-                Beverages
+                <span data-i18n="cat_beverages">Beverages</span>
 
             </button>
 
@@ -306,7 +313,7 @@
                 data-category="snacks">
 
                 <i class="fa-solid fa-cookie-bite"></i>
-                Snacks
+                <span data-i18n="cat_snacks">Snacks</span>
 
             </button>
 
@@ -2157,6 +2164,9 @@
 <!-- =========================================================
      JAVASCRIPT
 ========================================================= -->
+<script src="/frontend/src/js/translations.js"></script>
+<script src="/frontend/src/js/language.js"></script>
+<script src="/frontend/src/js/customer-menu.js"></script>
 <script src="/frontend/src/js/menu.js"></script>
 <script src="/frontend/src/js/main.js"></script>
 <script src="/frontend/src/js/cart.js"></script>
@@ -2167,6 +2177,11 @@
 <script src="/frontend/src/js/utils/formatters.js"></script>
 <script src="/components/navbar.js"></script>
 <script src="/frontend/src/js/categories.js"></script>
+<script src="/frontend/src/js/global-auth.js"></script>
+
+<!-- Socket.IO client for real-time order notifications -->
+<script src="http://localhost:5000/socket.io/socket.io.js"></script>
+<script src="/frontend/src/js/order-notifications.js"></script>
 
 
 

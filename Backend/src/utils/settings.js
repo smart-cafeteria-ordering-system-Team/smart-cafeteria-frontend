@@ -57,7 +57,7 @@ async function ensureDefaultSettings() {
     await Setting.findOneAndUpdate(
       { key: s.key },
       { $setOnInsert: s },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
   }
 }

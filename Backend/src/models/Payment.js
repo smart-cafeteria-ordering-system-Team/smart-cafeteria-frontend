@@ -5,7 +5,17 @@ const mongoose = require("mongoose");
  *
  * Frontend Usage:
  * - checkout.js: Simulate payment (CBE Birr, TeleBirr, Cash)
+ * - checkout.js / order-tracking: Chapa online payment (Phase 7)
  * - admin/payments.html: View all payments
+ *
+ * Provider fields (added for Phase 7 Chapa integration):
+ * - provider    : normalized gateway id (chapa | telebirr | ...)
+ * - chapaReference : our tx_ref sent to Chapa
+ * - providerReference : provider/our reference for the tx
+ * - checkoutUrl : Chapa-hosted checkout page URL (redirect target)
+ * - currency    : ETB
+ * - paidAt      : when the provider confirmed payment
+ * - metadata    : extra data (customer, order info for webhook reconciliation)
  */
 const PaymentSchema = new mongoose.Schema(
   {
@@ -26,18 +36,42 @@ const PaymentSchema = new mongoose.Schema(
     },
     method: {
       type: String,
-      enum: ["cbe_birr", "telebirr", "cash", "CBE Birr", "Telebirr", "Cash"],
-      required: true,
+      enum: ["cbe_birr", "telebirr", "cash", "CBE Birr", "Telebirr", "Cash", "chapa", "Chapa"],
+      default: "cash",
+    },
+    provider: {
+      type: String,
+      default: null,
     },
     status: {
       type: String,
-      enum: ["pending", "simulated", "failed", "paid", "completed"],
+      enum: ["pending", "simulated", "failed", "paid", "completed", "cancelled"],
       default: "pending",
     },
     transactionId: {
       type: String,
       unique: true,
       sparse: true,
+    },
+    chapaReference: {
+      type: String,
+      default: "",
+    },
+    providerReference: {
+      type: String,
+      default: "",
+    },
+    checkoutUrl: {
+      type: String,
+      default: "",
+    },
+    currency: {
+      type: String,
+      default: "ETB",
+    },
+    paidAt: {
+      type: Date,
+      default: null,
     },
     phone: {
       type: String,
@@ -46,6 +80,10 @@ const PaymentSchema = new mongoose.Schema(
     reference: {
       type: String,
       default: "",
+    },
+    metadata: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
     },
     paymentDate: {
       type: Date,

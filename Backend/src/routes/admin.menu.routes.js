@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
+const { upload, parseFormFields } = require('../middleware/menuUpload');
 const {
   getAllMenuItems,
   getMenuItemById,
@@ -33,7 +34,7 @@ router.get('/stats', getMenuStats);
  * @desc    Create menu item
  * Body: { name: {en, am}, category, price, description, image | imageUrl, preparationTime, available }
  */
-router.post('/', createMenuItem);
+router.post('/', upload.single('image'), parseFormFields, createMenuItem);
 
 /**
  * @route   GET /api/v1/admin/menu/:id
@@ -45,7 +46,7 @@ router.get('/:id', getMenuItemById);
  * @route   PUT /api/v1/admin/menu/:id
  * @desc    Update menu item (partial updates supported)
  */
-router.put('/:id', updateMenuItem);
+router.put('/:id', upload.single('image'), parseFormFields, updateMenuItem);
 
 /**
  * @route   PATCH /api/v1/admin/menu/:id/availability

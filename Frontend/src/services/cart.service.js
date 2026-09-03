@@ -154,13 +154,26 @@ class CartService {
             throw new Error("Your cart is empty.");
         }
 
+        let user = null;
+        try {
+            const raw = localStorage.getItem("current_user");
+            user = raw ? JSON.parse(raw) : null;
+        } catch {
+            user = null;
+        }
+
         const response = await api.post(
             "/orders",
             {
                 items: cart.map(item => ({
-                    menuItemId: item.id,
-                    quantity: item.quantity
-                }))
+                    // Backend resolves item references via id | foodItem | menuItemId | itemId
+                    id: String(item.menuItemId || item.id),
+                    quantity: Number(item.quantity) || 1,
+                    notes: item.notes || ""
+                })),
+                customerName: user?.name || user?.fullName || "",
+                customerPhone: user?.phone || "",
+                paymentMethod: "Cash"
             }
         );
 

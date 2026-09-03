@@ -1,5 +1,26 @@
 {
   "dependencies": {
+    "express-mongo-sanitize": "^2.2.0",
+    "hpp": "^0.2.3",
     "mongodb": "^7.6.0"
-  }
+  },
+  "name": "smart-cafeteria-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "check-api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smart-cafeteria-ordering-system-Team/smart-cafeteria-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/smart-cafeteria-ordering-system-Team/smart-cafeteria-frontend/issues"
+  },
+  "homepage": "https://github.com/smart-cafeteria-ordering-system-Team/smart-cafeteria-frontend#readme"
 }

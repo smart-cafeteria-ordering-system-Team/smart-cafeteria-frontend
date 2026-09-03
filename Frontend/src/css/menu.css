@@ -527,3 +527,283 @@ body {
     border-color: var(--primary-color);
     color: var(--primary-color);
 }
+
+/* --- Customer header refinement --- */
+.navbar-header {
+    background: var(--header-bg, #ffffff) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+}
+
+.nav-container {
+    min-height: 72px;
+    gap: 20px;
+}
+
+.nav-left-group,
+.header-actions {
+    flex-shrink: 0;
+}
+
+.brand-logo {
+    color: var(--text-heading, #18231f) !important;
+    letter-spacing: -0.02em;
+}
+
+.brand-logo i,
+.cart-btn,
+.user-profile-btn,
+.nav-link-item,
+.nav-link-track {
+    color: var(--text-body, #40504a) !important;
+}
+
+.brand-logo:hover,
+.cart-btn:hover,
+.nav-link-item:hover,
+.nav-link-track:hover {
+    color: var(--accent-primary, #c86b2c) !important;
+}
+
+.search-box-header {
+    flex: 1 1 360px;
+    max-width: 430px;
+}
+
+.search-box-header input {
+    background: var(--bg-secondary, #edf2f0) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-heading, #18231f) !important;
+}
+
+.user-profile-menu {
+    position: relative;
+}
+
+.dropdown-menu {
+    z-index: 1100;
+}
+
+[data-theme="dark"] .navbar-header {
+    background: #0b100e !important;
+    border-bottom-color: #33453e !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38) !important;
+}
+
+[data-theme="dark"] .brand-logo,
+[data-theme="dark"] .brand-logo i,
+[data-theme="dark"] .cart-btn,
+[data-theme="dark"] .user-profile-btn,
+[data-theme="dark"] .nav-link-item,
+[data-theme="dark"] .nav-link-track {
+    color: #edf5f0 !important;
+}
+
+[data-theme="dark"] .brand-logo:hover,
+[data-theme="dark"] .cart-btn:hover,
+[data-theme="dark"] .nav-link-item:hover,
+[data-theme="dark"] .nav-link-track:hover {
+    color: #f0a064 !important;
+}
+
+[data-theme="dark"] .search-box-header input,
+[data-theme="dark"] .search-box-mobile input {
+    background: #18221e !important;
+    border-color: #3b5047 !important;
+    color: #edf5f0 !important;
+}
+
+[data-theme="dark"] .dropdown-menu {
+    background: #1b2822 !important;
+    border-color: #3b5047 !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .dropdown-menu a {
+    color: #d4e0da !important;
+}
+
+[data-theme="dark"] .dropdown-menu a:hover {
+    background: #26372f !important;
+}
+
+@media (max-width: 900px) {
+    .nav-container {
+        flex-wrap: wrap;
+    }
+
+    .search-box-header {
+        order: 3;
+        flex-basis: 100%;
+        max-width: none;
+    }
+}
+
+/* --- Final menu header composition --- */
+.navbar-header {
+    position: sticky;
+    min-height: 92px;
+    background: #ffffff !important;
+    border-bottom: 1px solid #dce5e1 !important;
+    box-shadow: 0 10px 28px rgba(24, 35, 31, 0.10) !important;
+}
+
+.navbar-header > .nav-container {
+    width: min(96%, 1320px);
+    min-height: 92px;
+    padding: 16px 330px 16px 18px;
+    gap: 22px;
+    position: relative;
+}
+
+.navbar-header .nav-container > #languageSwitcher,
+.navbar-header > #nightModeIconBtn {
+    position: absolute !important;
+    top: 50% !important;
+    z-index: 20;
+    transform: translateY(-50%);
+}
+
+.navbar-header .nav-container > #languageSwitcher {
+    right: 198px;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.navbar-header .nav-container > #languageSwitcher i {
+    color: #64756e !important;
+    font-size: 0.95rem;
+}
+
+.navbar-header .nav-container > #languageSwitcher #languageSelect {
+    width: 122px !important;
+    height: 38px !important;
+    padding: 0 26px 0 10px !important;
+    border: 1px solid #d3dfda !important;
+    border-radius: 10px !important;
+    background: #f2f6f4 !important;
+    color: #263832 !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+}
+
+.navbar-header > #nightModeIconBtn {
+    right: 24px;
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+}
+
+.navbar-header > #nightModeIconBtn > div {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    min-height: 38px;
+    padding: 0 9px !important;
+    border: 1px solid #d3dfda;
+    border-radius: 10px;
+    background: #f2f6f4;
+    color: #263832 !important;
+    font-size: 0.78rem;
+}
+
+.navbar-header .nav-left-group {
+    min-width: 150px;
+}
+
+.navbar-header .search-box-header {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: 440px;
+}
+
+.navbar-header .header-actions {
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.navbar-header .nav-link-track,
+.navbar-header .nav-link-item,
+.navbar-header .cart-btn,
+.navbar-header .user-profile-btn {
+    min-height: 38px;
+}
+
+[data-theme="dark"] .navbar-header {
+    background: #080d0b !important;
+    border-bottom-color: #3d5549 !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.48) !important;
+}
+
+[data-theme="dark"] .navbar-header .nav-container > #languageSwitcher i,
+[data-theme="dark"] .navbar-header .nav-container > #languageSwitcher #languageSelect,
+[data-theme="dark"] .navbar-header > #nightModeIconBtn > div {
+    color: #f1f6f3 !important;
+}
+
+[data-theme="dark"] .navbar-header > #nightModeIconBtn > div {
+    border-color: #40564a !important;
+    background: #19241f !important;
+}
+
+@media (max-width: 1050px) and (min-width: 769px) {
+    .navbar-header .nav-container > #languageSwitcher {
+        right: 176px;
+    }
+
+    .navbar-header > #nightModeIconBtn {
+        right: 14px;
+    }
+
+    .navbar-header .nav-container {
+        padding-right: 290px;
+    }
+
+    .navbar-header .nav-link-track span,
+    .navbar-header .nav-link-item span,
+    .navbar-header .user-name {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-header {
+        min-height: 76px;
+    }
+
+    .navbar-header > .nav-container {
+        min-height: 76px;
+        padding: 12px 14px;
+        gap: 12px;
+    }
+
+    .navbar-header .nav-container > #languageSwitcher {
+        top: 10px !important;
+        left: 14px;
+        right: auto;
+        transform: none;
+    }
+
+    .navbar-header > #nightModeIconBtn {
+        top: 10px !important;
+        right: 14px;
+        transform: none;
+    }
+
+    .navbar-header > #nightModeIconBtn > div {
+        min-height: 30px;
+        padding: 0 7px !important;
+    }
+
+    .navbar-header > #nightModeIconBtn span {
+        display: none;
+    }
+
+    .navbar-header > .nav-container {
+        padding-top: 42px;
+        padding-right: 14px;
+    }
+}

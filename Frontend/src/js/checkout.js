@@ -2,6 +2,116 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const CART_KEY = "smart_cafeteria_cart";
     const SERVICE_FEE_ETB = 20;
+    const API_BASE_URL = "http://localhost:5000/api/v1";
+
+    function getApiToken() {
+        return localStorage.getItem("auth_token") || localStorage.getItem("token") || "";
+    }
+
+    function getCurrentUser() {
+        try {
+            const raw = localStorage.getItem("current_user");
+            return raw ? JSON.parse(raw) : null;
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Validate if a string is a valid MongoDB ObjectId (24 hex characters)
+     */
+    function isValidMongoId(id) {
+        return typeof id === 'string' && /^[0-9a-f]{24}$/i.test(id);
+    }
+
+    /**
+     * Sanitize cart items: filter out invalid items and normalize item references
+     * Returns { validItems, invalidItems }
+     */
+    function sanitizeCartItems(cart) {
+        const validItems = [];
+        const invalidItems = [];
+
+        cart.forEach((item) => {
+            const itemId = item.menuItemId || item.id || item.foodItem;
+            
+            if (!itemId) {
+                invalidItems.push({ ...item, reason: 'Missing item ID' });
+                return;
+            }
+
+            // Check if ID is a valid MongoDB ObjectId
+            if (!isValidMongoId(String(itemId))) {
+                invalidItems.push({ ...item, reason: `Invalid item ID format: ${itemId}` });
+                return;
+            }
+
+            validItems.push(item);
+        });
+
+        return { validItems, invalidItems };
+    }
+
+    /**
+     * Convert the localStorage cart state into a persistent order payload
+     * and send it to the backend (Phase 4 real database integration).
+     */
+    async function placeOrderOnServer(payload) {
+        const token = getApiToken();
+        const headers = { "Content-Type": "application/json", Accept: "application/json" };
+        if (token) headers.Authorization = `Bearer ${token}`;
+
+        const response = await fetch(`${API_BASE_URL}/orders`, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(payload)
+        });
+
+        let data = null;
+        try {
+            data = await response.json();
+        } catch {
+            data = null;
+        }
+
+        if (!response.ok) {
+            const error = new Error(data?.error || data?.message || "Failed to place order");
+            error.status = response.status;
+            error.data = data;
+            throw error;
+        }
+
+        return data;
+    }
+
+    // Keep order history/status pages instantly usable while live DB data loads.
+    function persistLocalOrder(order) {
+        if (!order) return;
+
+        const localOrder = {
+            orderId: order.orderId || order.id,
+            id: order.orderId || order.id,
+            orderDate: order.orderDate || new Date().toLocaleString(),
+            orderType: order.orderType || "dine-in",
+            tableNumber: order.tableNumber || "N/A",
+            customerName: order.customerName || "Customer",
+            customerPhone: order.customerPhone || "-",
+            paymentMethod: order.paymentMethod || "chapa",
+            items: order.items || [],
+            subtotal: order.subtotal,
+            serviceFee: order.serviceFee,
+            totalAmount: order.totalAmount,
+            status: order.status || "Pending",
+            orderTime: order.orderTime,
+        };
+
+        localStorage.setItem("latestOrder", JSON.stringify(localOrder));
+
+        const history = JSON.parse(localStorage.getItem("orderHistory")) || [];
+        const exists = history.some(o => (o.orderId || o.id) === localOrder.orderId);
+        if (!exists) history.unshift(localOrder);
+        localStorage.setItem("orderHistory", JSON.stringify(history.slice(0, 30)));
+    };
 
     const checkoutItemsContainer =
         document.getElementById("checkout-items-list");
@@ -306,15 +416,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
 
+                // ✅ Guard: every cart item must carry a valid 24-hex MongoDB ObjectId.
+                // Stale carts (numeric/static ids) block ordering — sync by reselecting.
+                if (
+                    cart.some(function (item) {
+                        return !isValidMongoId(
+                            String(
+                                item.menuItemId ||
+                                item.id ||
+                                item._id
+                            )
+                        );
+                    })
+                ) {
+                    localStorage.removeItem(CART_KEY);
+                    localStorage.removeItem("checkoutCart");
+                    window.dispatchEvent(
+                        new CustomEvent("cart:updated", { detail: [] })
+                    );
+
+                    alert(
+                        "Cart updated to sync with live database. Please re-select items from the menu."
+                    );
+
+                    window.location.href =
+                        "menu.html";
+
+                    return;
+                }
+
+
                 const selectedOrderType =
                     document.querySelector(
                         'input[name="orderType"]:checked'
-                    );
-
-
-                const selectedPaymentMethod =
-                    document.querySelector(
-                        'input[name="paymentMethod"]:checked'
                     );
 
 
@@ -328,18 +462,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
 
-                if (!selectedPaymentMethod) {
-
-                    alert(
-                        "Please select a payment method."
-                    );
-
-                    return;
-                }
-
-
                 const orderType =
                     selectedOrderType.value;
+
+
+                // ✅ Chapa is the only supported payment method.
+                const paymentMethod = 'chapa';
 
 
                 const tableNumber =
@@ -393,10 +521,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         : "";
 
 
-                const paymentMethod =
-                    selectedPaymentMethod.value;
-
-
                 const subtotal =
                     cart.reduce(
                         (sum, item) => {
@@ -421,26 +545,61 @@ document.addEventListener("DOMContentLoaded", () => {
                     subtotal + SERVICE_FEE_ETB;
 
 
-                const orderId =
-                    "ET-" +
-                    Math.floor(
-                        1000 +
-                        Math.random() * 9000
+                const placeOrderBtn =
+                    document.getElementById("place-order-btn");
+
+                if (placeOrderBtn) {
+                    placeOrderBtn.disabled = true;
+                    placeOrderBtn.textContent =
+                        "Placing Order...";
+                }
+
+                // ✅ Sanitize cart items before sending to backend
+                const { validItems, invalidItems } = sanitizeCartItems(cart);
+
+                // ✅ If there are invalid items, alert user and clear cart
+                if (invalidItems.length > 0) {
+                    if (placeOrderBtn) {
+                        placeOrderBtn.disabled = false;
+                        placeOrderBtn.textContent = "Place Order";
+                    }
+
+                    const invalidNames = invalidItems
+                        .map(item => `"${item.name}" (${item.reason})`)
+                        .join(', ');
+
+                    alert(
+                        `The following items are invalid and cannot be ordered:\n${invalidNames}\n\n` +
+                        `Please clear your cart and re-add items from the menu.`
                     );
 
+                    // Clear the invalid cart
+                    localStorage.removeItem(CART_KEY);
+                    localStorage.removeItem("checkoutCart");
+                    window.dispatchEvent(
+                        new CustomEvent("cart:updated", { detail: [] })
+                    );
 
-                const newOrder = {
+                    // Redirect to menu to refresh items
+                    window.location.href = "menu.html";
+                    return;
+                }
 
-                    orderId: orderId,
+                const orderPayload = {
 
-                    orderDate:
-                        new Date().toLocaleString(),
-
-                    orderType:
-                        orderType,
-
-                    tableNumber:
-                        tableNumber,
+                    items:
+                        validItems.map((item) => ({
+                            menuItemId: String(
+                                item.menuItemId || item.id || item._id
+                            ),
+                            id: String(
+                                item.menuItemId || item.id || item._id
+                            ),
+                            quantity:
+                                Number(item.quantity) || 1,
+                            notes:
+                                item.notes || ""
+                        })),
 
                     customerName:
                         customerName,
@@ -448,51 +607,208 @@ document.addEventListener("DOMContentLoaded", () => {
                     customerPhone:
                         customerPhone,
 
+                    orderType:
+                        orderType,
+
+                    tableNumber:
+                        tableNumber,
+
                     paymentMethod:
                         paymentMethod,
-
-                    items:
-                        cart,
-
-                    subtotal:
-                        subtotal,
-
-                    serviceFee:
-                        SERVICE_FEE_ETB,
 
                     totalAmount:
                         totalAmount,
 
-                    status:
-                        "Received"
+                    notes: ""
                 };
 
 
-                localStorage.setItem(
-                    "latestOrder",
-                    JSON.stringify(newOrder)
-                );
+                /**
+                 * Phase 4: persist the order in MongoDB via the backend.
+                 * On success, clear the client cart and redirect to the
+                 * order details page displaying the real DB order.
+                 */
+                placeOrderOnServer(orderPayload)
+                    .then(async (result) => {
+                        if (placeOrderBtn) {
+                            placeOrderBtn.disabled = false;
+                            placeOrderBtn.textContent = "Place Order";
+                        }
+
+                        const newOrder =
+                            result?.order || result;
+
+                        const placedOrderId =
+                            String(
+                                newOrder?.orderId ||
+                                newOrder?.orderNumber ||
+                                ""
+                            );
+
+                        renderOrderSummaryOnSuccess(newOrder);
 
 
-                localStorage.removeItem(
-                    CART_KEY
-                );
+                        persistLocalOrder(newOrder);
 
 
-                localStorage.removeItem(
-                    "checkoutCart"
-                );
+                        localStorage.removeItem(
+                            CART_KEY
+                        );
 
 
-                window.dispatchEvent(
-                    new CustomEvent(
-                        "cart:updated"
-                    )
-                );
+                        localStorage.removeItem(
+                            "checkoutCart"
+                        );
 
 
-                window.location.href =
-                    `order-tracking.html?orderId=${encodeURIComponent(orderId)}`;
+                        window.dispatchEvent(
+                            new CustomEvent("cart:updated", { detail: [] })
+                        );
+
+
+                        // Phase 7: For Chapa online payments, initialize the
+                        // gateway checkout and redirect the customer there.
+                        if (
+                            String(paymentMethod).toLowerCase() === "chapa" &&
+                            placedOrderId
+                        ) {
+                            try {
+                                const token = getApiToken();
+                                const checkoutRes = await fetch(
+                                    `${API_BASE_URL}/payments/checkout`,
+                                    {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            Accept: "application/json",
+                                            ...(token ? { Authorization: `Bearer ${token}` } : {})
+                                        },
+                                        body: JSON.stringify({
+                                            orderId: placedOrderId,
+                                            returnUrl:
+                                                window.location.origin +
+                                                "/Frontend/src/pages/customer/order-tracking.html?orderId=" +
+                                                encodeURIComponent(placedOrderId)
+                                        })
+                                    }
+                                );
+                                const checkoutData = await checkoutRes.json();
+                                if (!checkoutRes.ok) {
+                                    throw new Error(
+                                        checkoutData?.error ||
+                                        checkoutData?.message ||
+                                        "Failed to initialize payment"
+                                    );
+                                }
+                                const checkoutUrl =
+                                    checkoutData?.checkoutUrl ||
+                                    checkoutData?.data?.checkoutUrl ||
+                                    "";
+                                if (checkoutUrl) {
+                                    window.location.href = checkoutUrl;
+                                    return;
+                                }
+                                // No checkout URL: fall through to tracking page.
+                                window.location.href =
+                                    `order-tracking.html?orderId=${encodeURIComponent(placedOrderId)}`;
+                            } catch (initError) {
+                                alert(
+                                    "Payment link could not be created: " +
+                                    (initError.message || "Please try again.")
+                                );
+                                window.location.href =
+                                    `order-tracking.html?orderId=${encodeURIComponent(placedOrderId)}`;
+                            }
+                            return;
+                        }
+
+
+                        window.location.href =
+                            `order-tracking.html?orderId=${encodeURIComponent(placedOrderId)}`;
+
+                    })
+                    .catch((error) => {
+
+                        if (placeOrderBtn) {
+                            placeOrderBtn.disabled = false;
+                            placeOrderBtn.textContent =
+                                "Place Order";
+                        }
+
+                        if (error.status === 401) {
+                            alert("Please login to place your order.");
+                            window.location.href = "../common/login.html";
+                            return;
+                        }
+
+                        alert(
+                            error.message ||
+                            "Failed to place order. Please try again."
+                        );
+
+                    });
+
+
+                function renderOrderSummaryOnSuccess(newOrder) {
+
+                    try {
+
+                        if (!newOrder) return;
+
+                        const reviewItems =
+                            document.getElementById(
+                                "checkout-items-list"
+                            );
+
+                        const rawStatus =
+                            newOrder.status || "pending";
+
+                        const displayStatus =
+                            rawStatus.charAt(0).toUpperCase() +
+                            rawStatus.slice(1);
+
+                        if (reviewItems) {
+
+                            reviewItems.innerHTML =
+                                `
+                                <div class="checkout-success-note"
+                                     style="text-align:center; padding:12px; background:#f0fdf4; border:1px solid #86efac; border-radius:8px; margin-bottom:10px;">
+                                    <strong style="color:#15803d;">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        Order #${escapeHTML(newOrder.orderId || newOrder.orderNumber || "")} placed!
+                                    </strong>
+                                </div>
+                            `;
+
+                        }
+
+                        if (subtotalElement) {
+
+                            subtotalElement.textContent =
+                                Number(newOrder.subtotal || 0).toFixed(2);
+                        }
+
+
+                        if (serviceFeeElement) {
+
+                            serviceFeeElement.textContent =
+                                Number(newOrder.serviceFee || 0).toFixed(2);
+                        }
+
+
+                        if (totalElement) {
+
+                            totalElement.textContent =
+                                Number(newOrder.totalAmount || 0).toFixed(2);
+                        }
+
+                    } catch (err) {
+
+                        console.warn("Order summary render warning:", err);
+
+                    }
+
+                }
 
             }
         );
