@@ -7,6 +7,10 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/frontend/src/css/style.css">
+    <!-- Theme -->
+    <link rel="stylesheet" href="/frontend/src/css/theme.css">
+    <link rel="stylesheet" href="/frontend/src/css/themes/dark-theme.css">
+    <script src="/frontend/src/js/theme.js"></script>
 </head>
 <body>
 
@@ -19,7 +23,21 @@
             
             <h2><i class="fa-solid fa-clock-rotate-left"></i> Order History</h2>
             <div class="user-nav-links">
-                <a href="profile.html" class="nav-icon-link" title="Profile"><i class="fa-solid fa-user"></i></a>
+                <!-- User Profile Dropdown -->
+                <div class="user-profile-menu">
+                    <button class="user-profile-btn" id="user-menu-btn">
+                        <span class="user-name user-profile-name" id="userProfileName">Loading...</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu" id="user-dropdown-menu">
+                        <a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a>
+                        <a href="order-history.html"><i class="fa-solid fa-receipt"></i> My Orders</a>
+                        <a href="notifications.html"><i class="fa-solid fa-bell"></i> Notifications</a>
+                        <a href="feedback.html"><i class="fa-solid fa-comment-dots"></i> Feedback</a>
+                        <hr>
+                        <a href="../common/login.html" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </div>
+                </div>
                 <a href="notifications.html" class="nav-icon-link" title="Notifications"><i class="fa-solid fa-bell"></i></a>
                 <a href="feedback.html" class="nav-icon-link" title="Feedback"><i class="fa-solid fa-comment-dots"></i></a>
             </div>
@@ -49,6 +67,10 @@
     </main>
 
     <!-- Connect Script -->
+    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+    <script src="/frontend/src/js/order-notifications.js"></script>
     <script src="/frontend/src/js/order-history.js" defer></script>
+    <script src="/frontend/src/js/profile.js" defer></script>
+    <script src="/frontend/src/js/global-auth.js" defer></script>
 </body>
 </html>

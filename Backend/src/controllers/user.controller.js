@@ -127,6 +127,14 @@ error: 'Please provide a valid email address'
 });
 }
 
+// ✅ Password is required so the user can log in
+if (!password || String(password).length < 6) {
+return res.status(HTTP_STATUS.BAD_REQUEST).json({
+success: false,
+error: 'Password is required and must be at least 6 characters'
+});
+}
+
 // ✅ Check if user exists
 const existingUser = await User.findOne({ email: email.toLowerCase() });
 if (existingUser) {
@@ -136,17 +144,28 @@ error: 'User with this email already exists'
 });
 }
 
+const roleVal = String(role || '').toLowerCase();
 
-// ✅ Create user with default password
-const user = await User.create({
+// Kitchen / staff users never hold a wallet balance.
+const isKitchenRole = roleVal === 'kitchen' || roleVal === 'staff' || roleVal === 'KITCHEN_STAFF' || roleVal === 'kitchen_staff';
+const finalBalance = isKitchenRole ? 0 : (Number(balance) || 0);
+
+const userData = {
 name: name.trim(),
 email: email.toLowerCase(),
-phone: phone || '',
-password: password || 'password123', // Default password
-role: role.toLowerCase(),
-balance: balance || 0,
+password, // hashed by the User model's bcrypt pre-save hook
+role: roleVal,
+balance: finalBalance,
 status: 'ACTIVE'
-});
+};
+
+// Phone is optional (admin can create kitchen/staff users without one).
+if (phone) {
+userData.phone = String(phone).trim();
+}
+
+// ✅ Create user
+const user = await User.create(userData);
 
 res.status(HTTP_STATUS.CREATED).json({
 success: true,
@@ -305,7 +324,7 @@ req.params.id,
 status: status,
 isActive: isActive
 },
-{ new: true }
+{ returnDocument: 'after' }
 ).select('-password');
 
 

@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="/frontend/src/css/style.css">
      <link rel="stylesheet" href="/frontend/src/css/cart.css">
       <link rel="stylesheet" href="/frontend/src/css/menu.css">
+      <!-- Theme -->
+      <link rel="stylesheet" href="/frontend/src/css/theme.css">
+      <link rel="stylesheet" href="/frontend/src/css/themes/dark-theme.css">
+      <script src="/frontend/src/js/theme.js"></script>
 </head>
 <body>
 
@@ -74,31 +78,12 @@
                     <div class="payment-options">
                         
                         <label class="payment-card active">
-                            <input type="radio" name="paymentMethod" value="Telebirr" checked>
+                            <input type="radio" name="paymentMethod" value="Chapa" checked>
                             <div class="payment-info">
-                                <strong>Telebirr</strong>
-                                <small>Pay instantly via Telebirr app or CBE birr</small>
+                                <strong>Chapa Online Payment 💳</strong>
+                                <small>Pay securely via Telebirr, CBE Birr, or Cards through Chapa</small>
                             </div>
-
-                            <i class="fa-solid fa-mobile-screen-button"></i>
-                        </label>
-
-                        <label class="payment-card">
-                            <input type="radio" name="paymentMethod" value="CBE Birr">
-                            <div class="payment-info">
-                                <strong>CBE Birr / Bank Transfer</strong>
-                                <small>Commercial Bank of Ethiopia direct payment</small>
-                            </div>
-                            <i class="fa-solid fa-building-columns"></i>
-                        </label>
-
-                        <label class="payment-card"> 
-                            <input type="radio" name="paymentMethod" value="Cash">
-                            <div class="payment-info">
-                                <strong>Cash on Delivery / Service</strong>
-                                <small>Pay at your table or counter</small>
-                            </div>
-                            <i class="fa-solid fa-money-bill-wave"></i>
+                            <i class="fa-solid fa-credit-card"></i>
                         </label>
 
                     </div>
@@ -150,6 +135,8 @@
     </main>
 
     <!-- Connect script -->
+    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+    <script src="/frontend/src/js/order-notifications.js"></script>
     <script src="/frontend/src/js/checkout.js" defer></script>
       <script src="/frontend/src/js/utils/storage.js"></script>
     <script src="/frontend/src/js/utils/validators.js"></script>

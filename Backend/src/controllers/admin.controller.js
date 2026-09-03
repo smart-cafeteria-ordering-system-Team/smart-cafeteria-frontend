@@ -46,6 +46,7 @@ exports.getDashboardStats = async (req, res) => {
       todayRevenue,
       totalRevenue,
       pendingCancellations,
+      pendingRefunds,
       chartSeries,
     ] = await Promise.all([
       User.countDocuments(),
@@ -56,31 +57,80 @@ exports.getDashboardStats = async (req, res) => {
       MenuItem.countDocuments({ availability: true, isAvailable: true }),
       MenuItem.countDocuments({ $or: [{ availability: false }, { isAvailable: false }] }),
       Order.countDocuments(),
-      Order.countDocuments({ status: "pending" }),
-      Order.countDocuments({ status: "preparing" }),
-      Order.countDocuments({ status: "ready" }),
-      Order.countDocuments({ status: "served" }),
-      Order.countDocuments({ status: { $in: ["completed", "Completed"] } }),
-      Order.countDocuments({ status: "cancelled" }),
-      Payment.countDocuments({ status: "PAID" }),
-      Payment.countDocuments({ status: "PENDING" }),
-      Payment.countDocuments({ status: "FAILED" }),
+      Order.countDocuments({ status: { $regex: /^(pending|preparing|in_progress|in-progress)$/i } }),
+      Order.countDocuments({ status: { $regex: /^preparing$/i } }),
+      Order.countDocuments({ status: { $regex: /^ready$/i } }),
+      Order.countDocuments({ status: { $regex: /^served$/i } }),
+      Order.countDocuments({ status: { $regex: /^(completed|done)$/i } }),
+      Order.countDocuments({ status: { $regex: /^cancelled$/i } }),
+      Payment.countDocuments({ status: { $regex: /^paid$/i } }),
+      Payment.countDocuments({ status: { $regex: /^pending$/i } }),
+      Payment.countDocuments({ status: { $regex: /^failed$/i } }),
       Order.aggregate([
-        { $match: { paymentStatus: "PAID", createdAt: { $gte: today } } },
-        { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+        {
+          $match: {
+            $and: [
+              { createdAt: { $gte: today } },
+              {
+                $or: [
+                  { paymentStatus: { $regex: /^(paid|completed|delivered|success)$/i } },
+                  { status: { $regex: /^(paid|completed|delivered|success)$/i } },
+                ],
+              },
+            ],
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $ifNull: ["$totalAmount", { $ifNull: ["$totalPrice", "$amount"] }] } },
+          },
+        },
       ]),
       Order.aggregate([
-        { $match: { paymentStatus: "PAID" } },
-        { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+        {
+          $match: {
+            $or: [
+              { paymentStatus: { $regex: /^(paid|completed|delivered|success)$/i } },
+              { status: { $regex: /^(paid|completed|delivered|success)$/i } },
+            ],
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $ifNull: ["$totalAmount", { $ifNull: ["$totalPrice", "$amount"] }] } },
+          },
+        },
       ]),
-      Order.countDocuments({ cancellationRequested: true, cancellationStatus: "pending" }),
+      Order.countDocuments({ cancellationRequested: true, cancellationStatus: { $regex: /^pending$/i } }),
+      Order.countDocuments({
+        $or: [
+          { status: { $regex: /^(cancelled|refund_requested|cancellation_pending)$/i } },
+          { refundStatus: { $regex: /^(pending|requested)$/i } },
+          { isCancelled: true, isRefunded: false },
+        ],
+      }),
       Order.aggregate([
         { $match: { createdAt: { $gte: sevenDaysAgo } } },
         {
           $group: {
             _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
             orders: { $sum: 1 },
-            revenue: { $sum: { $cond: [{ $eq: ["$paymentStatus", "PAID"] }, "$totalAmount", 0] } },
+            revenue: {
+              $sum: {
+                $cond: [
+                  {
+                    $or: [
+                      { $regexMatch: { input: { $ifNull: ["$paymentStatus", ""] }, regex: /^(paid|completed|delivered|success)$/i } },
+                      { $regexMatch: { input: { $ifNull: ["$status", ""] }, regex: /^(paid|completed|delivered|success)$/i } },
+                    ],
+                  },
+                  { $ifNull: ["$totalAmount", { $ifNull: ["$totalPrice", "$amount"] }] },
+                  0,
+                ],
+              },
+            },
           },
         },
         { $sort: { _id: 1 } },
@@ -107,6 +157,10 @@ exports.getDashboardStats = async (req, res) => {
     res.status(HTTP_STATUS.OK).json({
       success: true,
       data: {
+        totalSales: totalRevenue[0] ? totalRevenue[0].total : 0,
+        totalOrdersToday: totalOrders,
+        pendingOrders: pendingOrders,
+        pendingRefunds: pendingRefunds,
         users: { total: totalUsers, students, kitchenStaff, admins },
         menu: { total: totalMenu, available: availableMenu, unavailable: unavailableMenu },
         orders: {
@@ -121,7 +175,7 @@ exports.getDashboardStats = async (req, res) => {
         payments: { successful: successfulPayments, pending: pendingPayments, failed: failedPayments },
         revenue: { today: todayRevenue[0] ? todayRevenue[0].total : 0, total: totalRevenue[0] ? totalRevenue[0].total : 0 },
         chart: { last7Days },
-        cancellations: { pending: pendingCancellations },
+        cancellations: { pending: pendingRefunds },
       },
     });
   } catch (error) {
@@ -237,7 +291,7 @@ exports.updateSetting = async (req, res) => {
       update.label = def.label;
     }
 
-    const setting = await Setting.findOneAndUpdate({ key }, update, { new: true, upsert: true });
+    const setting = await Setting.findOneAndUpdate({ key }, update, { returnDocument: 'after', upsert: true });
     await ActivityLog.create({
       actorId: req.user.id,
       actorName: req.user.name || "Admin",

@@ -12,31 +12,37 @@
     <link rel="stylesheet" href="/frontend/src/css/style.css">
     <link rel="stylesheet" href="/frontend/src/css/admin.css">
     <link rel="stylesheet" href="/frontend/src/css/kitchen.css">
+    <!-- Theme -->
+    <link rel="stylesheet" href="/frontend/src/css/theme.css">
+    <link rel="stylesheet" href="/frontend/src/css/themes/dark-theme.css">
+    <script src="/frontend/src/js/theme.js"></script>
 
     <!-- Role Authorization Check -->
     <script>
-    const userRole = localStorage.getItem('userRole');
-    const role = localStorage.getItem('role');
+    const userRole = (localStorage.getItem('userRole') || '').toLowerCase();
+    const role = (localStorage.getItem('role') || '').toLowerCase();
 
     /*
      * Allowed kitchen dashboard roles:
-     * STAFF
-     * KITCHEN_STAFF
-     * ADMIN
+     * kitchen, STAFF, KITCHEN_STAFF, ADMIN, admin
      */
 
     const isKitchenStaff =
-        userRole === 'STAFF' ||
-        userRole === 'KITCHEN_STAFF' ||
-        role === 'KITCHEN_STAFF';
+        userRole === 'staff' ||
+        userRole === 'kitchen_staff' ||
+        userRole === 'kitchen' ||
+        role === 'kitchen_staff' ||
+        role === 'kitchen';
 
     const isAdmin =
-        userRole === 'ADMIN' ||
-        role === 'ADMIN';
+        userRole === 'admin' ||
+        role === 'admin';
 
-    if (!isKitchenStaff && !isAdmin) {
+    const hasToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
+
+    if (!isKitchenStaff && !isAdmin && !hasToken) {
         alert('Access denied. Kitchen staff and Admins only.');
-        window.location.href = '../common/login.html';
+        window.location.href = '../common/login.html?role=kitchen';
     }
 </script>
 
@@ -201,8 +207,14 @@
         <!-- SECTION HEADER & REFRESH STATUS -->
         <div class="section-title-bar">
             <h2>Live Order Tickets</h2>
-            <div class="refresh-indicator">
-                <i class="fa-solid fa-rotate-right fa-spin"></i> Live Sync Active
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="refresh-indicator" id="refreshIndicator">
+                    <i class="fa-solid fa-rotate-right fa-spin"></i> Live Sync Active
+                </div>
+                <span class="refresh-indicator" id="lastUpdated"></span>
+                <button id="refreshBtn" class="kds-nav-btn" style="border:none; cursor:pointer;">
+                    <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                </button>
             </div>
         </div>
 
@@ -216,9 +228,7 @@
     <!-- Audio Element for Order Alerts -->
     <audio id="orderNotificationSound" src="/assets/sounds/new-order.mp3" preload="auto"></audio>
 
-    <!-- JavaScript Dependencies -->
-    <script src="/frontend/src/js/api.js"></scrip>
-    <script src="/frontend/src/js/auth.js"></script>
-    <script src="/Frontend/src/pages/kitchen/kitchen.js"></script>
+    <!-- JavaScript Dependency -->
+    <script src="/frontend/src/pages/kitchen/kitchen.js"></script>
 </body>
 </html>

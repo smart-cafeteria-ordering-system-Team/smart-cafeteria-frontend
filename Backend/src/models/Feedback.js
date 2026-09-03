@@ -25,18 +25,22 @@ const FeedbackSchema = new mongoose.Schema(
       min: 1,
       max: 5,
     },
-    comment: {
+    topic: {
       type: String,
-      default: '',
-      trim: true,
+      default: 'General',
     },
     category: {
       type: String,
-      default: 'Food Quality',
+      default: 'General',
     },
     dishName: {
       type: String,
       default: '',
+    },
+    comment: {
+      type: String,
+      default: '',
+      trim: true,
     },
     status: {
       type: String,

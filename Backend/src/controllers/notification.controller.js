@@ -11,11 +11,11 @@ const { MESSAGES, HTTP_STATUS } = require('../config/constants');
 * Response: { success, count, notifications: [...] }
 
 */
-exports.getNotifications = async (req, res) => {
+exports.getUserNotifications = async (req, res) => {
 try {
 const { unread } = req.query;
 
-let filter = { userId: req.user.id };
+let filter = { userId: req.user._id || req.user.id };
 if (unread === 'true') filter.isRead = false;
 
 const notifications = await Notification.find(filter)
@@ -47,6 +47,8 @@ error: MESSAGES.SERVER_ERROR
 });
 }
 };
+
+exports.getNotifications = exports.getUserNotifications;
 
 /**
 * @desc    Get unread notification count
@@ -147,6 +149,23 @@ console.error('❌ Mark All Read Error:', error);
 res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
 success: false,
 error: MESSAGES.SERVER_ERROR
+});
+}
+};
+
+exports.clearNotifications = async (req, res) => {
+try {
+const userId = req.user._id || req.user.id;
+await Notification.deleteMany({ userId });
+res.status(HTTP_STATUS.OK).json({
+success: true,
+message: 'All notifications cleared'
+});
+} catch (error) {
+console.error('❌ Clear Notifications Error:', error);
+res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+success: false,
+error: error.message
 });
 }
 };

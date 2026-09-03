@@ -16,15 +16,14 @@ const registerUser = async (userData) => {
         throw error;
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(userData.password, 12);
-
+    // Model pre-save hook hashes the password. Never pre-hash here,
+    // otherwise the password would be hashed twice and login would fail.
     // Public registration always creates a customer
     const newUser = await User.create({
         fullName: userData.fullName.trim(),
         email,
         phone: userData.phone?.trim(),
-        password: hashedPassword,
+        password: userData.password,
         role: 'customer'
     });
 
@@ -42,10 +41,10 @@ const registerUser = async (userData) => {
 const loginUser = async (email, password) => {
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Find user
+    // Find user (password is select:false on the schema; opt back in)
     const user = await User.findOne({
         email: normalizedEmail
-    });
+    }).select('+password');
 
     if (!user) {
         const error = new Error('Invalid email or password');

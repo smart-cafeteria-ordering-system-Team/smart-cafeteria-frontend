@@ -3,8 +3,8 @@
  * SMART CAFETERIA ORDERING SYSTEM - ADMIN ORDER MANAGEMENT
  * ================================================================
  * Admin Order Management driven by the backend API:
- *   GET    /admin/orders            (list / search / filter / sort / paginate)
  *   GET    /admin/orders/stats      (metric cards)
+ *   GET    /admin/orders            (list / search / filter / paginate)
  *   GET    /admin/orders/:id        (details with customer + payment)
  *   PATCH  /admin/orders/:id/status (update status, respects flow rules)
  *   PATCH  /admin/orders/:id/cancel (cancel order)
@@ -23,22 +23,17 @@
     search: "",
     status: "",
     paymentStatus: "",
-    orderType: "",
     sort: "newest"
   };
 
   function money(value) {
-    if (value === null || value === undefined) return "0";
+    if (value === null || value === undefined) return "0.00";
     return Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  function escapeHtml(value) {
-    return window.esc(value);
   }
 
   function statusBadge(status) {
     var cls = "order-badge";
-    var s = String(status || "").toUpperCase();
+    var s = String(status || "PENDING").toUpperCase();
     switch (s) {
       case "PENDING": cls += " pend"; break;
       case "PREPARING": cls += " prep"; break;
@@ -49,18 +44,20 @@
       default: cls += " pend"; break;
     }
     var label = s.charAt(0) + s.slice(1).toLowerCase();
-    return '<span class="' + cls + '">' + label + "</span>";
+    return '<span class="' + cls + '">' + window.esc(label) + "</span>";
   }
 
   function paymentBadge(paymentStatus) {
     var cls = "order-badge";
     switch (String(paymentStatus || "").toUpperCase()) {
       case "PAID": cls += " cmp"; break;
+      case "SUCCESS": cls += " cmp"; break;
+      case "SIMULATED": cls += " cmp"; break;
       case "FAILED": cls += " cxl"; break;
-      case "CANCELLED": cls += " cxl"; break;
+      case "REFUNDED": cls += " cxl"; break;
       default: cls += " pend"; break;
     }
-    return '<span class="' + cls + '">' + String(paymentStatus || "PENDING") + "</span>";
+    return '<span class="' + cls + '">' + window.esc(String(paymentStatus || "PENDING")) + "</span>";
   }
 
   function getNextStatus(current) {
@@ -70,21 +67,21 @@
   }
 
   function canCancel(current) {
-    var idx = FLOW.indexOf(String(current || "").toUpperCase());
-    return idx === 0 || idx === 1; // PENDING or PREPARING
+    var s = String(current || "").toUpperCase();
+    return s === "PENDING" || s === "PREPARING";
   }
 
   /* ============================================================
-   * MODALS
+   * MODALS (display toggled via inline style in HTML)
    * ============================================================ */
   function openModal(id) {
     var el = document.getElementById(id);
-    if (el) el.classList.add("open");
+    if (el) el.style.display = "block";
   }
 
   function closeModal(id) {
     var el = document.getElementById(id);
-    if (el) el.classList.remove("open");
+    if (el) el.style.display = "none";
   }
 
   /* ============================================================
@@ -94,13 +91,15 @@
     try {
       var data = await window.AdminAPI.get("/admin/orders/stats");
       var stats = data.stats || {};
-      document.getElementById("metricTotalOrders").textContent = stats.totalOrders || 0;
-      document.getElementById("metricPendingOrders").textContent = stats.pendingOrders || 0;
-      document.getElementById("metricPreparingOrders").textContent = stats.preparingOrders || 0;
-      document.getElementById("metricReadyOrders").textContent = stats.readyOrders || 0;
-      document.getElementById("metricCompletedOrders").textContent =
+      var totalEl = document.getElementById("metricTotalOrders");
+      var pendingEl = document.getElementById("metricPendingOrders");
+      var preparingEl = document.getElementById("metricPreparingOrders");
+      var completedEl = document.getElementById("metricCompletedOrders");
+      if (totalEl) totalEl.textContent = stats.totalOrders || 0;
+      if (pendingEl) pendingEl.textContent = stats.pendingOrders || 0;
+      if (preparingEl) preparingEl.textContent = stats.preparingOrders || 0;
+      if (completedEl) completedEl.textContent =
         (stats.completedOrders || 0) + (stats.servedOrders || 0);
-      document.getElementById("metricCancelledOrders").textContent = stats.cancelledOrders || 0;
     } catch (e) {
       // stats are supplementary
     }
@@ -119,7 +118,6 @@
         search: state.search,
         status: state.status,
         paymentStatus: state.paymentStatus,
-        orderType: state.orderType,
         sort: state.sort
       });
 
@@ -128,16 +126,30 @@
 
       var total = data.total || 0;
       var pages = Math.max(data.pages || 1, 1);
-      var info = document.getElementById("orderPaginationInfo");
-      if (info) info.textContent = "Page " + (data.page || state.page) + " of " + pages + " (" + total + " orders)";
-      var prevBtn = document.getElementById("orderPrevPageBtn");
-      var nextBtn = document.getElementById("orderNextPageBtn");
-      if (prevBtn) prevBtn.disabled = (data.page || 1) <= 1;
-      if (nextBtn) nextBtn.disabled = (data.page || 1) >= pages;
+      renderPagination(total, pages);
       state.page = data.page || 1;
     } catch (error) {
-      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Failed to load orders: ' + window.esc(error.message || "Server error") + "</td></tr>";
+      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Failed to load orders: ' +
+        window.esc(error.message || "Server error") + "</td></tr>";
     }
+  }
+
+  function renderPagination(total, pages) {
+    var container = document.getElementById("orderPaginationControls");
+    if (!container) return;
+    container.innerHTML =
+      '<div class="pagination">' +
+        '<div class="pagination-info">Page ' + state.page + " of " + pages + " (" + total + " total)</div>" +
+        '<button class="page-btn" id="orderPrevPageBtn"' + (state.page <= 1 ? " disabled" : "") + '>' +
+          '<i class="fa-solid fa-chevron-left"></i> Prev</button>' +
+        '<button class="page-btn" id="orderNextPageBtn"' + (state.page >= pages ? " disabled" : "") + '>' +
+          'Next <i class="fa-solid fa-chevron-right"></i></button>' +
+      "</div>";
+
+    var prevBtn = document.getElementById("orderPrevPageBtn");
+    var nextBtn = document.getElementById("orderNextPageBtn");
+    if (prevBtn) prevBtn.addEventListener("click", function () { changePage(-1); });
+    if (nextBtn) nextBtn.addEventListener("click", function () { changePage(1); });
   }
 
   function renderOrders(orders) {
@@ -153,27 +165,25 @@
       var status = String(order.status || "PENDING").toUpperCase();
       var showCancel = canCancel(status);
       var cancelBtn = showCancel
-        ? '<button class="action-btn danger" data-action="cancel" data-id="' + order.id + '" title="Cancel order"><i class="fa-solid fa-ban"></i></button>'
+        ? '<button class="action-btn danger" data-action="cancel" data-id="' + order.id +
+          '" title="Cancel order"><i class="fa-solid fa-ban"></i></button>'
         : "";
 
-      var customerLines = "<strong>" + escapeHtml(order.customerName) + "</strong>" +
-        "<small>" + escapeHtml(order.customerPhone || "") + "</small>" +
-        (order.customer && order.customer.email ? "<small>" + escapeHtml(order.customer.email) + "</small>" : "");
+      var customerLines = "<strong>" + window.esc(order.customerName || "—") + "</strong>" +
+        (order.customerPhone ? "<small>" + window.esc(order.customerPhone) + "</small>" : "") +
+        (order.customer && order.customer.email ? "<small>" + window.esc(order.customer.email) + "</small>" : "");
 
-      var paymentLine = "<span class=\"pay-method\">" + escapeHtml(order.paymentMethod || "—") + "</span> " +
+      var paymentLine = '<span class="pay-method">' + window.esc(order.paymentMethod || "—") + "</span> " +
         paymentBadge(order.paymentStatus);
 
       return (
         "<tr>" +
-        "<td>" +
-          '<div class="user-cell">' +
-            '<div class="order-id-cell">' +
-              "<strong>" + escapeHtml(order.orderId) + "</strong>" +
-              "<small>" + (order.orderType || "dine-in") + (order.tableNumber && order.tableNumber !== "N/A" ? " · Table " + escapeHtml(order.tableNumber) : "") + "</small>" +
-            "</div>" +
-          "</div>" +
-        "</td>" +
-        '<td><div class="user-cell"><div class="user-avatar">' + escapeHtml((order.customerName || "?").charAt(0)) + "</div><div>" + customerLines + "</div></div></td>" +
+        '<td><div class="user-cell"><div class="order-id-cell">' +
+          "<strong>" + window.esc(order.orderId || "—") + "</strong>" +
+        "</div></div></td>" +
+        '<td><div class="user-cell"><div class="user-avatar">' +
+          window.esc((order.customerName || "?").charAt(0)) +
+          "</div><div>" + customerLines + "</div></div></td>" +
         '<td><div class="order-item-count">' + (order.itemCount || 0) + " items</div></td>" +
         "<td><strong>" + money(order.totalAmount) + " ETB</strong></td>" +
         "<td>" + paymentLine + "</td>" +
@@ -201,6 +211,7 @@
    * ============================================================ */
   function renderOrderItems(items) {
     var tbody = document.getElementById("modalOrderItemsBody");
+    if (!tbody) return;
     if (!items || !items.length) {
       tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No items</td></tr>';
       return;
@@ -210,11 +221,11 @@
       return (
         "<tr>" +
         "<td>" +
-          escapeHtml(item.name) +
-          (item.notes ? ' <small class="item-note">(' + escapeHtml(item.notes) + ")</small>" : "") +
+          window.esc(item.name || "—") +
+          (item.notes ? ' <small class="item-note">(' + window.esc(item.notes) + ")</small>" : "") +
         "</td>" +
         "<td>" + money(item.price) + " ETB</td>" +
-        "<td>" + item.quantity + "</td>" +
+        "<td>" + (item.quantity || 0) + "</td>" +
         "<td>" + money(sub) + " ETB</td>" +
         "</tr>"
       );
@@ -223,19 +234,20 @@
 
   function renderStatusSelect(status) {
     var select = document.getElementById("updateOrderStatusSelect");
-    var hint = document.getElementById("statusFlowHint");
-    var cancelBtn = document.getElementById("cancelOrderBtn");
-
+    var saveBtn = document.getElementById("saveOrderStatusBtn");
     if (!select) return;
+
     var s = String(status || "PENDING").toUpperCase();
     var next = getNextStatus(s);
 
-    cancelBtn.style.display = canCancel(s) ? "inline-flex" : "none";
-
     if (!next) {
-      select.innerHTML = '<option value="">' + (s === "CANCELLED" ? "Order cancelled — no further updates" : "Order " + s.toLowerCase() + " — flow complete") + "</option>";
+      select.innerHTML = '<option value="">' +
+        (s === "CANCELLED"
+          ? "Order cancelled — no further updates"
+          : "Order " + s.toLowerCase() + " — flow complete") +
+        "</option>";
       select.disabled = true;
-      if (hint) hint.textContent = "";
+      if (saveBtn) saveBtn.style.display = "none";
       return;
     }
 
@@ -243,7 +255,7 @@
     select.innerHTML =
       '<option value="">Select next status...</option>' +
       '<option value="' + next + '">' + next.charAt(0) + next.slice(1).toLowerCase() + "</option>";
-    if (hint) hint.textContent = "PENDING → PREPARING → READY → SERVED → COMPLETED. Current: " + s + ".";
+    if (saveBtn) saveBtn.style.display = "";
   }
 
   async function viewOrderDetails(id, cached) {
@@ -263,36 +275,14 @@
 
     document.getElementById("modalOrderId").textContent = order.orderId || "#0000";
     document.getElementById("modalCustomerName").textContent = order.customerName || "—";
-    document.getElementById("modalCustomerPhone").textContent = order.customerPhone || "—";
-    document.getElementById("modalCustomerEmail").textContent = (order.customer && order.customer.email) || "—";
-    document.getElementById("modalOrderDate").textContent = window.AdminAPI.formatDateTime(order.createdAt || order.orderTime);
-    document.getElementById("modalOrderType").textContent = order.orderType || "dine-in";
-    document.getElementById("modalTableNumber").textContent = order.tableNumber || "N/A";
+    document.getElementById("modalCustomerEmail").textContent =
+      (order.customer && order.customer.email) || "—";
+    document.getElementById("modalOrderDate").textContent =
+      window.AdminAPI.formatDateTime(order.createdAt || order.orderTime);
     document.getElementById("modalPaymentMethod").textContent = order.paymentMethod || "—";
-    document.getElementById("modalPaymentStatus").innerHTML = paymentBadge(order.paymentStatus);
-    document.getElementById("modalTransactionId").textContent =
-      (order.payment && order.payment.transactionId) || order.transactionId || "—";
 
     renderOrderItems(order.items);
-    document.getElementById("modalSubtotal").textContent = money(order.subtotal) + " ETB";
-    document.getElementById("modalServiceFee").textContent = money(order.serviceFee) + " ETB";
     document.getElementById("modalOrderTotal").textContent = money(order.totalAmount) + " ETB";
-
-    document.getElementById("modalOrderTime").textContent = window.AdminAPI.formatDateTime(order.orderTime || order.createdAt);
-    document.getElementById("modalReadyTime").textContent = order.readyTime ? window.AdminAPI.formatDateTime(order.readyTime) : "—";
-    document.getElementById("modalCompletedTime").textContent = order.completedTime ? window.AdminAPI.formatDateTime(order.completedTime) : "—";
-
-    var cancelInfo = "—";
-    if (order.cancellation && (order.cancellation.reason || order.cancellation.requested)) {
-      var parts = [];
-      if (order.cancellation.reason) parts.push("Reason: " + order.cancellation.reason);
-      if (order.cancellation.requested) parts.push("Requested");
-      if (order.cancellation.adminNote) parts.push("Note: " + order.cancellation.adminNote);
-      cancelInfo = parts.join(" · ") || "—";
-    } else if (status === "CANCELLED") {
-      cancelInfo = "Cancelled";
-    }
-    document.getElementById("modalCancellationInfo").textContent = cancelInfo;
 
     window.__activeOrder = order;
     renderStatusSelect(status);
@@ -302,7 +292,8 @@
   async function saveOrderStatus() {
     var select = document.getElementById("updateOrderStatusSelect");
     var order = window.__activeOrder;
-    if (!order || !select.value) {
+    if (!order) return;
+    if (!select || !select.value) {
       if (window.AdminToast) window.AdminToast.error("Select a status to apply");
       return;
     }
@@ -318,20 +309,17 @@
     }
   }
 
-  async function cancelCurrentOrder() {
-    var order = window.__activeOrder;
+  async function cancelOrder(id) {
+    var order = (window.__ordersCache || []).find(function (o) { return o.id === id; });
     if (!order) return;
-
     if (!window.confirm('Cancel order ' + order.orderId + '? This cannot be undone.')) return;
-    var reason = window.prompt("Cancellation reason (optional):", "Cancelled by admin");
 
     try {
-      await window.AdminAPI.patch("/admin/orders/" + order.id + "/cancel", {
-        reason: reason || "Cancelled by admin",
-        adminNote: reason || "Cancelled by admin"
+      await window.AdminAPI.patch("/admin/orders/" + id + "/cancel", {
+        reason: "Cancelled by admin",
+        adminNote: "Cancelled by admin"
       });
-      closeModal("orderDetailsModal");
-      if (window.AdminToast) window.AdminToast.success("Order cancelled");
+      if (window.AdminToast) window.AdminToast.success("Order " + order.orderId + " cancelled");
       loadOrders();
       loadStats();
     } catch (error) {
@@ -350,16 +338,15 @@
       if (window.AdminToast) window.AdminToast.show("Orders refreshed");
     });
 
-    document.querySelectorAll("[data-close-modal]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        closeModal(btn.getAttribute("data-close-modal"));
-      });
-    });
+    var closeBtn = document.getElementById("closeOrderModalBtn");
+    if (closeBtn) closeBtn.addEventListener("click", function () { closeModal("orderDetailsModal"); });
 
-    document.querySelectorAll(".amodal-overlay").forEach(function (overlay) {
-      overlay.addEventListener("click", function (e) {
-        if (e.target === overlay) overlay.classList.remove("open");
-      });
+    var cancelModalBtn = document.getElementById("cancelOrderModalBtn");
+    if (cancelModalBtn) cancelModalBtn.addEventListener("click", function () { closeModal("orderDetailsModal"); });
+
+    var modal = document.getElementById("orderDetailsModal");
+    if (modal) modal.addEventListener("click", function (e) {
+      if (e.target === modal) closeModal("orderDetailsModal");
     });
 
     var searchInput = document.getElementById("orderSearchInput");
@@ -393,52 +380,8 @@
       });
     }
 
-    var typeFilter = document.getElementById("orderTypeFilter");
-    if (typeFilter) {
-      typeFilter.addEventListener("change", function () {
-        state.orderType = typeFilter.value;
-        state.page = 1;
-        loadOrders();
-      });
-    }
-
-    var sortSelect = document.getElementById("orderSortSelect");
-    if (sortSelect) {
-      sortSelect.addEventListener("change", function () {
-        state.sort = sortSelect.value;
-        state.page = 1;
-        loadOrders();
-      });
-    }
-
-    var resetBtn = document.getElementById("resetOrderFiltersBtn");
-    if (resetBtn) {
-      resetBtn.addEventListener("click", function () {
-        if (searchInput) searchInput.value = "";
-        if (statusFilter) statusFilter.value = "";
-        if (paymentFilter) paymentFilter.value = "";
-        if (typeFilter) typeFilter.value = "";
-        if (sortSelect) sortSelect.value = "newest";
-        state.search = "";
-        state.status = "";
-        state.paymentStatus = "";
-        state.orderType = "";
-        state.sort = "newest";
-        state.page = 1;
-        loadOrders();
-      });
-    }
-
-    var prevBtn = document.getElementById("orderPrevPageBtn");
-    var nextBtn = document.getElementById("orderNextPageBtn");
-    if (prevBtn) prevBtn.addEventListener("click", function () { changePage(-1); });
-    if (nextBtn) nextBtn.addEventListener("click", function () { changePage(1); });
-
     var saveStatusBtn = document.getElementById("saveOrderStatusBtn");
     if (saveStatusBtn) saveStatusBtn.addEventListener("click", saveOrderStatus);
-
-    var cancelBtn = document.getElementById("cancelOrderBtn");
-    if (cancelBtn) cancelBtn.addEventListener("click", cancelCurrentOrder);
 
     var tbody = document.getElementById("ordersTableBody");
     if (tbody) {
@@ -453,14 +396,7 @@
           var cached = (window.__ordersCache || []).find(function (o) { return o.id === id; });
           viewOrderDetails(id, cached);
         } else if (action === "cancel") {
-          var order = (window.__ordersCache || []).find(function (o) { return o.id === id; });
-          if (!order) return;
-          viewOrderDetails(id, order).then(function () {
-            setTimeout(() => {
-              var cancelBtnEl = document.getElementById("cancelOrderBtn");
-              if (cancelBtnEl && cancelBtnEl.style.display !== "none") cancelBtnEl.click();
-            }, 100);
-          });
+          cancelOrder(id);
         }
       });
     }

@@ -1,4 +1,104 @@
 /**
+ * Phase 4 - Real database integration helpers.
+ * When the student is logged in, order history is fetched from MongoDB
+ * through the backend and merged into the local history for instant rendering.
+ */
+(function () {
+    const API_BASE_URL = "http://localhost:5000/api/v1";
+
+    window.getApiToken = function () {
+        return localStorage.getItem("auth_token") || localStorage.getItem("token") || "";
+    };
+
+    /**
+     * Fetch the logged-in student's orders from the backend.
+     * @returns {Promise<Array|null>} orders mapped for display, or null on failure
+     */
+    window.fetchMyOrdersFromApi = async function () {
+        const token = window.getApiToken();
+        if (!token) return null;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/orders/my-orders`, {
+                headers: {
+                    Accept: "application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw { status: 401 };
+                }
+                throw new Error("Failed to load orders");
+            }
+
+            const data = await response.json();
+            const orders = data?.orders || [];
+
+            return orders.map(function (order) {
+                const rawStatus = String(order.status || order.orderStatus || "pending").toLowerCase();
+                let displayStatus = "Pending";
+                if (rawStatus === "cancelled") displayStatus = "Cancelled";
+                if (rawStatus === "completed" || rawStatus === "served") displayStatus = "Completed";
+                if (rawStatus === "preparing" || rawStatus === "ready") displayStatus = "In Progress";
+
+                return {
+                    orderId: order.orderId || order.orderNumber || order.id,
+                    id: order.orderId || order.orderNumber || order.id,
+                    orderDate: order.orderDate,
+                    orderType: order.orderType || "dine-in",
+                    tableNumber: order.tableNumber || "-",
+                    customerName: order.customerName,
+                    customerPhone: order.customerPhone,
+                    paymentMethod: order.paymentMethod,
+                    items: Array.isArray(order.items) ? order.items : [],
+                    subtotal: order.subtotal,
+                    serviceFee: order.serviceFee,
+                    totalAmount: order.totalAmount,
+                    orderTime: order.orderTime,
+                    status: displayStatus
+                };
+            });
+        } catch (error) {
+            if (error && error.status === 401) {
+                window.location.href = "../common/login.html";
+            }
+            console.warn("Could not load orders from server:", error.message || error);
+            return null;
+        }
+    };
+
+    /**
+     * Merge real DB orders into localStorage so the existing renderer
+     * can display live data immediately.
+     */
+    window.mergeApiOrdersIntoHistory = function (apiOrders) {
+        if (!Array.isArray(apiOrders) || apiOrders.length === 0) return;
+
+        let historyData = JSON.parse(localStorage.getItem("orderHistory")) || [];
+
+        apiOrders.forEach(function (apiOrder) {
+            const id = apiOrder.orderId || apiOrder.id;
+            const exists = historyData.some(function (o) {
+                return (o.orderId || o.id) === id;
+            });
+
+            if (exists) {
+                historyData = historyData.map(function (o) {
+                    if ((o.orderId || o.id) === id) return apiOrder;
+                    return o;
+                });
+            } else {
+                historyData.unshift(apiOrder);
+            }
+        });
+
+        localStorage.setItem("orderHistory", JSON.stringify(historyData.slice(0, 50)));
+    };
+})();
+
+/**
  * Attached to window so that HTML onclick="cancelOrder('ID')" works without scope issues
  */
 window.cancelOrder = function(orderId) {
@@ -6,11 +106,57 @@ window.cancelOrder = function(orderId) {
         return;
     }
 
+    const token = window.getApiToken();
+
+    // Cancel through the real backend when authenticated (Phase 4).
+    if (token) {
+        fetch(`http://localhost:5000/api/v1/orders/${encodeURIComponent(orderId)}/cancel`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ reason: "Cancelled by customer" })
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    return response.json().then(function (data) {
+                        throw new Error(data?.error || "Failed to cancel order");
+                    });
+                }
+                return response.json();
+            })
+            .then(function () {
+                updateLocalCancellation("history", orderId);
+            })
+            .catch(function (error) {
+                if (error.message === "Failed to cancel order") {
+                    // Fall back to local-only cancellation
+                    const changed = updateLocalCancellation("history", orderId);
+                    if (changed) {
+                        alert(`Order #${orderId} was successfully cancelled.`);
+                    } else {
+                        alert(error.message);
+                    }
+                } else {
+                    console.warn("Server cancellation failed:", error.message);
+                }
+            });
+        return;
+    }
+
+    const changed = updateLocalCancellation("history", orderId);
+    if (changed) {
+        alert(`Order #${orderId} was successfully cancelled.`);
+    }
+};
+
+function updateLocalCancellation(kind, orderId) {
     let historyData = JSON.parse(localStorage.getItem("orderHistory")) || [];
     let latestOrder = JSON.parse(localStorage.getItem("latestOrder"));
     let isUpdated = false;
 
-    // 1. Update status in orderHistory list
     historyData = historyData.map(order => {
         const id = order.orderId || order.id;
         if (id === orderId) {
@@ -24,7 +170,6 @@ window.cancelOrder = function(orderId) {
         return order;
     });
 
-    // 2. Update status in latestOrder if IDs match
     if (latestOrder) {
         const latestId = latestOrder.orderId || latestOrder.id;
         if (latestId === orderId) {
@@ -36,12 +181,14 @@ window.cancelOrder = function(orderId) {
 
     if (isUpdated) {
         localStorage.setItem("orderHistory", JSON.stringify(historyData));
-        alert(`Order #${orderId} was successfully cancelled.`);
-        location.reload();
-    } else {
-        alert("Order could not be found or cancelled.");
+        if (kind === "history") {
+            alert(`Order #${orderId} was successfully cancelled.`);
+            location.reload();
+        }
+        return true;
     }
-};
+    return false;
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     const historyListContainer = document.getElementById("orders-history-list");
@@ -189,4 +336,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     renderOrders();
+
+    // Phase 4 - sync real MongoDB orders when the student is logged in.
+    if (window.getApiToken()) {
+        window.fetchMyOrdersFromApi()
+            .then(function (apiOrders) {
+                if (!apiOrders) return;
+                window.mergeApiOrdersIntoHistory(apiOrders);
+                renderOrders();
+            })
+            .catch(function () {
+                // stay on localStorage fallback
+            });
+    }
 });

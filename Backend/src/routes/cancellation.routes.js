@@ -24,6 +24,7 @@ const {
  * Body: { orderId, reason, details }
  */
 router.post('/request', protect, requestCancellation);
+router.post('/request/:orderId', protect, requestCancellation);
 
 /**
  * @route   GET /api/cancellations/:orderId/check

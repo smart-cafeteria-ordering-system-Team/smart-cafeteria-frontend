@@ -3,13 +3,13 @@
  * SMART CAFETERIA ORDERING SYSTEM - ADMIN FEEDBACK MANAGEMENT
  * ==========================================================================
  * Admin Feedback Management driven by the backend API:
- *   GET    /admin/feedback           (list / search / filter / paginate)
- *   GET    /admin/feedback/:id       (details)
- *   PATCH  /admin/feedback/:id/reply (reply to feedback)
- *   DELETE /admin/feedback/:id       (delete)
+ *   GET    /feedback            (list - Admin, with status/rating query params)
+ *   GET    /feedback/stats      (admin metrics)
+ *   PATCH  /feedback/:id/reply  (reply to feedback, body: { reply })
+ *   DELETE /feedback/:id        (delete feedback)
  *
  * Requires window.AdminAPI (admin-api.js) loaded first.
- * ============================================================================
+ * ==========================================================================
  */
 (function () {
   "use strict";
@@ -21,37 +21,6 @@
     status: "",
     rating: ""
   };
-
-  function escapeHtml(value) {
-    return window.esc(value);
-  }
-
-  function openModal(id) {
-    var el = document.getElementById(id);
-    if (el) el.classList.add("open");
-  }
-
-  function closeModal(id) {
-    var el = document.getElementById(id);
-    if (el) el.classList.remove("open");
-  }
-
-  function closeAllModals() {
-    document.querySelectorAll(".modal-overlay.open").forEach(function(m) {
-      m.classList.remove("open");
-    });
-  }
-
-  document.addEventListener("click", function(e) {
-    var closeBtn = e.target.closest("[data-close-modal]");
-    if (closeBtn) closeModal(closeBtn.getAttribute("data-close-modal"));
-    var overlay = e.target.closest(".modal-overlay");
-    if (overlay && e.target === overlay) closeAllModals();
-  });
-
-  document.addEventListener("keydown", function(e) {
-    if (e.key === "Escape") closeAllModals();
-  });
 
   function ratingStars(rating) {
     var r = Number(rating) || 0;
@@ -67,35 +36,67 @@
     var cls = "order-badge";
     switch (s) {
       case "PENDING": cls += " pend"; break;
-      case "RESOLVED": cls += " cmp"; break;
+      case "APPROVED": cls += " cmp"; break;
+      case "REJECTED": cls += " cxl"; break;
       case "ARCHIVED": cls += " cxl"; break;
       default: cls += " pend";
     }
     return '<span class="' + cls + '">' + s + "</span>";
   }
 
+  async function loadMetrics() {
+    try {
+      var data = await window.AdminAPI.get("/feedback/stats");
+      var stats = data.stats || {};
+      var el;
+      el = document.getElementById("metricTotalFeedback");
+      if (el) el.textContent = stats.totalFeedback || 0;
+      el = document.getElementById("metricAvgRating");
+      if (el) el.innerHTML = (stats.averageRating !== undefined && stats.averageRating !== null ? stats.averageRating : stats.averageRatingText || "0.0") + ' <small>/ 5</small>';
+      el = document.getElementById("metricPositiveFeedback");
+      if (el) el.textContent = stats.positiveReviews !== undefined ? stats.positiveReviews : (stats.approved || 0);
+      el = document.getElementById("metricPendingFeedback");
+      if (el) el.textContent = stats.pendingIssues !== undefined ? stats.pendingIssues : (stats.pending || 0);
+    } catch (e) {
+      // Metrics are non-critical; keep defaults
+    }
+  }
+
   async function loadFeedback() {
     var tbody = document.getElementById("feedbackTableBody");
     if (!tbody || !window.AdminAPI) return;
 
-    tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading feedback...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading feedback...</td></tr>';
 
     try {
-      var data = await window.AdminAPI.get("/admin/feedback", {
-        page: state.page,
-        limit: state.limit,
-        search: state.search,
-        status: state.status,
-        rating: state.rating
-      });
+      var query = { page: state.page, limit: state.limit };
+      if (state.status) query.status = state.status;
+      if (state.rating) query.rating = state.rating;
 
+      var data = await window.AdminAPI.get("/feedback", query);
+
+      var allFeedback = data.feedback || [];
       state.total = data.total || 0;
-      state.pages = data.pages || Math.max(Math.ceil(state.total / state.limit), 1);
-      window.__feedbackCache = data.feedback || [];
-      renderFeedback(window.__feedbackCache);
+      state.pages = Math.max(Math.ceil(state.total / state.limit), 1);
+
+      // Client-side search filter
+      if (state.search) {
+        var q = state.search.toLowerCase();
+        allFeedback = allFeedback.filter(function (f) {
+          return (
+            (f.user && f.user.name && f.user.name.toLowerCase().indexOf(q) !== -1) ||
+            (f.orderId && String(f.orderId).toLowerCase().indexOf(q) !== -1) ||
+            (f.customerName && f.customerName.toLowerCase().indexOf(q) !== -1) ||
+            (f.comment && f.comment.toLowerCase().indexOf(q) !== -1)
+          );
+        });
+      }
+
+      window.__feedbackCache = allFeedback;
+      renderFeedback(allFeedback);
       renderPagination();
     } catch (error) {
-      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Failed to load feedback: ' + window.esc(error.message || "Server error") + '</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Failed to load feedback: ' + window.esc(error.message || "Server error") + "</td></tr>";
     }
   }
 
@@ -103,108 +104,87 @@
     var tbody = document.getElementById("feedbackTableBody");
     if (!tbody) return;
 
-    if (!items.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No feedback found.</td></tr>';
+    if (!items || !items.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No feedback found.</td></tr>';
       return;
     }
 
-    tbody.innerHTML = items.map(function(f) {
+    tbody.innerHTML = items.map(function (f) {
+      var fid = f._id || f.id || "-";
+      var customerName = (f.user && f.user.name) || f.customerName || "—";
       return (
         "<tr>" +
-        '<td><strong>' + window.esc(f._id || f.id || "-") + '</strong></td>' +
-        '<td>' + window.esc(f.user?.name || f.userName || "-") + '</td>' +
-        '<td>' + ratingStars(f.rating) + ' <small>(' + (f.rating || 0) + '/5)</small></td>' +
-        '<td>' + window.esc(f.category || "-") + '</td>' +
-        '<td>' + window.esc(f.dishName || "-") + '</td>' +
-        '<td>' + statusBadge(f.status) + '</td>' +
-        '<td>' + window.AdminAPI.formatDateTime(f.createdAt) + '</td>' +
-        '<td>' +
+        '<td><strong>' + window.esc(fid) + "</strong></td>" +
+        '<td>' + window.esc(customerName) + "</td>" +
+        '<td>' + window.esc(f.orderId || "-") + "</td>" +
+        "<td>" + ratingStars(f.rating) + ' <small>(' + (f.rating || 0) + "/5)</small></td>" +
+        '<td>' + window.esc(f.comment || "-") + "</td>" +
+        "<td>" + statusBadge(f.status) + "</td>" +
+        "<td>" + window.AdminAPI.formatDate(f.createdAt) + "</td>" +
+        "<td>" +
         '<div class="table-actions">' +
-          '<button class="action-btn" data-action="view" data-id="' + (f._id || f.id) + '" title="View details"><i class="fa-solid fa-eye"></i></button>' +
-          '<button class="action-btn" data-action="reply" data-id="' + (f._id || f.id) + '" title="Reply"><i class="fa-solid fa-reply"></i></button>' +
-          '<button class="action-btn danger" data-action="delete" data-id="' + (f._id || f.id) + '" title="Delete"><i class="fa-solid fa-trash"></i></button>' +
-        '</div>' +
-        '</td>' +
-        '</tr>'
+        '<button class="action-btn" data-action="reply" data-id="' + fid + '" title="View / Reply"><i class="fa-solid fa-reply"></i></button>' +
+        '<button class="action-btn danger" data-action="delete" data-id="' + fid + '" title="Delete"><i class="fa-solid fa-trash"></i></button>' +
+        "</div>" +
+        "</td>" +
+        "</tr>"
       );
     }).join("");
   }
 
   function renderPagination() {
-    var info = document.getElementById("paginationInfo");
-    var prevBtn = document.getElementById("prevPageBtn");
-    var nextBtn = document.getElementById("nextPageBtn");
+    var container = document.getElementById("feedbackPaginationControls");
+    if (!container) return;
 
-    if (info) info.textContent = "Page " + state.page + " of " + Math.max(state.pages, 1) + " (" + state.total + " feedback)";
-    if (prevBtn) prevBtn.disabled = state.page <= 1;
-    if (nextBtn) nextBtn.disabled = state.page >= state.pages;
+    var html =
+      '<div class="pagination">' +
+      '<div class="pagination-info">Page ' + state.page + " of " + Math.max(state.pages, 1) + " (" + (state.total || 0) + " items)</div>" +
+      '<button class="page-btn" id="feedbackPrevBtn"' + (state.page <= 1 ? " disabled" : "") + ">&laquo; Prev</button>" +
+      '<button class="page-btn" id="feedbackNextBtn"' + (state.page >= state.pages ? " disabled" : "") + ">Next &raquo;</button>" +
+      "</div>";
+
+    container.innerHTML = html;
+
+    var prevBtn = document.getElementById("feedbackPrevBtn");
+    var nextBtn = document.getElementById("feedbackNextBtn");
+    if (prevBtn) prevBtn.addEventListener("click", function () { state.page--; loadFeedback(); });
+    if (nextBtn) nextBtn.addEventListener("click", function () { state.page++; loadFeedback(); });
   }
 
-  function changePage(delta) {
-    state.page += delta;
-    if (state.page < 1) state.page = 1;
-    loadFeedback();
+  function openFeedbackModal(feedback) {
+    var modal = document.getElementById("feedbackModal");
+    if (!modal) return;
+
+    var fid = feedback._id || feedback.id || "";
+    var customerName = (feedback.user && feedback.user.name) || feedback.customerName || "—";
+    var orderId = feedback.orderId || "—";
+    var rating = feedback.rating || 0;
+    var comment = feedback.comment || "-";
+
+    var el;
+    el = document.getElementById("modalFeedbackId");
+    if (el) el.textContent = "#" + fid;
+    el = document.getElementById("modalOrderId");
+    if (el) el.textContent = "#" + orderId;
+    el = document.getElementById("modalCustomerName");
+    if (el) el.textContent = customerName;
+    el = document.getElementById("modalRatingStars");
+    if (el) el.innerHTML = ratingStars(rating) + " <small>(" + rating + "/5)</small>";
+    el = document.getElementById("modalCustomerComment");
+    if (el) el.textContent = comment;
+
+    var replyInput = document.getElementById("adminReplyInput");
+    if (replyInput) replyInput.value = feedback.reply || "";
+
+    modal.style.display = "flex";
+    modal.dataset.feedbackId = fid;
   }
 
-  async function viewFeedback(feedback) {
-    closeAllModals();
-
-    document.getElementById("modalFeedbackIdVal").textContent = feedback._id || feedback.id || "-";
-    document.getElementById("modalFeedbackUser").textContent = feedback.user?.name || feedback.userName || "-";
-    document.getElementById("modalFeedbackRole").textContent = feedback.user?.role || "Customer";
-    document.getElementById("modalFeedbackAvatar").textContent = (feedback.user?.name || "U").charAt(0).toUpperCase();
-    document.getElementById("modalFeedbackOrder").textContent = feedback.orderId || "-";
-    document.getElementById("modalFeedbackRating").innerHTML = ratingStars(feedback.rating) + ' <strong>(' + (feedback.rating || 0) + '/5)</strong>';
-    document.getElementById("modalFeedbackCategory").textContent = feedback.category || "-";
-    document.getElementById("modalFeedbackDish").textContent = feedback.dishName || "-";
-    document.getElementById("modalFeedbackDate").textContent = window.AdminAPI.formatDateTime(feedback.createdAt);
-    document.getElementById("modalFeedbackStatus").innerHTML = statusBadge(feedback.status);
-    document.getElementById("modalFeedbackComment").textContent = feedback.comment || "-";
-    document.getElementById("modalFeedbackReply").value = feedback.reply || "";
-    document.getElementById("modalFeedbackMarkResolved").checked = feedback.status === "RESOLVED";
-
-    document.getElementById("modalFeedbackReply").dataset.feedbackId = feedback._id || feedback.id;
-    document.getElementById("modalFeedbackMarkResolved").dataset.feedbackId = feedback._id || feedback.id;
-
-    openModal("feedbackDetailsModal");
-  }
-
-  async function sendFeedbackReply() {
-    var replyInput = document.getElementById("modalFeedbackReply");
-    var resolvedCheck = document.getElementById("modalFeedbackMarkResolved");
-    var feedbackId = replyInput.dataset.feedbackId;
-
-    var reply = replyInput.value.trim();
-    var markResolved = resolvedCheck.checked;
-
-    if (!reply) {
-      if (window.AdminToast) window.AdminToast.error("Reply cannot be empty");
-      return;
-    }
-
-    try {
-      await window.AdminAPI.patch("/admin/feedback/" + feedbackId + "/reply", {
-        reply: reply,
-        resolved: markResolved
-      });
-      closeModal("feedbackDetailsModal");
-      if (window.AdminToast) window.AdminToast.success("Reply sent successfully");
-      loadFeedback();
-    } catch (error) {
-      if (window.AdminToast) window.AdminToast.error(error.message || "Failed to send reply");
-    }
-  }
-
-  async function deleteFeedback(feedback) {
-    if (!window.confirm('Delete feedback from "' + (feedback.user?.name || "User") + '"? This action cannot be undone.')) return;
-
-    try {
-      await window.AdminAPI.del("/admin/feedback/" + (feedback._id || feedback.id));
-      if (window.AdminToast) window.AdminToast.success("Feedback deleted successfully");
-      if (state.total === 1 && state.page > 1) state.page--;
-      loadFeedback();
-    } catch (error) {
-      if (window.AdminToast) window.AdminToast.error(error.message || "Failed to delete feedback");
+  function closeFeedbackModal() {
+    var modal = document.getElementById("feedbackModal");
+    if (modal) {
+      modal.style.display = "none";
+      modal.dataset.feedbackId = "";
     }
   }
 
@@ -212,9 +192,9 @@
     var searchInput = document.getElementById("feedbackSearchInput");
     if (searchInput) {
       var debounceTimer = null;
-      searchInput.addEventListener("input", function() {
+      searchInput.addEventListener("input", function () {
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(function() {
+        debounceTimer = setTimeout(function () {
           state.search = searchInput.value.trim();
           state.page = 1;
           loadFeedback();
@@ -224,7 +204,7 @@
 
     var statusFilter = document.getElementById("feedbackStatusFilter");
     if (statusFilter) {
-      statusFilter.addEventListener("change", function() {
+      statusFilter.addEventListener("change", function () {
         state.status = statusFilter.value;
         state.page = 1;
         loadFeedback();
@@ -233,88 +213,122 @@
 
     var ratingFilter = document.getElementById("feedbackRatingFilter");
     if (ratingFilter) {
-      ratingFilter.addEventListener("change", function() {
+      ratingFilter.addEventListener("change", function () {
         state.rating = ratingFilter.value;
         state.page = 1;
         loadFeedback();
       });
     }
 
-    var resetBtn = document.getElementById("resetFeedbackFiltersBtn");
-    if (resetBtn) {
-      resetBtn.addEventListener("click", function() {
-        if (searchInput) searchInput.value = "";
-        if (statusFilter) statusFilter.value = "";
-        if (ratingFilter) ratingFilter.value = "";
-        state.search = "";
-        state.status = "";
-        state.rating = "";
-        state.page = 1;
-        loadFeedback();
+    var refreshBtn = document.getElementById("refreshFeedbackBtn");
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", async function () {
+        var original = refreshBtn.innerHTML;
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Refreshing...';
+        try {
+          await Promise.all([loadFeedback(), loadMetrics()]);
+        } finally {
+          refreshBtn.disabled = false;
+          refreshBtn.innerHTML = original;
+        }
       });
     }
 
-    var prevBtn = document.getElementById("prevPageBtn");
-    var nextBtn = document.getElementById("nextPageBtn");
-    if (prevBtn) prevBtn.addEventListener("click", function() {
-      if (state.page > 1) {
-        state.page--;
-        loadFeedback();
-      }
-    });
-    if (nextBtn) nextBtn.addEventListener("click", function() {
-      state.page++;
-      loadFeedback();
-    });
-
     var tbody = document.getElementById("feedbackTableBody");
     if (tbody) {
-      tbody.addEventListener("click", async function(e) {
+      tbody.addEventListener("click", async function (e) {
         var btn = e.target.closest("[data-action]");
         if (!btn) return;
         var id = btn.getAttribute("data-id");
         var action = btn.getAttribute("data-action");
         if (!id) return;
 
-        var feedback = (window.__feedbackCache || []).find(function(f) {
+        var feedback = (window.__feedbackCache || []).find(function (f) {
           return (f._id || f.id) === id;
         });
-        if (!feedback) {
-          try {
-            var data = await window.AdminAPI.get("/admin/feedback/" + id);
-            feedback = data.feedback;
-          } catch (e) {
-            feedback = null;
-          }
-        }
         if (!feedback) {
           if (window.AdminToast) window.AdminToast.error("Feedback not found");
           return;
         }
 
-        if (action === "view") viewFeedback(feedback);
-        else if (action === "reply") viewFeedback(feedback);
-        else if (action === "delete") deleteFeedback(feedback);
+        if (action === "reply") {
+          openFeedbackModal(feedback);
+        } else if (action === "delete") {
+          if (!confirm("Delete this feedback? This action cannot be undone.")) return;
+          try {
+            await window.AdminAPI.del("/feedback/" + id);
+            if (window.AdminToast) window.AdminToast.success("Feedback deleted");
+            if (state.total === 1 && state.page > 1) state.page--;
+            loadFeedback();
+            loadMetrics();
+          } catch (err) {
+            if (window.AdminToast) window.AdminToast.error(err.message || "Delete failed");
+          }
+        }
       });
     }
 
-    var sendReplyBtn = document.getElementById("sendFeedbackReplyBtn");
-    if (sendReplyBtn) sendReplyBtn.addEventListener("click", sendFeedbackReply);
-  }
+    var closeBtn = document.getElementById("closeFeedbackModalBtn");
+    if (closeBtn) closeBtn.addEventListener("click", closeFeedbackModal);
 
-  function renderPagination() {
-    var info = document.getElementById("paginationInfo");
-    var prevBtn = document.getElementById("prevPageBtn");
-    var nextBtn = document.getElementById("nextPageBtn");
+    var sendBtn = document.getElementById("sendFeedbackReplyBtn");
+    if (sendBtn) {
+      sendBtn.addEventListener("click", async function () {
+        var modal = document.getElementById("feedbackModal");
+        var feedbackId = modal ? modal.dataset.feedbackId : "";
+        var replyInput = document.getElementById("adminReplyInput");
+        var reply = replyInput ? replyInput.value.trim() : "";
 
-    if (info) info.textContent = "Page " + state.page + " of " + Math.max(state.pages, 1) + " (" + state.total + " feedback)";
-    if (prevBtn) prevBtn.disabled = state.page <= 1;
-    if (nextBtn) nextBtn.disabled = state.page >= state.pages;
+        if (!reply) {
+          if (window.AdminToast) window.AdminToast.error("Reply cannot be empty");
+          return;
+        }
+
+        try {
+          await window.AdminAPI.patch("/feedback/" + feedbackId + "/reply", { reply: reply });
+          closeFeedbackModal();
+          if (window.AdminToast) window.AdminToast.success("Reply sent successfully");
+          loadFeedback();
+          loadMetrics();
+        } catch (err) {
+          if (window.AdminToast) window.AdminToast.error(err.message || "Failed to send reply");
+        }
+      });
+    }
+
+    var archiveBtn = document.getElementById("archiveFeedbackBtn");
+    if (archiveBtn) {
+      archiveBtn.addEventListener("click", async function () {
+        var modal = document.getElementById("feedbackModal");
+        var feedbackId = modal ? modal.dataset.feedbackId : "";
+        if (!feedbackId) return;
+
+        if (!confirm("Archive this feedback? This will delete it.")) return;
+        try {
+          await window.AdminAPI.del("/feedback/" + feedbackId);
+          closeFeedbackModal();
+          if (window.AdminToast) window.AdminToast.success("Feedback archived");
+          loadFeedback();
+          loadMetrics();
+        } catch (err) {
+          if (window.AdminToast) window.AdminToast.error(err.message || "Archive failed");
+        }
+      });
+    }
+
+    var overlay = document.getElementById("feedbackModal");
+    if (overlay) {
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) closeFeedbackModal();
+      });
+    }
   }
 
   function init() {
     bindEvents();
     loadFeedback();
+    loadMetrics();
   }
 
   document.addEventListener("DOMContentLoaded", init);

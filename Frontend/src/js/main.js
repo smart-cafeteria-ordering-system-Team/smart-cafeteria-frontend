@@ -90,6 +90,23 @@ function escapeHTML(value) {
         .replace(/'/g, "&#039;");
 }
 
+/**
+ * Resolve any stored image reference into an absolute, loadable URL.
+ */
+function getImageUrl(imagePath) {
+    if (!imagePath) return "";
+    const value = String(imagePath);
+    if (
+        value.startsWith("http://") ||
+        value.startsWith("https://") ||
+        value.startsWith("data:")
+    ) {
+        return value;
+    }
+    const cleanPath = value.startsWith("/") ? value : `/${value}`;
+    return "http://localhost:5000" + cleanPath;
+}
+
 // ================================================================
 // 3. MENU FUNCTIONS
 // ================================================================
@@ -163,7 +180,7 @@ export function getMenuItems(filters = {}) {
 
 export function getMenuItemById(id) {
     if (id === null || id === undefined) return null;
-    return menuItems.find(item => String(item.id) === String(id)) || null;
+    return menuItems.find(item => String(item._id || item.id) === String(id)) || null;
 }
 
 // ================================================================
@@ -370,19 +387,21 @@ export function addToCart(itemId) {
     }
 
     let cart = getCart();
-    const itemIdString = String(menuItem.id);
+    const itemIdString = String(menuItem._id || menuItem.id);
 
-    const existingItem = cart.find(item => String(item.id) === itemIdString);
+    const existingItem = cart.find(item => String(item._id || item.id) === itemIdString);
 
     if (existingItem) {
         existingItem.quantity = Number(existingItem.quantity || 0) + 1;
     } else {
         cart.push({
             id: itemIdString,
+            _id: menuItem._id || menuItem.id,
+            menuItemId: itemIdString,
             name: getItemName(menuItem, "en"),
             price: Number(menuItem.price || 0),
             quantity: 1,
-            image: menuItem.image || menuItem.img || "",
+            image: getImageUrl(menuItem.image || menuItem.img || ""),
             category: menuItem.category || "",
             description: getItemDescription(menuItem, "en")
         });
@@ -395,20 +414,20 @@ export function addToCart(itemId) {
 
 export function removeFromCart(itemId) {
     let cart = getCart();
-    cart = cart.filter(item => String(item.id) !== String(itemId));
+    cart = cart.filter(item => String(item._id || item.id) !== String(itemId));
     saveCart(cart);
 }
 
 export function changeCartQuantity(itemId, delta) {
     let cart = getCart();
-    const item = cart.find(item => String(item.id) === String(itemId));
+    const item = cart.find(item => String(item._id || item.id) === String(itemId));
 
     if (!item) return;
 
     item.quantity = Number(item.quantity || 0) + Number(delta || 0);
 
     if (item.quantity <= 0) {
-        cart = cart.filter(cartItem => String(cartItem.id) !== String(itemId));
+        cart = cart.filter(cartItem => String(cartItem._id || cartItem.id) !== String(itemId));
     }
 
     saveCart(cart);
@@ -605,17 +624,19 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             let cart = getCart();
-            const existingItem = cart.find(item => String(item.id) === String(id));
+            const existingItem = cart.find(item => String(item._id || item.id) === String(id));
 
             if (existingItem) {
                 existingItem.quantity = Number(existingItem.quantity || 0) + 1;
             } else {
                 cart.push({
                     id: String(id),
+                    _id: String(id),
+                    menuItemId: String(id),
                     name: name,
                     price: price,
                     quantity: 1,
-                    image: image
+                    image: getImageUrl(image || "")
                 });
             }
 

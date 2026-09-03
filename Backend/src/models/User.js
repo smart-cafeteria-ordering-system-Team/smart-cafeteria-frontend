@@ -37,8 +37,8 @@ const UserSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: [true, "Phone number is required"],
       unique: true,
+      sparse: true,
       match: [
         /^(09|07)[0-9]{8}$/,
         "Please provide a valid Ethiopian phone number (09XXXXXXXX or 07XXXXXXXX)",
@@ -52,8 +52,9 @@ const UserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["customer", "kitchen", "admin", "STAFF", "STUDENT", "ADMIN"],
+      enum: ["customer", "kitchen", "admin"],
       default: "customer",
+      lowercase: true,
     },
     balance: {
       type: Number,

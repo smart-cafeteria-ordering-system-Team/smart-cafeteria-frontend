@@ -171,15 +171,34 @@ exports.getAllPayments = async (req, res) => {
  */
 exports.getPaymentStats = async (req, res) => {
   try {
-    const [successfulPayments, pendingPayments, failedPayments, cancelledPayments] = await Promise.all([
-      Payment.countDocuments({ status: PAYMENT_STATUS.PAID }),
-      Payment.countDocuments({ status: PAYMENT_STATUS.PENDING }),
-      Payment.countDocuments({ status: PAYMENT_STATUS.FAILED }),
+    // Case-insensitive regex to match every successful status variant written by
+    // our simulators, Chapa, Telebirr, and admin flows: 'paid', 'success',
+    // 'SUCCESS', 'completed', 'paid', 'simulated', 'successful', etc.
+    const successStatusRegex = /^(paid|success|completed|successful|simulated)$/i;
+    const pendingStatusRegex = /^(pending|in_progress|processing)$/i;
+    const failedStatusRegex = /^(failed|cancelled|canceled|rejected|reversed)$/i;
+
+    const [successfulPayments, pendingPayments, failedPayments, failedOrCancelled] = await Promise.all([
+      Payment.countDocuments({ status: { $regex: successStatusRegex } }),
+      Payment.countDocuments({ status: { $regex: pendingStatusRegex } }),
+      Payment.countDocuments({ status: { $regex: failedStatusRegex } }),
       Payment.countDocuments({ status: PAYMENT_STATUS.CANCELLED })
     ]);
 
-    const paidPayments = await Payment.find({ status: PAYMENT_STATUS.PAID }).select('amount').lean();
-    const totalRevenue = paidPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    const cancelledPayments = failedOrCancelled;
+
+    // Aggregate revenue only from successful payments, reading either the
+    // amount or totalAmount field depending on how the row was created.
+    const revenueAggregation = await Payment.aggregate([
+      { $match: { status: { $regex: successStatusRegex } } },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: { $ifNull: ['$amount', '$totalAmount'] } }
+        }
+      }
+    ]);
+    const totalRevenue = revenueAggregation.length ? revenueAggregation[0].totalRevenue : 0;
 
     const telebirr = await Payment.countDocuments({ method: 'TELEBIRR' });
     const chapa = await Payment.countDocuments({ method: 'CHAPA' });

@@ -28,15 +28,38 @@ const {
 router.post('/', protect, createOrder);
 
 /**
- * @route   GET /api/orders/
-
-myorders
- * @desc    Get user's orders
+ * @route   GET /api/orders/my-orders
+ * @desc    Get user's orders (canonical Phase-4 path)
  * @access  Private
  * 
  * Frontend: order-history.js → Load user orders
  */
+router.get('/my-orders', protect, getMyOrders);
+
+/**
+ * @route   GET /api/orders/myorders
+ * @desc    Get user's orders (legacy alias)
+ * @access  Private
+ */
 router.get('/myorders', protect, getMyOrders);
+
+/**
+ * @route   GET /api/orders/stats
+ * @desc    Get order statistics
+ * @access  Private/Admin
+ * 
+ * Frontend: admin/dashboard.html → Metrics
+ */
+router.get('/stats', protect, authorize('admin'), getOrderStats);
+
+/**
+ * @route   GET /api/orders/kitchen
+ * @desc    Get kitchen orders
+ * @access  Private/Kitchen/Admin
+ * 
+ * Frontend: kitchen/dashboard.html → Live orders
+ */
+router.get('/kitchen', protect, authorize('kitchen', 'admin'), getKitchenOrders);
 
 /**
  * @route   GET /api/orders/:id
@@ -74,15 +97,6 @@ router.patch('/:id/cancel', protect, cancelOrder);
 router.get('/', protect, authorize('admin'), getAllOrders);
 
 /**
- * @route   GET /api/orders/stats
- * @desc    Get order statistics
- * @access  Private/Admin
- * 
- * Frontend: admin/dashboard.html → Metrics
- */
-router.get('/stats', protect, authorize('admin'), getOrderStats);
-
-/**
  * @route   PATCH /api/orders/:id/status
  * @desc    Update order status
 
@@ -92,15 +106,5 @@ router.get('/stats', protect, authorize('admin'), getOrderStats);
  * Body: { status }
  */
 router.patch('/:id/status', protect, authorize('admin', 'kitchen'), updateOrderStatus);
-
-/**
- * @route   GET /api/orders/kitchen
- * @desc    Get kitchen orders
- * @access  Private/Kitchen
- * 
- * Frontend: kitchen/dashboard.html → Live orders
- */
-
-router.get('/kitchen', protect, authorize('kitchen'), getKitchenOrders);
 
 module.exports = router;

@@ -9,9 +9,11 @@
  * toggles.
  */
 
+const CUSTOMER_MENU_API_BASE = "http://localhost:5000";
+
 const CUSTOMER_MENU = {
 
-    API_BASE: "http://localhost:5000/api/v1",
+    API_BASE: CUSTOMER_MENU_API_BASE + "/api/v1",
     CART_KEY: "smart_cafeteria_cart",
 
     // Database category values mapped onto the static filter pills
@@ -28,7 +30,10 @@ const CUSTOMER_MENU = {
     },
 
     PLACEHOLDER_IMAGE:
-        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23f1f5f9'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%2364748b' font-size='16'>Food Item</text></svg>"
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='100%' height='100%' fill='%23f1f5f9'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%2364748b' font-size='16'>Food Item</text></svg>",
+
+    DEFAULT_IMAGE:
+        CUSTOMER_MENU_API_BASE + "/uploads/default-food.png",
 
 };
 
@@ -64,25 +69,31 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    function resolveImage(image) {
+    // Resolve any stored image reference into an absolute, loadable URL.
+    // Absolute URLs (http/https/data) are returned as-is; everything else is
+    // served by the backend so it is prefixed with the API origin.
+    function getImageUrl(imagePath) {
 
-        if (!image) {
+        if (!imagePath) {
             return "";
         }
 
-        const value = String(image);
+        const value = String(imagePath);
 
         if (
             value.startsWith("http://") ||
             value.startsWith("https://") ||
-            value.startsWith("data:") ||
-            value.startsWith("/") === false
+            value.startsWith("data:")
         ) {
             return value;
         }
 
-        // Relative paths point to the backend static uploads
-        return CUSTOMER_MENU.API_BASE.replace("/api/v1", "") + value;
+        const cleanPath =
+            value.startsWith("/")
+                ? value
+                : `/${value}`;
+
+        return CUSTOMER_MENU.API_BASE.replace("/api/v1", "") + cleanPath;
     }
 
 
@@ -130,7 +141,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const cardsHTML = items.map(function (item) {
 
             const id =
-                escapeHTML(item.id);
+                escapeHTML(item._id || item.id);
+            const menuItemId =
+                escapeHTML(item._id || item.id);
 
             const nameEn =
                 escapeHTML(item.name?.en || "");
@@ -148,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 mapCategory(item.category);
 
             const image =
-                escapeHTML(resolveImage(item.image));
+                escapeHTML(getImageUrl(item.image || item.imageUrl));
 
             const displayTitle =
                 nameAm && nameAm !== nameEn
@@ -196,6 +209,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             type="button"
                             class="btn btn-primary add-to-cart-btn"
                             data-id="${id}"
+                            data-menu-item-id="${menuItemId}"
                             data-name="${nameEn}"
                             data-price="${price}"
                             data-image="${image}">
@@ -216,7 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         src="${image || CUSTOMER_MENU.PLACEHOLDER_IMAGE}"
                         alt="${nameEn}"
                         loading="lazy"
-                        onerror="this.onerror=null;this.src='${CUSTOMER_MENU.PLACEHOLDER_IMAGE}'"
+                        onerror="this.onerror=null;this.src='${CUSTOMER_MENU.DEFAULT_IMAGE}';"
                     >
 
                 </div>
@@ -405,9 +419,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             batch.forEach(function (item) {
 
-                if (item.id && !seen.has(item.id)) {
+                const itemId = item._id || item.id;
 
-                    seen.add(item.id);
+                if (itemId && !seen.has(itemId)) {
+
+                    seen.add(itemId);
                     items.push(item);
                 }
             });

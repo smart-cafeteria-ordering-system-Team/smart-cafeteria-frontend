@@ -103,7 +103,8 @@
     }
 
     // Cancellations badge
-    var refundBadge = document.getElementById("sidebarRefundBadge");
+    var refundBadge = document.getElementById("sidebarRefundBadge") ||
+      document.getElementById("sidebarCancellationBadge");
     if (refundBadge && d.cancellations) {
       refundBadge.textContent = d.cancellations.pending || 0;
       refundBadge.style.display = d.cancellations.pending > 0 ? "inline-block" : "none";

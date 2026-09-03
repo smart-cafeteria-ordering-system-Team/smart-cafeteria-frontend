@@ -1,10 +1,16 @@
 const Order = require('../models/Order');
 const User = require('../models/User');
 const MenuItem = require('../models/MenuItem');
+const mongoose = require('mongoose');
 const Notification = require('../models/Notification');
 const { ORDER_STATUS,
-
 PAYMENT_STATUS, MESSAGES, HTTP_STATUS } = require('../config/constants');
+const { emitSocketEvent } = require('../utils/socket');
+
+// Resolve a menu item reference from any field the frontend may send
+// (id | foodItem | menuItemId | itemId).
+const resolveItemId = (item = {}) =>
+  item.foodItem || item.id || item.menuItemId || item.itemId || null;
 
 /**
 * @desc    Create new order
@@ -25,7 +31,7 @@ customerName,
 customerPhone,
 orderType = 'dine-in',
 tableNumber = 'N/A',
-paymentMethod,
+paymentMethod = 'chapa',
 totalAmount,
 notes
 } = req.body;
@@ -38,49 +44,99 @@ error: 'Order must have at least one item'
 });
 }
 
-if (!customerName || !customerPhone) {
+// ✅ Chapa is the only supported online payment method.
+const normalizedPaymentMethod = String(paymentMethod || 'chapa').toLowerCase();
+if (normalizedPaymentMethod !== 'chapa') {
 return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
-error: 'Customer name and phone are required'
+error: 'Only Chapa online payment is supported'
 });
 }
 
-if (!paymentMethod) {
+// ✅ Validate order type (must match the Order schema enum)
+const VALID_ORDER_TYPES = ['dine-in', 'takeaway'];
+if (!VALID_ORDER_TYPES.includes(orderType)) {
 return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
-error: 'Payment method is required'
+error: `Order type must be one of: ${VALID_ORDER_TYPES.join(', ')}`
 });
 }
 
-// ✅ Validate items and calculate subtotal
+// ✅ Customer info falls back to the authenticated user profile
+if (req.user?.id && (!customerName || !customerPhone)) {
+  const profile = await User.findById(req.user.id).select('name fullName phone');
+  if (profile) {
+    req.user.name = profile.name || profile.fullName;
+    req.user.phone = profile.phone;
+  }
+}
+const name = (customerName && customerName.trim()) || req.user?.name || 'Customer';
+const phone = (customerPhone && customerPhone.trim()) || req.user?.phone || '';
+
+// ✅ Validate items and calculate subtotal (server-side prices only)
 let subtotal = 0;
 const validatedItems = [];
 
 for (const item of items) {
-const menuItem = await MenuItem.findById(item.id);
+const itemRef = resolveItemId(item);
 
-if (!menuItem) {
-return res.status(HTTP_STATUS.NOT_FOUND).json({
-success: false,
-error: `Item ${item.name} not found`
-});
-}
-
-if (!menuItem.availability) {
+if (!itemRef) {
 return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
-error: `${menuItem.name.en} is currently unavailable`
-
+message: 'Each order item requires a valid food item id',
+error: 'Each order item requires a valid food item id'
 });
 }
 
-const quantity = parseInt(item.quantity) || 1;
-const price = menuItem.price;
+// ✅ Validate MongoDB ObjectId format (24 hex characters)
+const itemRefStr = String(itemRef);
+if (!mongoose.Types.ObjectId.isValid(itemRefStr)) {
+console.error(`[Order] Invalid item ID format: ${itemRefStr} (type: ${typeof itemRef})`);
+return res.status(HTTP_STATUS.BAD_REQUEST).json({
+success: false,
+message: `Invalid item reference: "${itemRefStr}". Item IDs must be valid menu item references. Please clear your cart and re-add items from the menu.`,
+error: `Invalid food item id: ${itemRefStr}`
+});
+}
+
+const menuItem = await MenuItem.findById(itemRef);
+
+if (!menuItem) {
+console.error(`[Order] Menu item not found: ${itemRefStr}`);
+return res.status(HTTP_STATUS.NOT_FOUND).json({
+success: false,
+message: `Item with ID "${itemRefStr}" not found in menu. It may have been deleted. Please clear your cart and re-add items.`,
+error: `Item ${item.name || itemRefStr} not found`
+});
+}
+
+if (!menuItem.availability || !menuItem.isAvailable) {
+return res.status(HTTP_STATUS.BAD_REQUEST).json({
+success: false,
+message: `${menuItem.name.en || 'This item'} is currently unavailable. Please remove it from your cart.`,
+error: `${menuItem.name.en} is currently unavailable`
+});
+}
+
+const quantity = parseInt(item.quantity) || 0;
+
+if (quantity < 1) {
+return res.status(HTTP_STATUS.BAD_REQUEST).json({
+success: false,
+message: `Quantity must be at least 1 for ${menuItem.name.en}`,
+error: `Quantity must be at least 1 for ${menuItem.name.en}`
+});
+}
+
+// ✅ Server price is authoritative — client price is ignored to prevent tampering
+const price = Number(menuItem.price) || 0;
 const itemTotal = price * quantity;
 subtotal += itemTotal;
 
 validatedItems.push({
+foodItem: menuItem._id,
 itemId: menuItem._id,
+title: menuItem.name.en,
 name: menuItem.name.en,
 quantity: quantity,
 price: price,
@@ -88,26 +144,26 @@ notes: item.notes || ''
 });
 }
 
-
 // ✅ Calculate totals
-const serviceFee = 20;
+const serviceFee = subtotal > 0 ? 20 : 0;
 const total = subtotal + serviceFee;
 
-// ✅ Create order
+// ✅ Create order (canonical Phase-4 fields + legacy fields)
 const order = await Order.create({
+user: req.user.id,
 userId: req.user.id,
-customerName: customerName.trim(),
-customerPhone: customerPhone,
+customerName: name,
+customerPhone: phone,
 orderType: orderType,
 tableNumber: tableNumber,
 items: validatedItems,
 subtotal: subtotal,
-
 serviceFee: serviceFee,
 totalAmount: total,
-paymentMethod: paymentMethod,
-paymentStatus: PAYMENT_STATUS.PENDING,
+paymentMethod: normalizedPaymentMethod,
+paymentStatus: 'unpaid',
 status: ORDER_STATUS.PENDING,
+orderStatus: ORDER_STATUS.PENDING,
 orderDate: new Date().toLocaleString(),
 notes: notes || ''
 });
@@ -223,7 +279,17 @@ error: MESSAGES.SERVER_ERROR
 */
 exports.getOrderById = async (req, res) => {
 try {
-const order = await Order.findOne({ orderId: req.params.id });
+const id = req.params.id;
+let order = null;
+
+if (mongoose.Types.ObjectId.isValid(id)) {
+order = await Order.findById(id);
+}
+if (!order) {
+order = await Order.findOne({
+$or: [{ orderId: id }, { orderNumber: id }]
+});
+}
 
 if (!order) {
 return res.status(HTTP_STATUS.NOT_FOUND).json({
@@ -277,11 +343,12 @@ error: MESSAGES.SERVER_ERROR
 */
 exports.updateOrderStatus = async (req, res) => {
 try {
-const { status } = req.body;
+const requestedStatus = String(req.body.status || '').toLowerCase();
+const status = requestedStatus === 'delivered' ? 'completed' : requestedStatus;
 
 // ✅ Validate status
 
-const validStatuses = ['pending', 'preparing', 'ready', 'served', 'cancelled'];
+const validStatuses = ['pending', 'preparing', 'ready', 'served', 'completed', 'cancelled'];
 if (!validStatuses.includes(status)) {
 return res.status(HTTP_STATUS.BAD_REQUEST).json({
 success: false,
@@ -289,7 +356,9 @@ error: 'Invalid status'
 });
 }
 
-const order = await Order.findOne({ orderId: req.params.id });
+const order = await (mongoose.Types.ObjectId.isValid(req.params.id)
+  ? Order.findById(req.params.id)
+  : Order.findOne({ $or: [{ orderId: req.params.id }, { orderNumber: req.params.id }] }));
 if (!order) {
 return
 
@@ -299,39 +368,74 @@ error: 'Order not found'
 });
 }
 
-// ✅ Update status
+// ✅ Record when each state was entered (log timestamp updates)
+const statusTimestampField = {
+  preparing: 'preparingTime',
+  ready: 'readyTime',
+  served: 'completedTime'
+};
+const timestampField = statusTimestampField[status];
+if (timestampField && !order[timestampField]) {
+  order[timestampField] = new Date();
+}
+
+// ✅ Update status. The model pre-save hook keeps the canonical
+// `orderStatus` field in sync with `status` automatically.
 order.status = status;
-
-// ✅ Set timestamps
-if (status === 'ready') {
-order.readyTime = new Date();
-}
-if (status === 'served') {
-order.completedTime = new Date();
-}
-
 
 await order.save();
 
-// ✅ Create notification for customer
-if (status === 'ready' || status === 'preparing') {
-await Notification.create({
-userId: order.userId,
-title: status === 'ready' ? 'Order Ready!' : 'Order Preparing',
-message: status === 'ready'
-? `Your order #${order.orderId} is ready for pickup!`
-: `Your order #${order.orderId} is being prepared`,
-type: 'order',
+// ✅ Create a notification for every kitchen status update.
+const orderReference = order.orderNumber || order.orderId || order._id.toString().slice(-4);
+let title = 'Order Update';
+let message = `Your order #${orderReference} status changed to ${status}.`;
+if (status === 'ready') {
+  title = 'Food is Ready!';
+  message = `Your order #${orderReference} has been finished by the kitchen and is ready for pickup/serving!`;
+} else if (status === 'preparing') {
+  title = 'Kitchen Started Cooking';
+  message = `The kitchen staff started preparing your order #${orderReference}.`;
+} else if (status === 'completed' || status === 'served') {
+  title = 'Order Completed';
+  message = `Your order #${orderReference} is completed. Enjoy your meal!`;
+} else if (status === 'cancelled') {
+  title = 'Order Cancelled';
+  message = `Your order #${orderReference} has been cancelled.`;
+}
 
-orderId: order.orderId,
-isRead: false
+const notification = await Notification.create({
+  userId: order.userId,
+  title,
+  message,
+  type: 'status_update',
+  orderId: order.orderNumber || order.orderId,
+  isRead: false
 });
+
+// ✅ Emit real-time Socket.IO event to the customer
+try {
+const customerId = order.userId ? order.userId.toString() : null;
+if (customerId) {
+  emitSocketEvent(`user_${customerId}`, 'orderStatusUpdated', {
+    orderId: order._id,
+    orderNumber: order.orderId,
+    status: order.status,
+    message: status === 'ready'
+      ? `Your order #${order.orderId} is ready for pickup!`
+      : status === 'preparing'
+        ? `Your order #${order.orderId} is being prepared`
+        : `Your order #${order.orderId} status updated to ${status}`
+  });
+}
+} catch (socketErr) {
+console.warn('[Order] Socket emit failed (non-critical):', socketErr.message);
 }
 
 res.status(HTTP_STATUS.OK).json({
 success: true,
 message: `Order status updated to ${status}`,
-order: order.getSummary()
+order: order.getSummary(),
+notification
 });
 
 } catch (error) {
@@ -357,7 +461,9 @@ exports.cancelOrder = async (req, res) => {
 try {
 const { reason } = req.body;
 
-const order = await Order.findOne({ orderId: req.params.id });
+const order = await (mongoose.Types.ObjectId.isValid(req.params.id)
+  ? Order.findById(req.params.id)
+  : Order.findOne({ $or: [{ orderId: req.params.id }, { orderNumber: req.params.id }] }));
 if (!order) {
 return res.status(HTTP_STATUS.NOT_FOUND).json({
 success: false,
@@ -469,27 +575,40 @@ error: MESSAGES.SERVER_ERROR
 */
 exports.getKitchenOrders = async (req, res) => {
 try {
-const orders = await Order.find({
+const ACTIVE_STATUSES = ['pending', 'preparing', 'ready'];
 
-status: { $in: ['pending', 'preparing', 'ready'] }
+// Match both the legacy `status` field and the canonical `orderStatus`
+// field, then sort chronologically (oldest first) so the kitchen works
+// through the queue in FIFO order.
+const orders = await Order.find({
+  $or: [
+    { status: { $in: ACTIVE_STATUSES } },
+    { orderStatus: { $in: ACTIVE_STATUSES } }
+  ]
 })
 .sort({ createdAt: 1 });
 
 res.status(HTTP_STATUS.OK).json({
-success: true,
-count: orders.length,
-orders: orders.map(order => ({
-...order.getSummary(),
-items: order.items,
-orderTime: order.orderTime
-}))
+  success: true,
+  count: orders.length,
+  orders: orders.map(order => ({
+    ...order.getSummary(),
+    items: order.items,
+    orderTime: order.orderTime,
+    readyTime: order.readyTime,
+    completedTime: order.completedTime,
+    preparingTime: order.preparingTime,
+    orderType: order.orderType,
+    tableNumber: order.tableNumber,
+    notes: order.notes
+  }))
 });
 
 } catch (error) {
 console.error('❌ Get Kitchen Orders Error:', error);
 res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-success: false,
-error: MESSAGES.SERVER_ERROR
+  success: false,
+  error: MESSAGES.SERVER_ERROR
 });
 }
 };

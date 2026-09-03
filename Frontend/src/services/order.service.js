@@ -84,7 +84,7 @@ class OrderService {
 
     async cancel(id, reason = "") {
         if (!id) throw new Error("Order ID is required.");
-        return api.post(
+        return api.patch(
             `/orders/${id}/cancel`,
             {
                 reason

@@ -2,16 +2,15 @@
  * ================================================================
  * SMART CAFETERIA ORDERING SYSTEM - ADMIN MENU MANAGEMENT
  * ================================================================
- * Admin Menu Management driven by the backend API:
- *   GET    /admin/menu            (list / search / filter / sort / paginate)
- *   GET    /admin/menu/stats      (metric cards)
- *   GET    /admin/menu/:id        (details)
- *   POST   /admin/menu            (create)
- *   PUT    /admin/menu/:id        (update: price, category, image, ...)
- *   PATCH  /admin/menu/:id/availability (enable / disable)
- *   DELETE /admin/menu/:id        (delete)
+ * Driven by the live backend API (via AdminAPI):
+ *   GET    /admin/menu               (list / search / filter / paginate)
+ *   GET    /admin/menu/stats         (metric cards)
+ *   POST   /admin/menu               (create)
+ *   PUT    /admin/menu/:id           (update)
+ *   PATCH  /admin/menu/:id/availability (toggle availability)
+ *   DELETE /admin/menu/:id           (delete)
+ *   GET    /categories               (populate category dropdowns)
  *
- * Image upload: validated client-side, then sent as a base64 data URL.
  * Requires window.AdminAPI (admin-api.js) loaded first.
  * ================================================================
  */
@@ -27,47 +26,36 @@
     sort: "newest"
   };
 
-  var pendingImage = null; // { type: 'file'|'url'|'remove', value } or null to keep
-  var editingItem = null;
-
-  var FALLBACK_CATEGORIES = [
-    { id: "breakfast", name: "Breakfast" },
-    { id: "mains", name: "Mains" },
-    { id: "main-meals", name: "Main Meals" },
-    { id: "fasting", name: "Fasting" },
-    { id: "beverages", name: "Beverages" },
-    { id: "snacks", name: "Snacks" },
-    { id: "Lunch", name: "Lunch" },
-    { id: "Dinner", name: "Dinner" },
-    { id: "Drinks", name: "Drinks" }
+  var VALID_CATEGORIES = [
+    "breakfast", "mains", "main-meals", "fasting",
+    "beverages", "snacks", "Lunch", "Dinner", "Drinks"
   ];
 
-  var ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-  var MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
+  var categoryOptions = [];
 
   function money(value) {
-    if (value === null || value === undefined) return "0";
+    if (value === null || value === undefined) return "0.00";
     return Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  function esc(value) {
+    return window.esc(value);
+  }
+
   function categoryLabel(cat) {
-    var found = (window.__categories || FALLBACK_CATEGORIES).find(function (c) {
-      return String(c.id).toLowerCase() === String(cat).toLowerCase();
+    var found = categoryOptions.find(function (c) {
+      return String(c.id).toLowerCase() === String(cat).toLowerCase() ||
+             String(c.name).toLowerCase() === String(cat).toLowerCase();
     });
     if (found) return found.name;
     return cat || "—";
   }
 
-  function escapeHtml(value) {
-    return window.esc(value);
-  }
-
   function itemImage(item) {
     var src = item.image
       ? (item.image.indexOf("http") === 0 ? item.image : "http://localhost:5000" + item.image)
-      : "";
-    if (!src) return '<div class="food-image-thumb no-image"><i class="fa-solid fa-utensils"></i></div>';
-    return '<img class="food-image-thumb" src="' + window.esc(src) + '" alt="' + window.esc(item.name.en) + '" loading="lazy">';
+      : "/assets/images/default-food.png";
+    return '<img class="food-image-thumb" src="' + esc(src) + '" alt="' + esc(item.name.en) + '" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/50?text=Food\';" loading="lazy">';
   }
 
   function availabilityBadge(item) {
@@ -77,68 +65,63 @@
   }
 
   /* ============================================================
-   * MODALS
-   * ============================================================ */
-  function openModal(id) {
-    var el = document.getElementById(id);
-    if (el) el.classList.add("open");
-  }
-
-  function closeModal(id) {
-    var el = document.getElementById(id);
-    if (el) el.classList.remove("open");
-  }
-
-  function closeAllModals() {
-    document.querySelectorAll(".amodal-overlay.open").forEach(function (m) {
-      m.classList.remove("open");
-    });
-  }
-
-  /* ============================================================
    * CATEGORIES
    * ============================================================ */
   async function loadCategories() {
     try {
       var data = await window.AdminAPI.get("/categories");
-      window.__categories = (data.categories || []).filter(function (c) { return c.isActive !== false; });
+      var cats = (data && data.categories) || [];
+      categoryOptions = cats.map(function (c) {
+        return {
+          id: c.id,
+          name: (c.name && (c.name.en || c.name)) || c.id
+        };
+      });
+      if (categoryOptions.length === 0) {
+        categoryOptions = VALID_CATEGORIES.map(function (c) { return { id: c, name: c }; });
+      }
     } catch (e) {
-      window.__categories = FALLBACK_CATEGORIES;
+      categoryOptions = VALID_CATEGORIES.map(function (c) { return { id: c, name: c }; });
     }
     populateCategorySelects();
   }
 
   function populateCategorySelects() {
-    var cats = window.__categories || FALLBACK_CATEGORIES;
-    var options = cats
-      .map(function (c) {
-        var name = (c.name && (c.name.en || c.name)) || c.id;
-        return '<option value="' + window.esc(c.id) + '">' + window.esc(name) + "</option>";
-      })
+    var optionsHtml = categoryOptions
+      .map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.name) + "</option>"; })
       .join("");
 
     var filter = document.getElementById("categoryFilter");
+    if (filter) filter.innerHTML = '<option value="">All Categories</option>' + optionsHtml;
+
     var formSelect = document.getElementById("itemCategory");
-    if (filter) filter.innerHTML = '<option value="">All Categories</option>' + options;
-    if (formSelect) formSelect.innerHTML = '<option value="">Select category</option>' + options;
+    if (formSelect) formSelect.innerHTML = '<option value="">Select category</option>' + optionsHtml;
   }
 
   /* ============================================================
-   * DATA LOADING
+   * STATS
    * ============================================================ */
   async function loadStats() {
     try {
       var data = await window.AdminAPI.get("/admin/menu/stats");
-      var stats = data.stats || {};
-      document.getElementById("metricTotalItems").textContent = stats.totalItems || 0;
-      document.getElementById("metricAvailableItems").textContent = stats.availableItems || 0;
-      document.getElementById("metricOutOfStockItems").textContent = stats.outOfStockItems || 0;
-      document.getElementById("metricTotalCategories").textContent = stats.totalCategories || 0;
+      var stats = (data && data.stats) || {};
+      setText("metricTotalItems", stats.totalItems || 0);
+      setText("metricAvailableItems", stats.availableItems || 0);
+      setText("metricOutOfStockItems", stats.outOfStockItems || 0);
+      setText("metricTotalCategories", stats.totalCategories || 0);
     } catch (e) {
       // stats are supplementary
     }
   }
 
+  function setText(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  /* ============================================================
+   * TABLE
+   * ============================================================ */
   function availabilityQueryValue() {
     if (state.availability === "AVAILABLE") return "available";
     if (state.availability === "OUT_OF_STOCK") return "out_of_stock";
@@ -149,7 +132,7 @@
     var tbody = document.getElementById("menuTableBody");
     if (!tbody || !window.AdminAPI) return;
 
-    tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading menu items...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading menu items...</td></tr>';
 
     try {
       var data = await window.AdminAPI.get("/admin/menu", {
@@ -161,20 +144,16 @@
         sort: state.sort
       });
 
-      window.__menuCache = data.items || [];
-      renderMenuItems(window.__menuCache);
+      var items = (data && data.items) || [];
+      renderMenuItems(items);
 
-      var info = document.getElementById("menuPaginationInfo");
       var total = data.total || 0;
-      var pages = Math.max(data.pages || 1, 1);
-      if (info) info.textContent = "Page " + (data.page || state.page) + " of " + pages + " (" + total + " items)";
-      var prevBtn = document.getElementById("menuPrevPageBtn");
-      var nextBtn = document.getElementById("menuNextPageBtn");
-      if (prevBtn) prevBtn.disabled = (data.page || 1) <= 1;
-      if (nextBtn) nextBtn.disabled = (data.page || 1) >= pages;
-      state.page = data.page || 1;
+      var pages = Math.max((data && data.pages) || 1, 1);
+      var info = document.getElementById("menuPaginationControls");
+      if (info) renderPagination(info, data.page || state.page, pages, total);
+      state.page = (data && data.page) || 1;
     } catch (error) {
-      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Failed to load menu: ' + window.esc(error.message || "Server error") + "</td></tr>";
+      tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Failed to load menu: ' + esc(error.message || "Server error") + "</td></tr>";
     }
   }
 
@@ -183,44 +162,55 @@
     if (!tbody) return;
 
     if (!items.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No menu items found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No menu items found.</td></tr>';
       return;
     }
 
     tbody.innerHTML = items.map(function (item) {
       var available = item.availability && item.isAvailable;
       var toggleBtn =
-        '<button class="action-btn" data-action="toggle" data-id="' + item.id + '" title="' +
+        '<button class="action-btn" data-action="toggle" data-id="' + esc(item.id) + '" title="' +
         (available ? "Make unavailable" : "Make available") + '">' +
         '<i class="fa-solid ' + (available ? "fa-circle-xmark" : "fa-circle-check") + '"></i></button>';
 
       return (
         "<tr>" +
-        '<td>' +
+        "<td><strong>#" + esc(String(item.id).slice(-6).toUpperCase()) + "</strong></td>" +
+        "<td>" +
           '<div class="user-cell">' +
             itemImage(item) +
-            "<div>" +
-              "<strong>" + escapeHtml(item.name.en) + "</strong>" +
-              "<small>" + escapeHtml(item.name.am) + "</small>" +
+            "<div><strong>" + esc(item.name.en) + "</strong>" +
+            (item.name.am ? "<small>" + esc(item.name.am) + "</small>" : "") +
             "</div>" +
           "</div>" +
         "</td>" +
-        '<td><span class="cat-pill">' + escapeHtml(categoryLabel(item.category)) + "</span></td>" +
+        '<td><span class="cat-pill">' + esc(categoryLabel(item.category)) + "</span></td>" +
         "<td><strong>" + money(item.price) + " ETB</strong></td>" +
-        "<td>" + (item.preparationTime || 10) + " min</td>" +
         "<td>" + availabilityBadge(item) + "</td>" +
-        "<td>" + window.AdminAPI.formatDate(item.updatedAt) + "</td>" +
         "<td>" +
           '<div class="table-actions">' +
-            '<button class="action-btn" data-action="view" data-id="' + item.id + '" title="View details"><i class="fa-solid fa-eye"></i></button>' +
-            '<button class="action-btn" data-action="edit" data-id="' + item.id + '" title="Edit item (price / category / image)"><i class="fa-solid fa-pen"></i></button>' +
+            '<button class="action-btn" data-action="edit" data-id="' + esc(item.id) + '" title="Edit item"><i class="fa-solid fa-pen"></i></button>' +
             toggleBtn +
-            '<button class="action-btn danger" data-action="delete" data-id="' + item.id + '" title="Delete item"><i class="fa-solid fa-trash"></i></button>' +
+            '<button class="action-btn danger" data-action="delete" data-id="' + esc(item.id) + '" title="Delete item"><i class="fa-solid fa-trash"></i></button>' +
           "</div>" +
         "</td>" +
         "</tr>"
       );
     }).join("");
+  }
+
+  function renderPagination(container, page, pages, total) {
+    container.innerHTML =
+      '<div class="pagination-info">Page ' + page + " of " + pages + " (" + total + " items)</div>" +
+      '<div class="pagination">' +
+        '<button class="page-btn" id="menuPrevPageBtn"' + (page <= 1 ? " disabled" : "") + '><i class="fa-solid fa-chevron-left"></i> Prev</button>' +
+        '<button class="page-btn" id="menuNextPageBtn"' + (page >= pages ? " disabled" : "") + '>Next <i class="fa-solid fa-chevron-right"></i></button>' +
+      "</div>";
+
+    var prevBtn = document.getElementById("menuPrevPageBtn");
+    var nextBtn = document.getElementById("menuNextPageBtn");
+    if (prevBtn) prevBtn.addEventListener("click", function () { changePage(-1); });
+    if (nextBtn) nextBtn.addEventListener("click", function () { changePage(1); });
   }
 
   function changePage(delta) {
@@ -230,83 +220,60 @@
   }
 
   /* ============================================================
-   * ADD / EDIT
+   * ADD / EDIT MODAL
    * ============================================================ */
-  function resetImageState() {
-    pendingImage = null;
-    editingItem = null;
-    document.getElementById("itemImageFile").value = "";
-    document.getElementById("itemImageUrl").value = "";
-    document.getElementById("imagePreviewRow").style.display = "none";
-    document.getElementById("itemImagePreview").removeAttribute("src");
+  function openModal() {
+    var modal = document.getElementById("menuModal");
+    if (modal) modal.style.display = "flex";
+  }
+
+  function closeModal() {
+    var modal = document.getElementById("menuModal");
+    if (modal) modal.style.display = "none";
   }
 
   function openAddItemModal() {
-    closeAllModals();
-    resetImageState();
-    document.getElementById("menuItemForm").reset();
+    var form = document.getElementById("menuForm");
+    if (form) form.reset();
     document.getElementById("itemId").value = "";
-    document.getElementById("itemPrepTime").value = 10;
-    document.getElementById("itemAvailable").checked = true;
-    document.getElementById("itemAvailableLabel").textContent = "Available for ordering";
+    document.getElementById("itemIsAvailable").checked = true;
     document.getElementById("menuModalTitle").textContent = "Add New Menu Item";
-    document.getElementById("saveMenuItemBtn").textContent = "Save Item";
-    openModal("menuItemModal");
+    document.getElementById("saveMenuBtn").textContent = "Save Item";
+    openModal();
   }
 
   function openEditItemModal(item) {
-    closeAllModals();
-    resetImageState();
-    editingItem = item;
-
     document.getElementById("itemId").value = item.id;
-    document.getElementById("itemNameEn").value = item.name.en || "";
-    document.getElementById("itemNameAm").value = item.name.am || "";
+    document.getElementById("itemName").value = item.name.en || "";
     document.getElementById("itemCategory").value = item.category;
     document.getElementById("itemPrice").value = item.price;
-    document.getElementById("itemPrepTime").value = item.preparationTime || 10;
-    document.getElementById("itemAvailable").checked = !!(item.availability && item.isAvailable);
-    document.getElementById("itemAvailableLabel").textContent =
-      item.availability && item.isAvailable ? "Available for ordering" : "Not available for ordering";
-    document.getElementById("itemDescriptionEn").value = (item.description && item.description.en) || "";
-    document.getElementById("itemDescriptionAm").value = (item.description && item.description.am) || "";
-
-    var previewRow = document.getElementById("imagePreviewRow");
-    var preview = document.getElementById("itemImagePreview");
-    if (item.image) {
-      preview.src = item.image.indexOf("http") === 0 ? item.image : "http://localhost:5000" + item.image;
-      previewRow.style.display = "flex";
-    } else {
-      previewRow.style.display = "none";
-      preview.removeAttribute("src");
-    }
-
+    document.getElementById("itemImageUrl").value = item.image || "";
+    document.getElementById("itemDescription").value = (item.description && item.description.en) || "";
+    document.getElementById("itemIsAvailable").checked = !!(item.availability && item.isAvailable);
     document.getElementById("menuModalTitle").textContent = "Edit Menu Item";
-    document.getElementById("saveMenuItemBtn").textContent = "Update Item";
-    openModal("menuItemModal");
+    document.getElementById("saveMenuBtn").textContent = "Update Item";
+    openModal();
   }
 
-  function buildMenuItemPayload() {
+  function buildPayload() {
+    var nameEn = document.getElementById("itemName").value.trim();
+    var nameAm = document.getElementById("itemNameAm") ? document.getElementById("itemNameAm").value.trim() : nameEn;
+    var descEn = document.getElementById("itemDescription").value.trim();
+    var descAm = document.getElementById("itemDescriptionAm") ? document.getElementById("itemDescriptionAm").value.trim() : descEn;
+
     return {
-      name: {
-        en: document.getElementById("itemNameEn").value.trim(),
-        am: document.getElementById("itemNameAm").value.trim()
-      },
+      name: { en: nameEn, am: nameAm },
       category: document.getElementById("itemCategory").value,
       price: parseFloat(document.getElementById("itemPrice").value),
-      preparationTime: parseInt(document.getElementById("itemPrepTime").value) || 10,
-      description: {
-        en: document.getElementById("itemDescriptionEn").value.trim(),
-        am: document.getElementById("itemDescriptionAm").value.trim()
-      },
-      available: document.getElementById("itemAvailable").checked
+      description: { en: descEn, am: descAm },
+      available: document.getElementById("itemIsAvailable").checked
     };
   }
 
-  async function handleMenuItemSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    var payload = buildMenuItemPayload();
+    var payload = buildPayload();
     if (!payload.name.en || !payload.name.am) {
       if (window.AdminToast) window.AdminToast.error("Both English and Amharic names are required");
       return;
@@ -316,28 +283,39 @@
       return;
     }
 
-    if (pendingImage) {
-      if (pendingImage.type === "remove") {
-        payload.image = "";
-      } else {
-        payload.image = pendingImage.value;
+    // ✅ Handle file upload + image URL
+    var formData = new FormData();
+    formData.append('name', JSON.stringify(payload.name));
+    formData.append('category', payload.category);
+    formData.append('price', payload.price);
+    formData.append('description', JSON.stringify(payload.description));
+    formData.append('available', payload.available);
+
+    var imageFileInput = document.getElementById("itemImageFile");
+    if (imageFileInput && imageFileInput.files && imageFileInput.files[0]) {
+      // File upload takes priority
+      formData.append('image', imageFileInput.files[0]);
+    } else {
+      // Fall back to image URL if no file selected
+      var imageUrlVal = document.getElementById("itemImageUrl").value.trim();
+      if (imageUrlVal) {
+        formData.append('imageUrl', imageUrlVal);
       }
-    } else if (!editingItem) {
-      payload.image = null;
     }
 
     var id = document.getElementById("itemId").value;
 
     try {
-      var data;
       if (id) {
-        data = await window.AdminAPI.put("/admin/menu/" + id, payload);
+        // For PUT requests, add the ID to the form data
+        formData.append('_id', id);
+        await window.AdminAPI.putFormData("/admin/menu/" + id, formData);
+        if (window.AdminToast) window.AdminToast.success("Menu item updated");
       } else {
-        data = await window.AdminAPI.post("/admin/menu", payload);
+        await window.AdminAPI.postFormData("/admin/menu", formData);
+        if (window.AdminToast) window.AdminToast.success("Menu item added");
       }
-
-      closeModal("menuItemModal");
-      if (window.AdminToast) window.AdminToast.success(id ? "Menu item updated" : "Menu item added");
+      closeModal();
       if (state.page > 1 && !id) state.page = 1;
       loadMenuItems();
       loadStats();
@@ -347,78 +325,11 @@
   }
 
   /* ============================================================
-   * IMAGE HANDLING
+   * ACTIONS
    * ============================================================ */
-  function handleImageFileChange(file) {
-    if (!file) return;
-    if (ALLOWED_IMAGE_TYPES.indexOf(file.type) === -1) {
-      pendingImage = null;
-      if (window.AdminToast) window.AdminToast.error("Invalid image type. Allowed: JPG, JPEG, PNG, WEBP");
-      document.getElementById("itemImageFile").value = "";
-      return;
-    }
-    if (file.size > MAX_IMAGE_SIZE) {
-      pendingImage = null;
-      if (window.AdminToast) window.AdminToast.error("Image too large. Maximum size is 2 MB");
-      document.getElementById("itemImageFile").value = "";
-      return;
-    }
-
-    var reader = new FileReader();
-    reader.onload = function () {
-      pendingImage = { type: "file", value: String(reader.result) };
-      document.getElementById("itemImageUrl").value = "";
-      document.getElementById("itemImagePreview").src = String(reader.result);
-      document.getElementById("imagePreviewRow").style.display = "flex";
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function handleImageUrlInput(value) {
-    if (value && value.trim()) {
-      pendingImage = { type: "url", value: value.trim() };
-      document.getElementById("itemImageFile").value = "";
-      document.getElementById("itemImagePreview").src = value.trim();
-      document.getElementById("imagePreviewRow").style.display = "flex";
-    } else {
-      pendingImage = null;
-    }
-  }
-
-  /* ============================================================
-   * VIEW / TOGGLE / DELETE
-   * ============================================================ */
-  function viewMenuItem(item) {
-    closeAllModals();
-
-    var thumb = item.image
-      ? (item.image.indexOf("http") === 0 ? item.image : "http://localhost:5000" + item.image)
-      : "";
-    var imageEl = document.getElementById("viewItemImage");
-    if (thumb) {
-      imageEl.src = thumb;
-      imageEl.style.display = "block";
-    } else {
-      imageEl.style.display = "none";
-    }
-
-    document.getElementById("viewItemName").textContent = item.name.en + (item.name.am ? " / " + item.name.am : "");
-    document.getElementById("viewItemCategory").textContent = categoryLabel(item.category);
-    document.getElementById("viewItemId").textContent = item.id;
-    document.getElementById("viewItemPrice").textContent = money(item.price) + " ETB";
-    document.getElementById("viewItemAvailability").textContent =
-      item.availability && item.isAvailable ? "Available" : "Unavailable";
-    document.getElementById("viewItemPrepTime").textContent = (item.preparationTime || 10) + " min";
-    document.getElementById("viewItemDescEn").textContent = (item.description && item.description.en) || "—";
-    document.getElementById("viewItemDescAm").textContent = (item.description && item.description.am) || "—";
-    document.getElementById("viewItemCreated").textContent = window.AdminAPI.formatDateTime(item.createdAt);
-    document.getElementById("viewItemUpdated").textContent = window.AdminAPI.formatDateTime(item.updatedAt);
-    openModal("viewItemModal");
-  }
-
   async function toggleAvailability(item) {
     var available = item.availability && item.isAvailable;
-    var label = available ? "Make unavailable" + " (" + item.name.en + ")?" : "Make available" + " (" + item.name.en + ")?";
+    var label = available ? "Make unavailable (" + item.name.en + ")?" : "Make available (" + item.name.en + ")?";
     if (!window.confirm(label)) return;
 
     try {
@@ -437,20 +348,10 @@
     try {
       await window.AdminAPI.del("/admin/menu/" + item.id);
       if (window.AdminToast) window.AdminToast.success("Menu item deleted");
-      if (window.__menuCache && window.__menuCache.length === 1 && state.page > 1) state.page--;
       loadMenuItems();
       loadStats();
     } catch (error) {
       if (window.AdminToast) window.AdminToast.error(error.message || "Failed to delete menu item");
-    }
-  }
-
-  async function findItemById(id) {
-    try {
-      var data = await window.AdminAPI.get("/admin/menu/" + id);
-      return data.item || null;
-    } catch (e) {
-      return null;
     }
   }
 
@@ -461,27 +362,17 @@
     var addBtn = document.getElementById("openAddMenuModalBtn");
     if (addBtn) addBtn.addEventListener("click", openAddItemModal);
 
-    var refreshBtn = document.getElementById("refreshMenuBtn");
-    if (refreshBtn) refreshBtn.addEventListener("click", function () {
-      loadMenuItems();
-      loadStats();
-      if (window.AdminToast) window.AdminToast.show("Menu refreshed");
-    });
+    var closeBtn = document.getElementById("closeMenuModalBtn");
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    var cancelBtn = document.getElementById("cancelMenuModalBtn");
+    if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+    var modal = document.getElementById("menuModal");
+    if (modal) {
+      modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+    }
 
-    var form = document.getElementById("menuItemForm");
-    if (form) form.addEventListener("submit", handleMenuItemSubmit);
-
-    document.querySelectorAll("[data-close-modal]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        closeModal(btn.getAttribute("data-close-modal"));
-      });
-    });
-
-    document.querySelectorAll(".amodal-overlay").forEach(function (overlay) {
-      overlay.addEventListener("click", function (e) {
-        if (e.target === overlay) overlay.classList.remove("open");
-      });
-    });
+    var form = document.getElementById("menuForm");
+    if (form) form.addEventListener("submit", handleSubmit);
 
     var searchInput = document.getElementById("menuSearchInput");
     if (searchInput) {
@@ -514,65 +405,6 @@
       });
     }
 
-    var sortSelect = document.getElementById("menuSortSelect");
-    if (sortSelect) {
-      sortSelect.addEventListener("change", function () {
-        state.sort = sortSelect.value;
-        state.page = 1;
-        loadMenuItems();
-      });
-    }
-
-    var resetBtn = document.getElementById("resetMenuFiltersBtn");
-    if (resetBtn) {
-      resetBtn.addEventListener("click", function () {
-        if (searchInput) searchInput.value = "";
-        if (categoryFilter) categoryFilter.value = "";
-        if (availabilityFilter) availabilityFilter.value = "";
-        if (sortSelect) sortSelect.value = "newest";
-        state.search = "";
-        state.category = "";
-        state.availability = "";
-        state.sort = "newest";
-        state.page = 1;
-        loadMenuItems();
-      });
-    }
-
-    var prevBtn = document.getElementById("menuPrevPageBtn");
-    var nextBtn = document.getElementById("menuNextPageBtn");
-    if (prevBtn) prevBtn.addEventListener("click", function () { changePage(-1); });
-    if (nextBtn) nextBtn.addEventListener("click", function () { changePage(1); });
-
-    var fileInput = document.getElementById("itemImageFile");
-    if (fileInput) fileInput.addEventListener("change", function () {
-      handleImageFileChange(fileInput.files[0]);
-    });
-
-    var urlInput = document.getElementById("itemImageUrl");
-    if (urlInput) urlInput.addEventListener("input", function () {
-      handleImageUrlInput(urlInput.value);
-    });
-
-    var removeImageBtn = document.getElementById("removeImageBtn");
-    if (removeImageBtn) {
-      removeImageBtn.addEventListener("click", function () {
-        pendingImage = { type: "remove", value: "" };
-        document.getElementById("itemImageFile").value = "";
-        document.getElementById("itemImageUrl").value = "";
-        document.getElementById("itemImagePreview").removeAttribute("src");
-        document.getElementById("imagePreviewRow").style.display = "none";
-      });
-    }
-
-    var availCheckbox = document.getElementById("itemAvailable");
-    var availLabel = document.getElementById("itemAvailableLabel");
-    if (availCheckbox && availLabel) {
-      availCheckbox.addEventListener("change", function () {
-        availLabel.textContent = availCheckbox.checked ? "Available for ordering" : "Not available for ordering";
-      });
-    }
-
     var tbody = document.getElementById("menuTableBody");
     if (tbody) {
       tbody.addEventListener("click", async function (e) {
@@ -582,28 +414,29 @@
         var action = btn.getAttribute("data-action");
         if (!id) return;
 
-        var item = (window.__menuCache || []).find(function (i) { return i.id === id; });
-        if (!item) item = await findItemById(id);
+        var item = null;
+        try {
+          var d = await window.AdminAPI.get("/admin/menu/" + id);
+          item = d.item;
+        } catch (err) { /* not found */ }
         if (!item) {
           if (window.AdminToast) window.AdminToast.error("Menu item not found");
           return;
         }
 
-        if (action === "view") viewMenuItem(item);
-        else if (action === "edit") openEditItemModal(item);
+        if (action === "edit") openEditItemModal(item);
         else if (action === "toggle") toggleAvailability(item);
         else if (action === "delete") deleteMenuItem(item);
       });
     }
   }
 
-  function init() {
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!window.AdminAPI) return;
     bindEvents();
     loadCategories().then(function () {
       loadMenuItems();
       loadStats();
     });
-  }
-
-  document.addEventListener("DOMContentLoaded", init);
+  });
 })();

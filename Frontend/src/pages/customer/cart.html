@@ -19,6 +19,11 @@
     <!-- Cart CSS -->
     <link rel="stylesheet" href="/frontend/src/css/cart.css">
 
+    <!-- Theme -->
+    <link rel="stylesheet" href="/frontend/src/css/theme.css">
+    <link rel="stylesheet" href="/frontend/src/css/themes/dark-theme.css">
+    <script src="/frontend/src/js/theme.js"></script>
+
     <!--
         Food images are intentionally hidden in the cart.
         Remove this block if you want images later.
@@ -77,6 +82,22 @@
                     <!-- UNIQUE ID -->
                     <span id="navbar-cart-count">0</span>
                 </a>
+
+                <!-- User Profile Dropdown -->
+                <div class="user-profile-menu">
+                    <button class="user-profile-btn" id="user-menu-btn">
+                        <span class="user-name user-profile-name" id="userProfileName">Loading...</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu" id="user-dropdown-menu">
+                        <a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a>
+                        <a href="order-history.html"><i class="fa-solid fa-receipt"></i> My Orders</a>
+                        <a href="notifications.html"><i class="fa-solid fa-bell"></i> Notifications</a>
+                        <a href="feedback.html"><i class="fa-solid fa-comment-dots"></i> Feedback</a>
+                        <hr>
+                        <a href="../common/login.html" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </div>
+                </div>
 
             </div>
 
@@ -230,7 +251,10 @@
 
     <!-- Cart JavaScript -->
     <script src="/frontend/src/js/cart.js"></script>
-
+    <script src="/frontend/src/js/profile.js"></script>
+    <script src="/frontend/src/js/global-auth.js"></script>
+    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+    <script src="/frontend/src/js/order-notifications.js"></script>
 </body>
 
 </html>

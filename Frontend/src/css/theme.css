@@ -1,0 +1,204 @@
+/* ================================================================
+   SMART CAFETERIA ORDERING SYSTEM - THEME VARIABLES (Light / Dark)
+   ================================================================
+   Defines CSS custom properties for the default (light) and dark
+   modes. theme.js sets `data-theme="dark"` on <html> to toggle.
+   ================================================================ */
+
+:root {
+  /* Light Mode (Image 1 Color Scheme) */
+  --bg-primary: #f4f6f8;
+  --bg-card: #ffffff;
+  --text-heading: #0f172a;
+  --text-body: #334155;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --header-bg: #ffffff;
+  --table-header: #f8fafc;
+  --accent-primary: #ea580c;
+
+  /* ---- Theme tokens (aliases) ---- */
+  --bg-secondary: #f4f6f8;
+  --card-bg: #ffffff;
+  --text-primary: #334155;
+  --text-secondary: #64748b;
+  --navbar-bg: #ffffff;
+
+  /* ---- Aliases used by existing stylesheets (style/menu/cart/admin) ---- */
+  --bg-light: #f8fafc;
+  --bg-white: #ffffff;
+  --primary-color: #ea580c;
+  --primary-hover: #c2410c;
+  --secondary-color: #0f172a;
+  --accent-green: #16a34a;
+  --accent-red: #dc2626;
+  --primary-light: #ffedd5;
+
+  /* ---- Semantic backgrounds ---- */
+  --white: #ffffff;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  --success-bg: #dcfce7;
+  --warning-bg: #fef3c7;
+  --danger-bg: #fee2e2;
+  --info-bg: #e0f2fe;
+}
+
+[data-theme="dark"] {
+  /* Dark Mode (Image 2 Color Scheme) */
+  --bg-primary: #111827;
+  --bg-card: #1e293b;
+  --text-heading: #f8fafc;
+  --text-body: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --header-bg: #1e293b;
+  --table-header: #0f172a;
+  --accent-primary: #ea580c;
+
+  /* ---- Theme tokens ---- */
+  --bg-secondary: #111827;
+  --card-bg: #1e293b;
+  --text-primary: #cbd5e1;
+  --text-secondary: #94a3b8;
+  --navbar-bg: #1e293b;
+
+  /* ---- Aliases for dark mode ---- */
+  --bg-light: #111827;
+  --bg-white: #1e293b;
+  --primary-color: #ea580c;
+  --primary-hover: #c2410c;
+  --secondary-color: #f8fafc;
+  --primary-light: #431407;
+
+  /* ---- Semantic ---- */
+  --white: #1e293b;
+  --gray-50: #0f172a;
+  --gray-100: #1e293b;
+  --gray-200: #334155;
+  --gray-300: #475569;
+  --gray-400: #64748b;
+  --gray-500: #94a3b8;
+  --gray-600: #cbd5e1;
+  --gray-700: #e2e8f0;
+  --gray-800: #f1f5f9;
+  --gray-900: #f8fafc;
+
+  --success-bg: #064e3b;
+  --warning-bg: #451a03;
+  --danger-bg: #7f1d1d;
+  --info-bg: #082f49;
+}
+
+/* ================================================================
+   GLOBAL OVERRIDES
+   ================================================================ */
+body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-body) !important;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+h1, h2, h3, h4, h5, h6,
+.fw-bold {
+  color: var(--text-heading) !important;
+}
+
+.card,
+.container-card,
+.table-container,
+.modal-content,
+.dropdown-menu,
+.food-card,
+.metric-card,
+.dashboard-card,
+.stat-card,
+.order-card,
+.notification,
+.kitchen-stat,
+.step-card,
+.feature-card,
+.menu-card,
+.testimonial-card {
+  background-color: var(--bg-card) !important;
+  color: var(--text-body) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.table {
+  color: var(--text-body) !important;
+  border-color: var(--border-color) !important;
+}
+
+.table th {
+  background-color: var(--table-header) !important;
+  color: var(--text-muted) !important;
+}
+
+.table td {
+  background-color: var(--bg-card) !important;
+  color: var(--text-body) !important;
+}
+
+header,
+.navbar,
+.top-bar,
+.navbar-header,
+.admin-navbar,
+.admin-header {
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.text-muted,
+.subtitle,
+.role,
+.section-subtitle,
+.metric-title,
+small {
+  color: var(--text-muted) !important;
+}
+
+input,
+select,
+textarea,
+.form-control,
+.form-select {
+  background-color: var(--bg-card) !important;
+  color: var(--text-body) !important;
+  border-color: var(--border-color) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+label,
+p,
+span,
+a,
+th,
+td {
+  color: var(--text-body) !important;
+}
+
+.table .table-light,
+.table th.table-light,
+.table td.table-light {
+  background-color: var(--table-header) !important;
+}
+
+/* Dark theme toggle icon styling */
+#nightModeIconBtn {
+  color: var(--text-body) !important;
+}

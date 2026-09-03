@@ -11,12 +11,14 @@
     <!-- Admin CSS stylesheet -->
     <link rel="stylesheet" href="/frontend/src/css/admin.css">
     <link rel="stylesheet" href="/frontend/src/css/style.css">
+    <link rel="stylesheet" href="/frontend/src/css/theme.css">
+    <link rel="stylesheet" href="/frontend/src/css/themes/dark-theme.css">
+    <script src="/frontend/src/js/theme.js"></script>
 
     <!-- Auth Guard Check -->
     <script>
         const role = localStorage.getItem('userRole');
         if (!role || role !== 'ADMIN') {
-            alert('Access denied! Admins only.');
            window.location.href = '/Frontend/src/pages/common/login.html';
         }
     </script>
@@ -66,7 +68,7 @@
                     <span class="group-title">MAIN</span>
                     <a href="dashboard.html" class="sidebar-link">
                         <i class="fa-solid fa-chart-line"></i>
-                        <span>Dashboard</span>
+                        <span data-i18n="nav_dashboard">Dashboard</span>
                     </a>
                 </div>
 
@@ -74,11 +76,11 @@
                     <span class="group-title">MANAGEMENT</span>
                     <a href="users.html" class="sidebar-link">
                         <i class="fa-solid fa-users"></i>
-                        <span>Users</span>
+                        <span data-i18n="nav_users">Users</span>
                     </a>
                     <a href="menu.html" class="sidebar-link">
                         <i class="fa-solid fa-bowl-food"></i>
-                        <span>Menu</span>
+                        <span data-i18n="nav_menu">Menu</span>
                     </a>
                     <a href="categories.html" class="sidebar-link">
                         <i class="fa-solid fa-list"></i>
@@ -86,16 +88,16 @@
                     </a>
                     <a href="orders.html" class="sidebar-link">
                         <i class="fa-solid fa-receipt"></i>
-                        <span>Orders</span>
+                        <span data-i18n="nav_orders">Orders</span>
                     </a>
                     <a href="payments.html" class="sidebar-link">
                         <i class="fa-solid fa-wallet"></i>
-                        <span>Payments</span>
+                        <span data-i18n="nav_payments">Payments</span>
                     </a>
                     <a href="cancellations.html" class="sidebar-link">
                         <i class="fa-solid fa-ban"></i>
                         <span>Cancellations</span>
-                        <span class="sidebar-badge" id="sidebarCancellationBadge">0</span>
+                        <span class="sidebar-badge" id="sidebarCancellationBadge" style="display: none;">0</span>
                     </a>
                 </div>
 
@@ -103,15 +105,15 @@
                     <span class="group-title">ANALYTICS & SYSTEM</span>
                     <a href="feedback.html" class="sidebar-link">
                         <i class="fa-solid fa-comments"></i>
-                        <span>Feedback</span>
+                        <span data-i18n="nav_feedback">Feedback</span>
                     </a>
                     <a href="reports.html" class="sidebar-link active">
                         <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span>Reports</span>
+                        <span data-i18n="nav_reports">Reports</span>
                     </a>
                     <a href="settings.html" class="sidebar-link">
                         <i class="fa-solid fa-gear"></i>
-                        <span>Settings</span>
+                        <span data-i18n="nav_settings">Settings</span>
                     </a>
                 </div>
             </nav>
@@ -122,12 +124,12 @@
             
             <div class="page-header">
                 <div>
-                    <h1>Reports</h1>
-                    <p class="subtitle">Generate and view reports</p>
+                    <h1 data-i18n="reports_title">Reports</h1>
+                    <p class="subtitle" data-i18n="reports_subtitle">Generate and view reports</p>
                 </div>
                 <div class="page-actions">
                     <button class="btn btn-secondary" id="exportCsvBtn">
-                        <i class="fa-solid fa-file-csv"></i> Export CSV
+                        <i class="fa-solid fa-file-csv"></i> <span data-i18n="btn_export">Export CSV</span>
                     </button>
                 </div>
             </div>
@@ -139,7 +141,7 @@
                         <i class="fa-solid fa-calendar-day"></i>
                     </div>
                     <div class="card-details">
-                        <span class="metric-title">Daily Orders</span>
+                        <span class="metric-title" data-i18n="daily_orders">Daily Orders</span>
                         <h2 id="metricReportOrders">0</h2>
                     </div>
                 </div>
@@ -149,7 +151,7 @@
                         <i class="fa-solid fa-chart-line"></i>
                     </div>
                     <div class="card-details">
-                        <span class="metric-title">Sales</span>
+                        <span class="metric-title" data-i18n="sales">Sales</span>
                         <h2 id="metricReportSales">0 <small>ETB</small></h2>
                     </div>
                 </div>
@@ -159,7 +161,7 @@
                         <i class="fa-solid fa-fire"></i>
                     </div>
                     <div class="card-details">
-                        <span class="metric-title">Popular Items</span>
+                        <span class="metric-title" data-i18n="popular_items">Popular Items</span>
                         <h2 id="metricReportPopular">0</h2>
                     </div>
                 </div>
@@ -169,7 +171,7 @@
                         <i class="fa-solid fa-wallet"></i>
                     </div>
                     <div class="card-details">
-                        <span class="metric-title">Payments</span>
+                        <span class="metric-title" data-i18n="payments">Payments</span>
                         <h2 id="metricReportPayments">0 <small>ETB</small></h2>
                     </div>
                 </div>
@@ -180,24 +182,24 @@
                 <div class="card-header table-header-actions">
                     <div class="filter-group date-filter-group">
                         <div class="form-group inline-group">
-                            <label for="reportTypeSelect">Report Type:</label>
+                            <label for="reportTypeSelect" data-i18n="report_type">Report Type:</label>
                             <select id="reportTypeSelect" class="form-select">
-                                <option value="daily_orders">Daily Orders</option>
-                                <option value="sales">Sales</option>
-                                <option value="popular_items">Popular Items</option>
-                                <option value="payments">Payments</option>
+                                <option value="daily" data-i18n="daily_report">Daily Report</option>
+                                <option value="monthly" data-i18n="monthly_report">Monthly Report</option>
+                                <option value="yearly" data-i18n="yearly_report">Yearly Report</option>
+                                <option value="popular" data-i18n="popular_items">Popular Items</option>
                             </select>
                         </div>
                         <div class="form-group inline-group">
-                            <label for="fromDate">From:</label>
+                            <label for="fromDate" data-i18n="from_date">From:</label>
                             <input type="date" id="fromDate" class="form-control">
                         </div>
                         <div class="form-group inline-group">
-                            <label for="toDate">To:</label>
+                            <label for="toDate" data-i18n="to_date">To:</label>
                             <input type="date" id="toDate" class="form-control">
                         </div>
                         <button class="btn btn-primary" id="generateReportBtn">
-                            <i class="fa-solid fa-filter"></i> Generate
+                            <i class="fa-solid fa-filter"></i> <span data-i18n="btn_generate">Generate</span>
                         </button>
                     </div>
                 </div>
@@ -229,11 +231,11 @@
     </div>
 
     <!-- JavaScript Files -->
-    <script src="../../js/api.js"></script>
-    <script src="../../js/auth.js"></script>
+    <script src="/frontend/src/js/translations.js"></script>
+    <script src="/frontend/src/js/language.js"></script>
+    <script src="../../js/admin-api.js"></script>
     <script src="/frontend/src/js/admin.js"></script>
-    <script src="/frontend/src/js/reports.js"></script>
-    <script src="/Frontend/src/components/sidebar.js"></script>
+    <script src="/frontend/src/js/admin-reports.js"></script>
 
 </body>
 </html>

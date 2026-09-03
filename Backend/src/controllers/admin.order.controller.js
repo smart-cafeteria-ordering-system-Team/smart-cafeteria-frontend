@@ -337,12 +337,16 @@ exports.updateOrderStatus = async (req, res) => {
     await order.save();
 
     try {
+      const orderReference = order.orderNumber || order.orderId;
+      const notificationMessage = next === 'READY'
+        ? `Your order #${orderReference} has been finished by the kitchen and is ready for pickup/serving!`
+        : `Your order #${orderReference} is now ${next.replace(/_/g, ' ').toLowerCase()}.`;
       await Notification.create({
         userId: order.userId,
         title: next === 'READY' ? 'Order Ready!' : `Order ${next}`,
-        message: `Your order #${order.orderId} is now ${next.replace(/_/g, ' ').toLowerCase()}.`,
+        message: notificationMessage,
         type: 'status_update',
-        orderId: order.orderId,
+        orderId: orderReference,
         isRead: false
       });
     } catch (notifError) {

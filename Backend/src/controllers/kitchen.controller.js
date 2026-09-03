@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const Notification = require('../models/Notification');
 const { ORDER_STATUS, MESSAGES, HTTP_STATUS } = require('../config/constants');
+const { emitSocketEvent } = require('../utils/socket');
 
 /**
 * @desc    Get kitchen dashboard data
@@ -13,10 +14,14 @@ const { ORDER_STATUS, MESSAGES, HTTP_STATUS } = require('../config/constants');
 exports.getKitchenDashboard = async (req, res) => {
 try {
 // ✅ Get all active orders (pending, preparing, ready)
+// Phase 7: only paid orders appear on the kitchen dashboard. Cash-on-delivery
+// orders are payable at the counter and therefore always shown. Online/chapa
+// orders must be confirmed as paid before they hit the kitchen.
 const activeOrders = await
 
 Order.find({
-status: { $in: ['pending', 'preparing', 'ready'] }
+status: { $in: ['pending', 'preparing', 'ready'] },
+...paymentEligibleFilter()
 })
 .populate('userId', 'name phone')
 .sort({ createdAt: 1 });
@@ -88,7 +93,10 @@ filter.status = status;
 filter.status = { $in: ['pending', 'preparing', 'ready', 'served'] };
 }
 
-const orders = await Order.find(filter)
+const orders = await Order.find({
+...filter,
+...paymentEligibleFilter()
+})
 .populate('userId', 'name phone')
 .sort({ createdAt: -1 });
 
@@ -149,11 +157,24 @@ title: 'Order Accepted!',
 message: `Your order #${orderId} has been accepted and is being prepared by the kitchen.`,
 type: 'status_update',
 orderId: orderId,
-link: `/customer/order-
-
-tracking.html?id=${orderId}`,
+link: `/customer/order-tracking.html?id=${orderId}`,
 isRead: false
 });
+
+// ✅ Emit real-time Socket.IO event
+try {
+const customerId = order.userId ? order.userId.toString() : null;
+if (customerId) {
+  emitSocketEvent(`user_${customerId}`, 'orderStatusUpdated', {
+    orderId: order._id,
+    orderNumber: order.orderId,
+    status: order.status,
+    message: `Your order #${orderId} is now being prepared`
+  });
+}
+} catch (socketErr) {
+console.warn('[Kitchen] Socket emit failed (non-critical):', socketErr.message);
+}
 
 res.status(HTTP_STATUS.OK).json({
 success: true,
@@ -218,6 +239,21 @@ orderId: orderId,
 link: `/customer/order-tracking.html?id=${orderId}`,
 isRead: false
 });
+
+// ✅ Emit real-time Socket.IO event
+try {
+const customerId = order.userId ? order.userId.toString() : null;
+if (customerId) {
+  emitSocketEvent(`user_${customerId}`, 'orderStatusUpdated', {
+    orderId: order._id,
+    orderNumber: order.orderId,
+    status: 'ready',
+    message: `Your order #${orderId} is ready for pickup! 🍔`
+  });
+}
+} catch (socketErr) {
+console.warn('[Kitchen] Socket emit failed (non-critical):', socketErr.message);
+}
 
 res.status(HTTP_STATUS.OK).json({
 success: true,
@@ -330,12 +366,26 @@ await Notification.create({
 userId: order.userId,
 title: 'Order Rejected',
 message: `Your order #${orderId} has been rejected by the
-
 kitchen. ${reason || ''}`,
 type: 'system',
 orderId: orderId,
 isRead: false
 });
+
+// ✅ Emit real-time Socket.IO event
+try {
+const customerId = order.userId ? order.userId.toString() : null;
+if (customerId) {
+  emitSocketEvent(`user_${customerId}`, 'orderStatusUpdated', {
+    orderId: order._id,
+    orderNumber: order.orderId,
+    status: 'cancelled',
+    message: `Your order #${orderId} has been rejected by the kitchen. ${reason || ''}`
+  });
+}
+} catch (socketErr) {
+console.warn('[Kitchen] Socket emit failed (non-critical):', socketErr.message);
+}
 
 res.status(HTTP_STATUS.OK).json({
 success: true,
@@ -396,8 +446,23 @@ error: MESSAGES.SERVER_ERROR
 };
 
 /**
-* Helper: Format order for kitchen display
-*/
+ * Phase 7: Only paid orders appear on the Kitchen Dashboard/orders.
+ * - Cash-on-delivery orders are payable at the counter → always shown.
+ * - Online/Chapa orders must be confirmed (paid/simulated/completed) before
+ *   the kitchen sees them; unpaid/pending/failed online orders are hidden.
+ */
+function paymentEligibleFilter() {
+    return {
+        $or: [
+            { paymentMethod: { $regex: /\bcash\b/i } },
+            { paymentStatus: { $in: ['paid', 'simulated', 'completed'] } }
+        ]
+    };
+}
+
+/**
+ * Helper: Format order for kitchen display
+ */
 function formatKitchenOrder(order) {
 const elapsed = order.createdAt ?
 
