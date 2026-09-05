@@ -1,0 +1,56 @@
+# ================================================================
+# SMART CAFETERIA ORDERING SYSTEM - RENDER BLUEPRINT (BACKEND)
+# ================================================================
+# Deploys the Express + MongoDB Atlas backend as a Render Web Service.
+#
+# Usage:
+#   On Render: "Blueprint" (New -> Blueprint) and select this repository.
+#   It will read render.yaml and create the `smart-cafeteria-backend` service.
+#
+# The env vars marked `sync: false` MUST be filled in after the service is
+# created (Render -> Env tab on the service, or the initial prompt).
+# Use "Secret File"/"Secret" values - never commit real values.
+# ================================================================
+
+services:
+  - type: web
+    name: smart-cafeteria-backend
+    runtime: node
+    plan: free
+    rootDir: Backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      # Node.js version pin (highest precedence over .node-version / engines).
+      # Mongoose 9 requires Node >= 20.19. Node 24 matches the verified local runtime.
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      # Set this to the deployed frontend origin(s), comma-separated if multiple.
+      - key: CORS_ORIGIN
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      # Public HTTPS URL of this Render service (e.g. https://my-app.onrender.com)
+      - key: BACKEND_URL
+        sync: false
+      # Public URL of the deployed frontend (used as CORS default / redirects)
+      - key: FRONTEND_URL
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CHAPA_PUBLIC_KEY
+        sync: false
+      - key: CHAPA_SECRET_KEY
+        sync: false
+      - key: CHAPA_WEBHOOK_SECRET
+        sync: false
+      - key: CHAPA_CALLBACK_URL
+        sync: false
+      - key: CHAPA_RETURN_URL
+        sync: false

@@ -7,30 +7,40 @@ const User = require('../src/models/User');
 
 async function seedAdmin() {
   try {
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@cafeteria.com';
+    const adminName = process.env.ADMIN_NAME || 'System Admin';
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminPassword) {
+      throw new Error(
+        'ADMIN_PASSWORD is required. Run: npm run seed:admin after setting ADMIN_PASSWORD in Backend/.env'
+      );
+    }
+
     await mongoose.connect(process.env.MONGODB_URI);
-    const hashedPassword = await bcrypt.hash('Cafe@2026!Secure', 10);
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
     const adminData = {
-      name: 'System Admin',
-      email: 'admin@cafeteria.com',
-      username: 'smartcafeteria_admin',
+      name: adminName,
+      email: adminEmail,
+      username: adminEmail.split('@')[0],
       password: hashedPassword,
       role: 'admin',
       isActive: true
     };
 
     await User.findOneAndUpdate(
-      { email: 'admin@cafeteria.com' },
+      { email: adminEmail },
       adminData,
       { upsert: true, new: true }
     );
 
     console.log('Admin account created/updated successfully!');
-    console.log('Email: admin@cafeteria.com');
-    console.log('Password: Cafe@2026!Secure');
+    console.log(`Email: ${adminEmail}`);
+    console.log('Password: (from ADMIN_PASSWORD - not printed for security)');
     process.exit(0);
   } catch (err) {
-    console.error('Failed to create admin:', err);
+    console.error('Failed to create admin:', err.message);
     process.exit(1);
   }
 }

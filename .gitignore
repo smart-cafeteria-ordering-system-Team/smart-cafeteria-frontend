@@ -1,0 +1,40 @@
+# ================================================================
+# SMART CAFETERIA ORDERING SYSTEM
+# ROOT GITIGNORE (protects the whole monorepo)
+# ================================================================
+
+# Dependencies - NEVER commit node_modules (breaks Render/Linux builds)
+node_modules/
+**/node_modules/
+
+# Environment variables - NEVER commit real secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+**/.env
+**/.env.local
+
+# Logs
+logs/
+**/logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temp / build
+dist/
+build/
+tmp/
+temp/
+coverage/

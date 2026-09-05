@@ -4,19 +4,19 @@
 
 ### Environment Variables Updated in Backend/.env
 
-| Variable | Value | Status |
-|----------|-------|--------|
-| `CHAPA_PUBLIC_KEY` | `CHAPUBK_TEST-SalpxE5d7Qu2l7gROHKwCRQwwapwgZ7` | ✅ Configured |
-| `CHAPA_WEBHOOK_SECRET` | `whsec_5f4d9e3a2b1c8d7e6f5a4b3c2d1e0f9a` | ✅ Configured |
-| `CHAPA_CALLBACK_URL` | `http://localhost:5000/api/v1/payments/webhooks/chapa` | ✅ Configured |
-| `CHAPA_RETURN_URL` | `http://localhost:5500/Frontend/src/pages/customer/order-tracking.html` | ✅ Configured |
+| Variable               | Value                                                                   | Status        |
+| ---------------------- | ----------------------------------------------------------------------- | ------------- |
+| `CHAPA_PUBLIC_KEY`     | `CHAPUBK_TEST-SalpxE5d7Qu2l7gROHKwCRQwwapwgZ7`                          | ✅ Configured |
+| `CHAPA_WEBHOOK_SECRET` | `whsec_5f4d9e3a2b1c8d7e6f5a4b3c2d1e0f9a`                                | ✅ Configured |
+| `CHAPA_CALLBACK_URL`   | `http://localhost:5000/api/v1/payments/webhooks/chapa`                  | ✅ Configured |
+| `CHAPA_RETURN_URL`     | `http://localhost:5500/Frontend/src/pages/customer/order-tracking.html` | ✅ Configured |
 
 ### ⚠️ Required Configuration (Still Needed)
 
-| Variable | Where to Find | Action Required |
-|----------|---------------|-----------------|
-| `CHAPA_SECRET_KEY` | Chapa Dashboard > Settings > API > Test Secret Key | **[PASTE ACTUAL VALUE]** |
-| `CHAPA_ENCRYPTION_KEY` | Chapa Dashboard > Settings > API > Encryption Key | (Optional - currently unused) |
+| Variable               | Where to Find                                      | Action Required               |
+| ---------------------- | -------------------------------------------------- | ----------------------------- |
+| `CHAPA_SECRET_KEY`     | Chapa Dashboard > Settings > API > Test Secret Key | **[PASTE ACTUAL VALUE]**      |
+| `CHAPA_ENCRYPTION_KEY` | Chapa Dashboard > Settings > API > Encryption Key  | (Optional - currently unused) |
 
 ## 🔧 How to Get Missing Credentials
 
@@ -40,6 +40,7 @@
 ## ✨ Implementation Details
 
 ### Payment Flow
+
 1. User initiates checkout
 2. Backend calls `chapa.initialize()` with user details and amount
 3. Chapa returns `checkout_url`
@@ -49,6 +50,7 @@
 7. Payment status is updated in database
 
 ### Security
+
 - ✅ Webhook signatures validated with HMAC-SHA256
 - ✅ Secret key transmitted via Bearer token (Authorization header)
 - ⚠️ **IMPORTANT**: Never commit real secret keys to version control
