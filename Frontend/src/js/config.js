@@ -18,8 +18,9 @@ export const APP_CONFIG = {
 };
 
 // ===== 2. API CONFIGURATION (Future Backend) =====
+const runtimeEnv = (typeof process !== 'undefined' && process.env) ? process.env : {};
 export const API_CONFIG = {
-    baseURL: process.env.API_URL || 'https://api.smartcafeteria.com/v1',
+    baseURL: runtimeEnv.API_URL || 'https://smart-cafeteria-frontend.onrender.com/api/v1',
     timeout: 30000,
     endpoints: {
         auth: {
