@@ -6,11 +6,11 @@
     <title>Feedback & Reviews - TasteEthio Cafeteria</title>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/frontend/src/css/style.css">
-    <link rel="stylesheet" href="/frontend/src/css/menu.css">
-    <link rel="stylesheet" href="/frontend/src/css/theme.css">
-    <link rel="stylesheet" href="/frontend/src/css/themes/dark-theme.css">
-    <script src="/frontend/src/js/theme.js"></script>
+    <link rel="stylesheet" href="/src/css/style.css">
+    <link rel="stylesheet" href="/src/css/menu.css">
+    <link rel="stylesheet" href="/src/css/theme.css">
+    <link rel="stylesheet" href="/src/css/themes/dark-theme.css">
+    <script src="/src/js/theme.js"></script>
 </head>
 <body>
 
@@ -38,7 +38,7 @@
                 </a>
 
                 <!-- Back to Admin (admin only) -->
-                <a id="adminBackBtn" href="../../admin/dashboard.html" class="nav-link-item d-none" style="display:none;">
+                <a id="adminBackBtn" href="../admin/dashboard.html" class="nav-link-item d-none" style="display:none;">
                     <i class="fa-solid fa-gauge-high"></i>
                     <span>Back to Admin</span>
                 </a>
@@ -156,16 +156,16 @@
 
     </main>
 
-    <script src="/frontend/src/js/translations.js" defer></script>
-    <script src="/frontend/src/js/language.js" defer></script>
-    <script src="/frontend/src/js/profile.js" defer></script>
-    <script src="/frontend/src/js/feedback.js" defer></script>
-    <script src="/frontend/src/js/global-auth.js" defer></script>
+    <script src="/src/js/translations.js" defer></script>
+    <script src="/src/js/language.js" defer></script>
+    <script src="/src/js/profile.js" defer></script>
+    <script src="/src/js/feedback.js" defer></script>
+    <script src="/src/js/global-auth.js" defer></script>
 
     <!-- Feedback logic: star rating, user name, Back-to-Admin, form submit -->
     <script>
         (function () {
-            var API = "http://localhost:5000/api/v1";
+            var API = "https://smart-cafeteria-frontend.onrender.com/api/v1";
 
             function getToken() {
                 return localStorage.getItem("auth_token") ||

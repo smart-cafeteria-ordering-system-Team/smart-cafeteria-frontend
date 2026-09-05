@@ -10,13 +10,13 @@
  *
  * Load this BEFORE the page-specific admin script, e.g.:
  *   <script src="../../js/admin-api.js"></script>
- *   <script src="/frontend/src/js/admin/users.js"></script>
+ *   <script src="/src/js/admin/users.js"></script>
  * ==========================================================================
  */
 (function () {
   "use strict";
 
-  var API_BASE = "http://localhost:5000/api/v1";
+  var API_BASE = "https://smart-cafeteria-frontend.onrender.com/api/v1";
 
   function getToken() {
     return localStorage.getItem("auth_token") || "";

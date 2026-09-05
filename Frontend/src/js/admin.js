@@ -35,7 +35,7 @@ async function updateSidebarBadge() {
     if (!token) return;
 
     try {
-        const res = await fetch("http://localhost:5000/api/v1/cancellations/stats", {
+        const res = await fetch("https://smart-cafeteria-frontend.onrender.com/api/v1/cancellations/stats", {
             headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();

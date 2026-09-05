@@ -1,5 +1,5 @@
 (function () {
-    const API_URL = 'http://localhost:5000/api/v1/notifications';
+    const API_URL = 'https://smart-cafeteria-frontend.onrender.com/api/v1/notifications';
 
     function getToken() {
         return localStorage.getItem('token') || localStorage.getItem('auth_token') || '';

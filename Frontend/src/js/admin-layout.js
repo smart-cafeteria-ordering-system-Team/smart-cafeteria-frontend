@@ -220,7 +220,7 @@
     var token = localStorage.getItem('token') || localStorage.getItem('auth_token');
     if (!token) return;
 
-    fetch('http://localhost:5000/api/v1/cancellations/stats', {
+    fetch('https://smart-cafeteria-frontend.onrender.com/api/v1/cancellations/stats', {
       headers: { 'Authorization': 'Bearer ' + token }
     })
       .then(function (res) { return res.json(); })

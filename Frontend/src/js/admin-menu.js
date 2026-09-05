@@ -53,7 +53,7 @@
 
   function itemImage(item) {
     var src = item.image
-      ? (item.image.indexOf("http") === 0 ? item.image : "http://localhost:5000" + item.image)
+      ? (item.image.indexOf("http") === 0 ? item.image : "https://smart-cafeteria-frontend.onrender.com" + item.image)
       : "/assets/images/default-food.png";
     return '<img class="food-image-thumb" src="' + esc(src) + '" alt="' + esc(item.name.en) + '" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/50?text=Food\';" loading="lazy">';
   }

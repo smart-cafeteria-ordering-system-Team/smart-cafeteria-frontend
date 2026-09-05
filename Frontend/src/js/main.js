@@ -104,7 +104,7 @@ function getImageUrl(imagePath) {
         return value;
     }
     const cleanPath = value.startsWith("/") ? value : `/${value}`;
-    return "http://localhost:5000" + cleanPath;
+    return "https://smart-cafeteria-frontend.onrender.com" + cleanPath;
 }
 
 // ================================================================

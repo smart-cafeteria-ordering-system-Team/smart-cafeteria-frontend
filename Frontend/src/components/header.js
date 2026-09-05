@@ -88,7 +88,7 @@ userSectionHTML = `
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
                 </div>
-                <a id="backToAdminBtn" href="http://127.0.0.1:5501/Frontend/src/pages/admin/dashboard.html" class="btn btn-outline-warning btn-sm ms-2 d-none">
+                <a id="backToAdminBtn" href="/src/pages/admin/dashboard.html" class="btn btn-outline-warning btn-sm ms-2 d-none">
                     <i class="bi bi-speedometer2"></i> Back to Admin
                 </div>
     } else {

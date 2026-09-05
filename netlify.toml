@@ -1,0 +1,4 @@
+# Smart Cafeteria Ordering System - Netlify deployment configuration
+# The frontend is a static site contained entirely in the Frontend/ folder.
+[build]
+  publish = "Frontend"

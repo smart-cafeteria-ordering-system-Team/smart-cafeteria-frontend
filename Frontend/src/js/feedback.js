@@ -77,7 +77,7 @@ function initUserProfileHeader() {
 
     // Phase B: Asynchronous fallback verification
     if (token) {
-        fetch('http://localhost:5000/api/v1/auth/me', {
+        fetch('https://smart-cafeteria-frontend.onrender.com/api/v1/auth/me', {
             headers: { 'Authorization': 'Bearer ' + token }
         })
         .then(function (res) { return res.json(); })
@@ -197,7 +197,7 @@ function handleFeedbackFormSubmit(e) {
     var submitBtn = document.querySelector('#feedback-form .btn-primary, #feedbackForm .btn-primary');
     if (submitBtn) submitBtn.disabled = true;
 
-    fetch('http://localhost:5000/api/v1/feedback', {
+    fetch('https://smart-cafeteria-frontend.onrender.com/api/v1/feedback', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

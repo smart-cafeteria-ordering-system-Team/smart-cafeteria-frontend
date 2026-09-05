@@ -6,7 +6,7 @@
  */
 
 (function () {
-    const API_BASE_URL = "http://localhost:5000/api/v1";
+    const API_BASE_URL = "https://smart-cafeteria-frontend.onrender.com/api/v1";
 
     window.getApiToken = function () {
         return localStorage.getItem("auth_token") || localStorage.getItem("token") || "";
@@ -83,7 +83,7 @@ window.cancelOrderFromStatusPage = function (orderId) {
     const token = window.getApiToken();
 
     if (token) {
-        fetch(`http://localhost:5000/api/v1/cancellations/request/${encodeURIComponent(orderId)}`, {
+        fetch(`https://smart-cafeteria-frontend.onrender.com/api/v1/cancellations/request/${encodeURIComponent(orderId)}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -260,7 +260,7 @@ function normalizePaymentStatus(value) {
 window.verifyOrderPayment = function (orderId) {
     const token = window.getApiToken();
     if (!token || !orderId) return Promise.resolve(false);
-    return fetch("http://localhost:5000/api/v1/payments/verify", {
+    return fetch("https://smart-cafeteria-frontend.onrender.com/api/v1/payments/verify", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
