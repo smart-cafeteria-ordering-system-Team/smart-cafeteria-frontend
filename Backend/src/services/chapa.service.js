@@ -1,5 +1,26 @@
 const CHAPA_API_URL = 'https://api.chapa.co/v1';
 
+function readableMessage(message) {
+    if (message == null) return 'Chapa request failed';
+    if (typeof message === 'string') return message;
+    if (Array.isArray(message)) return message.map(readableMessage).join(', ');
+    if (typeof message === 'object') {
+        return Object.entries(message)
+            .map(([key, value]) => Array.isArray(value)
+                ? `${key}: ${value.join(', ')}`
+                : `${key}: ${readableMessage(value)}`)
+            .join('; ');
+    }
+    return String(message);
+}
+
+function isEmailValidationError(data) {
+    if (!data || typeof data !== 'object') return false;
+    const message = data.message;
+    if (!message || typeof message !== 'object') return false;
+    return Object.prototype.hasOwnProperty.call(message, 'email');
+}
+
 const chapaRequest = async (path, options = {}) => {
     if (!process.env.CHAPA_SECRET_KEY) {
         const error = new Error('CHAPA_SECRET_KEY is not configured');
@@ -15,11 +36,19 @@ const chapaRequest = async (path, options = {}) => {
             ...(options.headers || {})
         }
     });
-    const data = await response.json();
+
+    let data = {};
+    try {
+        data = await response.json();
+    } catch {
+        data = {};
+    }
 
     if (!response.ok || data.status !== 'success') {
-        const error = new Error(data.message || 'Chapa request failed');
+        const error = new Error(readableMessage(data.message));
         error.statusCode = response.status || 502;
+        error.chapa = data;
+        error.isEmailValidationError = response.status === 400 && isEmailValidationError(data);
         throw error;
     }
 

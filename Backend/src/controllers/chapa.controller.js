@@ -88,10 +88,10 @@ exports.initializeChapaPayment = async (req, res) => {
             : `https://${req.get('host')}/api/v1/payments/webhooks/chapa`;
 
         const [firstName, ...lastNameParts] = (user.name || 'Customer').trim().split(/\s+/);
-        const response = await chapa.initialize({
+        const buildPayload = (email) => ({
             amount: String(order.totalAmount),
             currency: 'ETB',
-            email: user.email,
+            email,
             first_name: firstName,
             last_name: lastNameParts.join(' ') || firstName,
             phone_number: user.phone || order.customerPhone || '',
@@ -101,7 +101,22 @@ exports.initializeChapaPayment = async (req, res) => {
             customization: { title: 'Smart Cafeteria', description: `Order ${order.orderId}` }
         });
 
+        let response;
+        let emailUsed = user.email;
+        try {
+            response = await chapa.initialize(buildPayload(user.email));
+        } catch (initError) {
+            if (initError.isEmailValidationError && process.env.CHAPA_FALLBACK_EMAIL) {
+                console.warn(`[Chapa] Customer email "${user.email}" rejected by Chapa; retrying with fallback "${process.env.CHAPA_FALLBACK_EMAIL}"`);
+                emailUsed = process.env.CHAPA_FALLBACK_EMAIL;
+                response = await chapa.initialize(buildPayload(emailUsed));
+            } else {
+                throw initError;
+            }
+        }
+
         payment.checkoutUrl = response.data.checkout_url;
+        payment.metadata = { ...(payment.metadata || {}), emailUsed };
         await payment.save();
         return res.status(201).json({
             success: true,
