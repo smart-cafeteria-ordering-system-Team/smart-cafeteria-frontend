@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const CART_KEY = "smart_cafeteria_cart";
     const SERVICE_FEE_ETB = 20;
-    const API_BASE_URL = "http://localhost:5000/api/v1";
+    const API_BASE_URL = "https://smart-cafeteria-frontend.onrender.com/api/v1";
 
     function getApiToken() {
         return localStorage.getItem("auth_token") || localStorage.getItem("token") || "";
@@ -687,7 +687,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                             orderId: placedOrderId,
                                             returnUrl:
                                                 window.location.origin +
-                                                "/Frontend/src/pages/customer/order-tracking.html?orderId=" +
+                                                "/src/pages/customer/order-tracking.html?orderId=" +
                                                 encodeURIComponent(placedOrderId)
                                         })
                                     }

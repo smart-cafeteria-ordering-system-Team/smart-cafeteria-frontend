@@ -9,7 +9,7 @@
  * toggles.
  */
 
-const CUSTOMER_MENU_API_BASE = "http://localhost:5000";
+const CUSTOMER_MENU_API_BASE = "https://smart-cafeteria-frontend.onrender.com";
 
 const CUSTOMER_MENU = {
 

@@ -5,7 +5,7 @@
 
 document.addEventListener("DOMContentLoaded", function () {
     const CART_KEY = "smart_cafeteria_cart";
-    const API_BASE_URL = "http://localhost:5000";
+    const API_BASE_URL = "https://smart-cafeteria-frontend.onrender.com";
     const categoryButtons = document.querySelectorAll(".category-pill");
     let foodCards = [];
     const noResults = document.getElementById("no-results");

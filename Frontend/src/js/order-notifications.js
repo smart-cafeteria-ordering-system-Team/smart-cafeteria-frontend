@@ -5,7 +5,7 @@
  */
 
 (function () {
-    const SOCKET_URL = 'http://localhost:5000';
+    const SOCKET_URL = 'https://smart-cafeteria-frontend.onrender.com';
     const STORAGE_KEY_USER = 'user';
     const STORAGE_KEY_TOKEN = 'auth_token';
     const STORAGE_KEY_TOKEN_ALT = 'token';
@@ -40,14 +40,14 @@
             try {
                 var notif = new Notification('Order Update', {
                     body: message,
-                    icon: '/Frontend/public/assets/images/food/food-placeholder.png',
+                    icon: '/public/assets/images/food/food-placeholder.png',
                     tag: 'order-' + (orderId || ''),
                     requireInteraction: true
                 });
                 notif.onclick = function () {
                     window.focus();
                     if (orderId) {
-                        window.location.href = '/Frontend/src/pages/customer/order-tracking.html?orderId=' + orderId;
+                        window.location.href = '/src/pages/customer/order-tracking.html?orderId=' + orderId;
                     }
                     notif.close();
                 };
@@ -102,7 +102,7 @@
         toast.addEventListener('click', function (e) {
             if (e.target.id === 'toast-close-btn') return;
             if (orderId) {
-                window.location.href = '/Frontend/src/pages/customer/order-tracking.html?orderId=' + orderId;
+                window.location.href = '/src/pages/customer/order-tracking.html?orderId=' + orderId;
             }
         });
 

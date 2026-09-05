@@ -49,7 +49,7 @@ app.use(
 // 2. Strict CORS Configuration
 const allowedOrigins = process.env.CORS_ORIGIN 
   ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()) 
-  : ['http://localhost:3000', 'http://127.0.0.1:5500'];
+  : ['http://localhost:3000', 'http://127.0.0.1:5500', 'https://smartcafeteriaorderingsystem.netlify.app'];
 
 const isProductionMode = process.env.NODE_ENV === 'production';
 

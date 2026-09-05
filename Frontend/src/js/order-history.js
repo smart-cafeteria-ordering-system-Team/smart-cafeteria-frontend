@@ -4,7 +4,7 @@
  * through the backend and merged into the local history for instant rendering.
  */
 (function () {
-    const API_BASE_URL = "http://localhost:5000/api/v1";
+    const API_BASE_URL = "https://smart-cafeteria-frontend.onrender.com/api/v1";
 
     window.getApiToken = function () {
         return localStorage.getItem("auth_token") || localStorage.getItem("token") || "";
@@ -110,7 +110,7 @@ window.cancelOrder = function(orderId) {
 
     // Cancel through the real backend when authenticated (Phase 4).
     if (token) {
-        fetch(`http://localhost:5000/api/v1/orders/${encodeURIComponent(orderId)}/cancel`, {
+        fetch(`https://smart-cafeteria-frontend.onrender.com/api/v1/orders/${encodeURIComponent(orderId)}/cancel`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",

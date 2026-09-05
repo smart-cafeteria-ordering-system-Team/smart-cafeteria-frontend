@@ -14,7 +14,7 @@
 (function () {
     'use strict';
 
-    const API_BASE_URL = 'http://localhost:5000/api/v1';
+    const API_BASE_URL = 'https://smart-cafeteria-frontend.onrender.com/api/v1';
     const POLL_INTERVAL_MS = 12000;
 
     const STATUS_LABELS = {
