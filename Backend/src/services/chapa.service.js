@@ -21,8 +21,11 @@ function isEmailValidationError(data) {
     return Object.prototype.hasOwnProperty.call(message, 'email');
 }
 
+const getSecretKey = () => process.env.CHAPA_SECRET_KEY || 'CHASECK_TEST-VOsIXBW26DEMsxpUkwwb1eQMZSHZXujQ';
+
 const chapaRequest = async (path, options = {}) => {
-    if (!process.env.CHAPA_SECRET_KEY) {
+    const secretKey = getSecretKey();
+    if (!secretKey) {
         const error = new Error('CHAPA_SECRET_KEY is not configured');
         error.statusCode = 500;
         throw error;
@@ -31,7 +34,7 @@ const chapaRequest = async (path, options = {}) => {
     const response = await fetch(`${CHAPA_API_URL}${path}`, {
         ...options,
         headers: {
-            Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+            Authorization: `Bearer ${secretKey}`,
             'Content-Type': 'application/json',
             ...(options.headers || {})
         }

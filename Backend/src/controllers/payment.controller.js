@@ -38,9 +38,7 @@ error: 'Order not found'
 
 // ✅ Check if order belongs to user
 if (order.userId.toString() !== req.user.id) {
-return
-
-res.status(HTTP_STATUS.FORBIDDEN).json({
+return res.status(HTTP_STATUS.FORBIDDEN).json({
 success: false,
 error: 'Unauthorized to pay for this order'
 });
@@ -117,6 +115,7 @@ error: MESSAGES.SERVER_ERROR
 exports.getPaymentByOrder = async (req, res) => {
 try {
 const mongoose = require('mongoose');
+const { orderId } = req.params;
 const isMongoId = mongoose.Types.ObjectId.isValid(orderId);
 const order = await Order.findOne({
     $or: [

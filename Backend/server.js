@@ -51,48 +51,60 @@ app.use(
   })
 );
 
-// 2. Strict CORS Configuration
-const allowedOrigins = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()) 
-  : ['http://localhost:3000', 'http://127.0.0.1:5500', 'https://smartcafeteriaorderingsystem.netlify.app'];
+// 2. Flexible & Secure CORS Configuration
+const defaultAllowed = [
+  'http://localhost:3000',
+  'http://localhost:5000',
+  'http://localhost:5500',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5000',
+  'http://127.0.0.1:5500',
+  'https://smartcafeteriaorderingsystem.netlify.app',
+  'https://smart-cafeteria-frontend.onrender.com'
+];
 
-const isProductionMode = process.env.NODE_ENV === 'production';
+const envAllowed = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim().replace(/\/+$/, '')) 
+  : [];
+
+const allowedOrigins = Array.from(new Set([...defaultAllowed, ...envAllowed]));
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow non-browser requests (e.g. Postman, curl, mobile apps)
+      // Allow non-browser requests (e.g. Postman, curl, mobile apps, server-to-server)
       if (!origin) {
-        console.log('[CORS] ✓ Allowed: Non-browser request (no origin header)');
         callback(null, true);
         return;
       }
 
-      // Check if origin is in allowed list
-      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
-        console.log(`[CORS] ✓ Allowed: "${origin}" (in allowed origins list)`);
+      const normalizedOrigin = String(origin).trim().replace(/\/+$/, '');
+
+      // Check if normalized origin is explicitly allowed or wildcard
+      if (allowedOrigins.includes(normalizedOrigin) || allowedOrigins.includes('*')) {
         callback(null, true);
         return;
       }
 
-      // In development, allow any localhost or 127.0.0.1 regardless of port
-      if (!isProductionMode) {
-        try {
-          const url = new URL(origin);
-          const hostname = url.hostname;
-          
-          if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
-            console.log(`[CORS] ✓ Allowed: "${origin}" (localhost in development)`);
-            callback(null, true);
-            return;
-          }
-        } catch (err) {
-          // Invalid URL, will be rejected below
+      // Allow any .netlify.app or .onrender.com deployment or localhost domain
+      try {
+        const parsed = new URL(normalizedOrigin);
+        const host = parsed.hostname.toLowerCase();
+        if (
+          host === 'localhost' ||
+          host === '127.0.0.1' ||
+          host === '::1' ||
+          host.endsWith('.netlify.app') ||
+          host.endsWith('.onrender.com')
+        ) {
+          callback(null, true);
+          return;
         }
+      } catch (err) {
+        // Invalid URL syntax
       }
 
-      // Reject the request
-      console.error(`[CORS] ✗ Blocked: "${origin}" (not in allowed origins)`);
+      console.error(`[CORS] ✗ Blocked: "${origin}" (normalized: "${normalizedOrigin}")`);
       callback(new Error(`CORS restriction: Origin "${origin}" not allowed`));
     },
     credentials: true,

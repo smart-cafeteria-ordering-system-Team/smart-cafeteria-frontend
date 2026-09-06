@@ -20,13 +20,19 @@
     window.verifyOrderPayment = function (orderId) {
         const token = window.getApiToken();
         if (!token || !orderId) return Promise.resolve(false);
-        // Prefer the real Chapa tx_ref stored during checkout so the backend
-        // can match the Payment document; fall back to the orderId.
+        
         let ref = orderId;
         try {
             const pending = JSON.parse(localStorage.getItem("pendingChapaVerify")) || {};
-            if (pending && pending[orderId]) ref = pending[orderId];
+            if (pending && pending[orderId]) {
+                ref = pending[orderId];
+            } else {
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlRef = urlParams.get("trx_ref") || urlParams.get("tx_ref") || urlParams.get("reference");
+                if (urlRef) ref = urlRef;
+            }
         } catch (e) { /* ignore storage errors */ }
+
         return fetch(API_BASE_URL + "/payments/verify", {
             method: "POST",
             headers: {
@@ -34,7 +40,7 @@
                 Accept: "application/json",
                 Authorization: "Bearer " + token
             },
-            body: JSON.stringify({ tx_ref: ref, orderId: orderId })
+            body: JSON.stringify({ tx_ref: ref, txRef: ref, orderId: orderId })
         })
             .then(function (r) { return r.json(); })
             .then(function (d) { return !!(d && d.success); })

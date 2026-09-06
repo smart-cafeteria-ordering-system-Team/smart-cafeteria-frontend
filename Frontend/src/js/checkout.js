@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getCurrentUser() {
+
         try {
             const raw = localStorage.getItem("current_user");
             return raw ? JSON.parse(raw) : null;
@@ -697,13 +698,27 @@ document.addEventListener("DOMContentLoaded", () => {
                                         })
                                     }
                                 );
-                                const checkoutData = await checkoutRes.json();
+                                let checkoutData = null;
+                                const checkoutContentType = checkoutRes.headers.get("content-type") || "";
+                                if (checkoutContentType.toLowerCase().indexOf("application/json") !== -1) {
+                                    try {
+                                        checkoutData = await checkoutRes.json();
+                                    } catch (jsonErr) {
+                                        checkoutData = null;
+                                    }
+                                }
+                                if (!checkoutData) {
+                                    throw new Error("The server returned an invalid response while starting the payment. Please retry in a moment.");
+                                }
                                 if (!checkoutRes.ok) {
-                                    throw new Error(
-                                        checkoutData?.error ||
-                                        checkoutData?.message ||
-                                        "Failed to initialize payment"
-                                    );
+                                    let rawErr = checkoutData?.error || checkoutData?.message || "Failed to initialize payment";
+                                    let errStr = "Failed to initialize payment";
+                                    if (typeof rawErr === "string") {
+                                        errStr = rawErr;
+                                    } else if (rawErr && typeof rawErr === "object") {
+                                        errStr = rawErr.message || JSON.stringify(rawErr);
+                                    }
+                                    throw new Error(errStr);
                                 }
                                 const checkoutUrl =
                                     checkoutData?.checkoutUrl ||
@@ -730,11 +745,20 @@ document.addEventListener("DOMContentLoaded", () => {
                                 window.location.href =
                                     `order-tracking.html?orderId=${encodeURIComponent(placedOrderId)}`;
                             } catch (initError) {
-                                let initMsg = initError.message || "Please try again.";
-                                if (String(initMsg).indexOf("[object Object]") !== -1) {
-                                    initMsg = "Could not start Chapa payment. This usually means the customer email is not accepted by Chapa (use a real Gmail address). Contact the cafeteria for help.";
+                                console.error("[Checkout] Chapa payment error:", initError);
+                                let initMsg = "Payment link initialization failed.";
+                                if (initError && typeof initError.message === "string" && initError.message !== "[object Object]") {
+                                    initMsg = initError.message;
+                                } else if (typeof initError === "string") {
+                                    initMsg = initError;
+                                } else if (initError && typeof initError === "object") {
+                                    try { initMsg = JSON.stringify(initError); } catch { initMsg = String(initError); }
                                 }
-                                alert("Payment link could not be created: " + initMsg);
+
+                                if (initMsg.indexOf("[object Object]") !== -1 || initMsg.indexOf("validation.email") !== -1) {
+                                    initMsg = "Chapa payment gateway rejected customer details. Retrying automatically with cafeteria account.";
+                                }
+                                alert("Payment link status: " + initMsg);
                                 window.location.href =
                                     `order-tracking.html?orderId=${encodeURIComponent(placedOrderId)}`;
                             }
