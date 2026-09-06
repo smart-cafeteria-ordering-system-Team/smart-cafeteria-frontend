@@ -1,4 +1,10 @@
-require('dotenv').config();
+const path = require('path');
+const dotenv = require('dotenv');
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), 'Backend/.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+
 
 const express = require('express');
 const http = require('http');
@@ -6,7 +12,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
-const path = require('path');
 const mongoose = require('mongoose');
 
 const { MONGODB_URI } = require('./src/config/env');
