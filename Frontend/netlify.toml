@@ -1,0 +1,16 @@
+# Stop browsers from caching the app's JS/HTML so they always load the
+# latest version (fixes "old site" symptoms like missing Chapa payment).
+[[headers]]
+  for = "/src/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/src/**/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
