@@ -12,6 +12,30 @@
         return localStorage.getItem("auth_token") || localStorage.getItem("token") || "";
     };
 
+    window.verifyOrderPayment = function (orderId) {
+        const token = window.getApiToken();
+        if (!token || !orderId) return Promise.resolve(false);
+        // Prefer the real Chapa tx_ref stored during checkout so the backend
+        // can match the Payment document; fall back to the orderId.
+        let ref = orderId;
+        try {
+            const pending = JSON.parse(localStorage.getItem("pendingChapaVerify")) || {};
+            if (pending && pending[orderId]) ref = pending[orderId];
+        } catch (e) { /* ignore storage errors */ }
+        return fetch(API_BASE_URL + "/payments/verify", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: "Bearer " + token
+            },
+            body: JSON.stringify({ tx_ref: ref })
+        })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { return !!(d && d.success); })
+            .catch(function () { return false; });
+    };
+
     window.getOrderFromApi = async function (orderId) {
         const token = window.getApiToken();
         if (!token) return null;
@@ -257,23 +281,6 @@ function normalizePaymentStatus(value) {
     return "Pending Payment";
 }
 
-window.verifyOrderPayment = function (orderId) {
-    const token = window.getApiToken();
-    if (!token || !orderId) return Promise.resolve(false);
-    return fetch("https://smart-cafeteria-frontend.onrender.com/api/v1/payments/verify", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: "Bearer " + token
-        },
-        body: JSON.stringify({ txRef: orderId })
-    })
-        .then(function (r) { return r.json(); })
-        .then(function (d) { return !!(d && d.success); })
-        .catch(function () { return false; });
-};
-
 function renderPaymentStatus(orderData, currentId) {
     const statusEl = document.getElementById("receipt-payment-status");
     const status = normalizePaymentStatus(
@@ -422,6 +429,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const refreshOrder = async function () {
             const apiOrder = await window.getOrderFromApi(requestedId);
             if (apiOrder && (apiOrder.orderId === requestedId || apiOrder.id === requestedId)) {
+                // If the Chapa payment isn't confirmed yet, ask the backend to
+                // reconcile with Chapa's API (works even when the webhook is
+                // delayed or its signature secret isn't configured).
+                const payStatus = String(apiOrder.paymentStatus || (apiOrder.payment && apiOrder.payment.status) || "").toLowerCase();
+                if (payStatus !== "paid" && payStatus !== "completed") {
+                    window.verifyOrderPayment(requestedId).catch(function () {});
+                }
                 renderOrderStatus(apiOrder);
                 localStorage.setItem("latestOrder", JSON.stringify(apiOrder));
                 const hist = JSON.parse(localStorage.getItem("orderHistory")) || [];

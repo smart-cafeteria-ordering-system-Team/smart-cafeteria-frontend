@@ -704,6 +704,19 @@ document.addEventListener("DOMContentLoaded", () => {
                                     checkoutData?.checkoutUrl ||
                                     checkoutData?.data?.checkoutUrl ||
                                     "";
+                                // Remember the real Chapa tx_ref for this order so the
+                                // order-tracking page can verify it after payment.
+                                const txRef =
+                                    checkoutData?.transactionReference ||
+                                    checkoutData?.data?.transactionReference ||
+                                    "";
+                                if (txRef) {
+                                    try {
+                                        const pending = JSON.parse(localStorage.getItem("pendingChapaVerify")) || {};
+                                        pending[placedOrderId] = txRef;
+                                        localStorage.setItem("pendingChapaVerify", JSON.stringify(pending));
+                                    } catch (e) { /* ignore storage errors */ }
+                                }
                                 if (checkoutUrl) {
                                     window.location.href = checkoutUrl;
                                     return;
@@ -712,10 +725,11 @@ document.addEventListener("DOMContentLoaded", () => {
                                 window.location.href =
                                     `order-tracking.html?orderId=${encodeURIComponent(placedOrderId)}`;
                             } catch (initError) {
-                                alert(
-                                    "Payment link could not be created: " +
-                                    (initError.message || "Please try again.")
-                                );
+                                let initMsg = initError.message || "Please try again.";
+                                if (String(initMsg).indexOf("[object Object]") !== -1) {
+                                    initMsg = "Could not start Chapa payment. This usually means the customer email is not accepted by Chapa (use a real Gmail address). Contact the cafeteria for help.";
+                                }
+                                alert("Payment link could not be created: " + initMsg);
                                 window.location.href =
                                     `order-tracking.html?orderId=${encodeURIComponent(placedOrderId)}`;
                             }
