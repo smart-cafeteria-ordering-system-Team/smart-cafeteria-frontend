@@ -5,7 +5,12 @@
  */
 
 (function () {
-    const SOCKET_URL = 'https://smart-cafeteria-frontend.onrender.com';
+    const SOCKET_URL = (function() {
+        if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+            return window.SOCKET_URL || "http://localhost:5000";
+        }
+        return window.SOCKET_URL || "https://smart-cafeteria-frontend.onrender.com";
+    })();
     const STORAGE_KEY_USER = 'user';
     const STORAGE_KEY_TOKEN = 'auth_token';
     const STORAGE_KEY_TOKEN_ALT = 'token';
@@ -188,7 +193,16 @@
         });
 
         socket.on('connect_error', function (err) {
-            console.warn('[Socket] Connection error:', err.message);
+            // Suppress verbose console warning if error is due to page unloading or BFCache suspension
+            if (document.visibilityState === 'hidden') return;
+            console.warn('[Socket] Connection info:', err.message || err);
+        });
+
+        // Handle BFCache (Back-Forward Cache) events gracefully
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted && socket && !socket.connected) {
+                socket.connect();
+            }
         });
 
         // Store reference globally for cleanup if needed

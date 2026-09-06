@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Payment = require('../models/Payment');
 const Order = require('../models/Order');
 const User = require('../models/User');
@@ -11,29 +12,54 @@ const chapaConfigError = (res) =>
         message: 'Chapa payment gateway key missing. Please verify CHAPA_SECRET_KEY in Backend/.env file.'
     });
 
+const FAILED_PROVIDER_STATUSES = new Set(['failed', 'cancelled', 'canceled', 'reversed', 'declined', 'expired']);
+
 const completePayment = async (txRef) => {
-    const payment = await Payment.findOne({ provider: PAYMENT_METHODS.CHAPA, providerReference: txRef });
+    const isMongoId = mongoose.Types.ObjectId.isValid(txRef);
+    const payment = await Payment.findOne({
+        $or: [
+            { providerReference: txRef },
+            { chapaReference: txRef },
+            { reference: txRef },
+            { transactionId: txRef },
+            ...(isMongoId ? [{ _id: txRef }] : [])
+        ]
+    });
     if (!payment) return null;
     if (payment.status === PAYMENT_STATUS.PAID) return payment;
 
-    const verification = await chapa.verify(txRef);
+    const verification = await chapa.verify(payment.providerReference || payment.chapaReference || txRef);
     const providerData = verification.data || {};
-    const isPaid = providerData.status === 'success'
+    const providerStatus = String(providerData.status || '').toLowerCase();
+    const isPaid = providerStatus === 'success'
         && Number(providerData.amount) === Number(payment.amount)
         && (providerData.currency || 'ETB') === payment.currency;
-    payment.status = isPaid ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.FAILED;
-    payment.transactionId = providerData.reference || providerData.tx_ref || txRef;
-    payment.paidAt = isPaid ? new Date() : null;
+
+    let nextStatus;
+    if (isPaid) {
+        nextStatus = PAYMENT_STATUS.PAID;
+        payment.transactionId = providerData.reference || providerData.tx_ref || payment.providerReference || txRef;
+        payment.paidAt = new Date();
+    } else if (FAILED_PROVIDER_STATUSES.has(providerStatus)) {
+        // Provider explicitly reports the transaction failed or was reversed.
+        nextStatus = PAYMENT_STATUS.FAILED;
+        payment.paidAt = null;
+    } else {
+        // Still pending / not yet completed — do not corrupt the record.
+        nextStatus = payment.status === PAYMENT_STATUS.FAILED ? PAYMENT_STATUS.PENDING : payment.status;
+        payment.paidAt = null;
+    }
+    payment.status = nextStatus;
     await payment.save();
 
     await Order.findByIdAndUpdate(payment.orderId, {
-        paymentStatus: isPaid ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.FAILED,
+        paymentStatus: nextStatus,
         transactionId: isPaid ? payment.transactionId : null,
         payment: {
             method: payment.method,
             status: payment.status,
             transactionId: payment.transactionId,
-            providerReference: txRef,
+            providerReference: payment.providerReference || txRef,
             amount: payment.amount,
             currency: payment.currency,
             paidAt: payment.paidAt
@@ -42,12 +68,50 @@ const completePayment = async (txRef) => {
     return payment;
 };
 
+/**
+ * Resolve a Chapa payment for the current user using either the gateway
+ * transaction reference(s) or the human-readable order id/number, so the
+ * order-tracking page can verify payment by just knowing the order id.
+ */
+const findChapaPaymentForUser = async (ref, userId) => {
+    const isMongoId = mongoose.Types.ObjectId.isValid(ref);
+    let payment = await Payment.findOne({
+        $or: [
+            { chapaReference: ref },
+            { providerReference: ref },
+            { reference: ref },
+            { transactionId: ref },
+            ...(isMongoId ? [{ _id: ref }] : [])
+        ],
+        userId
+    });
+    if (payment) return payment;
+    const order = await Order.findOne({
+        $or: [
+            { orderId: ref },
+            { orderNumber: ref },
+            ...(isMongoId ? [{ _id: ref }] : [])
+        ],
+        userId
+    });
+    if (!order) return null;
+    return Payment.findOne({ orderId: order._id, provider: PAYMENT_METHODS.CHAPA }).sort({ createdAt: -1 });
+};
+
 exports.initializeChapaPayment = async (req, res) => {
     try {
         if (!process.env.CHAPA_SECRET_KEY) return chapaConfigError(res);
 
         const { orderId, returnUrl } = req.body;
-        const order = await Order.findOne({ orderId, userId: req.user.id });
+        const isMongoId = mongoose.Types.ObjectId.isValid(orderId);
+        const order = await Order.findOne({
+            $or: [
+                { orderId: orderId },
+                { orderNumber: orderId },
+                ...(isMongoId ? [{ _id: orderId }] : [])
+            ],
+            userId: req.user.id
+        });
         if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
         if (order.paymentStatus === PAYMENT_STATUS.PAID) {
             return res.status(400).json({ success: false, error: 'Order already paid' });
@@ -88,13 +152,19 @@ exports.initializeChapaPayment = async (req, res) => {
             : `https://${req.get('host')}/api/v1/payments/webhooks/chapa`;
 
         const [firstName, ...lastNameParts] = (user.name || 'Customer').trim().split(/\s+/);
+        const fallbackEmail = process.env.CHAPA_FALLBACK_EMAIL || 'payments@smartcafeteria.com';
+        
+        // Ensure email is a valid string; if invalid or missing, use fallbackEmail
+        const isValidEmail = (e) => typeof e === 'string' && e.includes('@') && !e.endsWith('.example') && !e.endsWith('.test');
+        let initialEmail = (user && isValidEmail(user.email)) ? user.email : fallbackEmail;
+
         const buildPayload = (email) => ({
             amount: String(order.totalAmount),
             currency: 'ETB',
             email,
             first_name: firstName,
             last_name: lastNameParts.join(' ') || firstName,
-            phone_number: user.phone || order.customerPhone || '',
+            phone_number: user?.phone || order.customerPhone || '',
             tx_ref: txRef,
             callback_url: callbackUrl,
             return_url: returnUrl || process.env.CHAPA_RETURN_URL,
@@ -102,13 +172,13 @@ exports.initializeChapaPayment = async (req, res) => {
         });
 
         let response;
-        let emailUsed = user.email;
+        let emailUsed = initialEmail;
         try {
-            response = await chapa.initialize(buildPayload(user.email));
+            response = await chapa.initialize(buildPayload(initialEmail));
         } catch (initError) {
-            if (initError.isEmailValidationError && process.env.CHAPA_FALLBACK_EMAIL) {
-                console.warn(`[Chapa] Customer email "${user.email}" rejected by Chapa; retrying with fallback "${process.env.CHAPA_FALLBACK_EMAIL}"`);
-                emailUsed = process.env.CHAPA_FALLBACK_EMAIL;
+            if (initialEmail !== fallbackEmail) {
+                console.warn(`[Chapa] Customer email "${initialEmail}" failed; retrying with fallback "${fallbackEmail}"`);
+                emailUsed = fallbackEmail;
                 response = await chapa.initialize(buildPayload(emailUsed));
             } else {
                 throw initError;
@@ -159,7 +229,7 @@ exports.chapaCallback = async (req, res) => {
  */
 exports.chapaWebhook = async (req, res) => {
     try {
-        if (!process.env.CHAPA_WEBHOOK_SECRET) {
+        if (!process.env.CHAPA_WEBHOOK_SECRET && !process.env.CHAPA_SECRET_KEY) {
             return res.status(500).json({
                 success: false,
                 message: 'Chapa webhook secret missing. Please verify CHAPA_WEBHOOK_SECRET in Backend/.env file.'
@@ -167,22 +237,29 @@ exports.chapaWebhook = async (req, res) => {
         }
 
         const rawBody = req.rawBody || JSON.stringify(req.body || {});
-        const signature =
-            req.headers['x-chapa-signature'] ||
-            req.headers['chapa-signature'] ||
-            req.headers['x-webhook-signature'] ||
-            '';
+        const xSignature = req.headers['x-chapa-signature'] || '';
+        const chapaSignature = req.headers['chapa-signature'] || '';
 
-        // Chapa does not send an HMAC signature header; it embeds a `hash`
-        // field inside the webhook body. Validate strictly when a signature
-        // header is present, otherwise trust the body (which itself carries
-        // the tx_ref we only accept if it matches a real local payment).
-        const hasSignatureHeader = Boolean(signature);
-        const valid = hasSignatureHeader
-            ? chapaService.validateWebhook({ rawBody, signature })
-            : true;
-        if (!valid) {
-            return res.status(401).json({ success: false, error: 'Invalid webhook signature' });
+        // Chapa signatures: `x-chapa-signature` (HMAC of payload) and/or
+        // `chapa-signature` (HMAC of the secret). When signatures are present
+        // they are verified; the payment only flips to paid after confirm with
+        // Chapa's transaction/verify API below, so webhooks are accepted even
+        // when the dashboard hash is misconfigured.
+        const hasSignatureHeader = Boolean(xSignature || chapaSignature);
+        let signatureValid = true;
+        if (hasSignatureHeader) {
+            try {
+                signatureValid = chapaService.validateWebhook({
+                    rawBody,
+                    xSignature,
+                    chapaSignature
+                });
+            } catch (sigErr) {
+                signatureValid = false;
+            }
+        }
+        if (hasSignatureHeader && !signatureValid) {
+            console.warn('[Chapa] Webhook signature invalid — relying on server-side verification');
         }
 
         const event = req.body || {};
@@ -190,15 +267,6 @@ exports.chapaWebhook = async (req, res) => {
         if (!txRef) {
             return res.status(400).json({ success: false, error: 'Transaction reference is required' });
         }
-
-        // Chapa event type/status locations can vary; trust the payload status.
-        const eventStatus = String(
-            event.status ||
-            event.event_type ||
-            event.data?.status ||
-            event.payment_status ||
-            'success'
-        ).toLowerCase();
 
         const payment = await Payment.findOne({
             $or: [{ providerReference: txRef }, { chapaReference: txRef }, { reference: txRef }]
@@ -208,48 +276,16 @@ exports.chapaWebhook = async (req, res) => {
             return res.status(404).json({ success: false, error: 'Payment not found for transaction reference' });
         }
 
-        const isSuccess = eventStatus === 'success'
-            || eventStatus === 'completed'
-            || eventStatus === 'succeeded'
-            || eventStatus === 'paid';
-        const isFailed = eventStatus === 'failed'
-            || eventStatus === 'cancelled'
-            || eventStatus === 'canceled'
-            || eventStatus === 'reversed';
-
-        // Only mutate when a success/failure is signaled by a non-pending event.
-        if (isSuccess && payment.status !== PAYMENT_STATUS.PAID) {
-            payment.status = PAYMENT_STATUS.PAID;
-            payment.transactionId = event.transaction_id || event.data?.reference || event.tx_ref || txRef;
-            payment.paidAt = new Date();
-            await payment.save();
-            await Order.findByIdAndUpdate(payment.orderId, {
-                paymentStatus: PAYMENT_STATUS.PAID,
-                transactionId: payment.transactionId,
-                payment: {
-                    method: payment.method,
-                    status: payment.status,
-                    transactionId: payment.transactionId,
-                    providerReference: txRef,
-                    amount: payment.amount,
-                    currency: payment.currency,
-                    paidAt: payment.paidAt
-                }
-            });
-            res.status(200).json({ success: true, message: 'webhook received', received: true });
-        } else if (isFailed && payment.status !== PAYMENT_STATUS.PAID && payment.status !== PAYMENT_STATUS.FAILED) {
-            payment.status = PAYMENT_STATUS.FAILED;
-            payment.transactionId = event.transaction_id || payment.transactionId || txRef;
-            await payment.save();
-            await Order.findByIdAndUpdate(payment.orderId, {
-                paymentStatus: PAYMENT_STATUS.FAILED,
-                transactionId: null
-            });
-            res.status(200).json({ success: true, message: 'webhook received', received: true });
-        } else {
-            // Already handled, or a benign info event (e.g. checkout.viewed).
-            res.status(200).json({ success: true, message: 'webhook received', received: true });
+        if (payment.status === PAYMENT_STATUS.PAID) {
+            return res.status(200).json({ success: true, message: 'webhook received', received: true });
         }
+
+        // Confirm directly with Chapa before mutating (recommended by Chapa).
+        const updated = await completePayment(txRef);
+        if (!updated) {
+            return res.status(404).json({ success: false, error: 'Payment not found for transaction reference' });
+        }
+        return res.status(200).json({ success: true, message: 'webhook received', received: true });
     } catch (error) {
         console.error('Chapa webhook error:', error);
         return res.status(error.statusCode || 502).json({ success: false, error: error.message });
@@ -266,10 +302,7 @@ exports.verifyChapaPayment = async (req, res) => {
     try {
         if (!process.env.CHAPA_SECRET_KEY) return chapaConfigError(res);
 
-        const payment = await Payment.findOne({
-            $or: [{ chapaReference: req.params.txRef }, { providerReference: req.params.txRef }],
-            userId: req.user.id
-        });
+        const payment = await findChapaPaymentForUser(req.params.txRef, req.user.id);
         if (!payment) return res.status(404).json({ success: false, error: 'Payment not found' });
         const updated = await completePayment(payment.providerReference || payment.chapaReference);
         return res.json({ success: updated.status === PAYMENT_STATUS.PAID, payment: updated });
@@ -290,10 +323,7 @@ exports.verifyChapaPaymentByBody = async (req, res) => {
 
         const txRef = req.body?.tx_ref || req.body?.txRef || req.body?.transactionReference;
         if (!txRef) return res.status(400).json({ success: false, error: 'Transaction reference is required' });
-        const payment = await Payment.findOne({
-            $or: [{ chapaReference: txRef }, { providerReference: txRef }],
-            userId: req.user.id
-        });
+        const payment = await findChapaPaymentForUser(txRef, req.user.id);
         if (!payment) return res.status(404).json({ success: false, error: 'Payment not found' });
         const updated = await completePayment(payment.providerReference || payment.chapaReference);
         return res.json({ success: updated.status === PAYMENT_STATUS.PAID, payment: updated });

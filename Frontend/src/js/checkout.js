@@ -2,7 +2,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const CART_KEY = "smart_cafeteria_cart";
     const SERVICE_FEE_ETB = 20;
-    const API_BASE_URL = "https://smart-cafeteria-frontend.onrender.com/api/v1";
+    const API_BASE_URL = (function() {
+        if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+            return window.API_BASE_URL || "http://localhost:5000/api/v1";
+        }
+        return window.API_BASE_URL || "https://smart-cafeteria-frontend.onrender.com/api/v1";
+    })();
 
     function getApiToken() {
         return localStorage.getItem("auth_token") || localStorage.getItem("token") || "";

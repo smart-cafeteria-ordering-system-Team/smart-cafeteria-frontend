@@ -101,15 +101,16 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", updateGlobalHeaderName);
-
-  // Show "Back to Admin" button for admin users
-  const backToAdminBtn = document.getElementById('backToAdminBtn');
-  if (backToAdminBtn) {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.role === 'admin') {
-      backToAdminBtn.classList.remove('d-none');
+  document.addEventListener("DOMContentLoaded", function () {
+    updateGlobalHeaderName();
+    var backToAdminBtn = document.getElementById("backToAdminBtn");
+    if (backToAdminBtn) {
+      try {
+        var user = JSON.parse(localStorage.getItem("user") || "{}");
+        if (user && user.role === "admin") {
+          backToAdminBtn.classList.remove("d-none");
+        }
+      } catch (e) {}
     }
-  }
-});
+  });
 })();

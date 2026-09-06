@@ -89,34 +89,40 @@ exports.verifyPayment = (txRef) =>
 
 /**
  * Validate an incoming Chapa webhook using the shared webhook secret.
- * Chapa signs webhooks with an HMAC-SHA256 over the raw request body using
- * the webhook signing secret as the key, delivered in the
- * `x-chapa-signature` (or `chapa-signature`) header.
+ *
+ * Chapa signs webhooks with HMAC-SHA256 using the secret hash configured in
+ * the Chapa dashboard (CHAPA_WEBHOOK_SECRET):
+ *  - `x-chapa-signature` => HMAC-SHA256 of the raw event payload.
+ *  - `chapa-signature`   => HMAC-SHA256 of the secret hash itself (origin
+ *                           marker, independent of the payload).
+ * If either signature matches, the webhook is considered authentic.
  *
  * @param {object} opts
- * @param {string} opts.rawBody - the raw (unparsed) request body as a string/Buffer
- * @param {string|null} opts.signature - the signature header value
+ * @param {string|Buffer} opts.rawBody - the raw (unparsed) request body
+ * @param {string|null} opts.xSignature - value of the `x-chapa-signature` header
+ * @param {string|null} opts.chapaSignature - value of the `chapa-signature` header
  * @returns {boolean} true when the webhook signature is valid
  */
-exports.validateWebhook = ({ rawBody = '', signature = null } = {}) => {
-    if (!process.env.CHAPA_WEBHOOK_SECRET) {
-        const error = new Error('CHAPA_WEBHOOK_SECRET is not configured');
-        error.statusCode = 500;
-        throw error;
-    }
-    if (!signature) return false;
-
+exports.validateWebhook = ({ rawBody = '', xSignature = null, chapaSignature = null } = {}) => {
     const crypto = require('crypto');
+    const secret = process.env.CHAPA_WEBHOOK_SECRET || process.env.CHAPA_SECRET_KEY;
+    if (!secret) return false;
+
     const body = Buffer.isBuffer(rawBody) ? rawBody.toString() : String(rawBody || '');
-    const expected = crypto
-        .createHmac('sha256', process.env.CHAPA_WEBHOOK_SECRET)
-        .update(body)
+
+    const hmacHex = (data) => crypto
+        .createHmac('sha256', secret)
+        .update(String(data))
         .digest('hex');
 
-    const provided = String(signature).replace(/^sha256=|^hmac\s+/i, '');
-    const a = Buffer.from(expected, 'hex');
-    const b = Buffer.from(provided, 'hex');
+    const safeEqual = (expectedHex, providedHex) => {
+        if (!providedHex) return false;
+        const a = Buffer.from(String(expectedHex).replace(/^sha256=|^hmac\s+/i, ''), 'hex');
+        const b = Buffer.from(String(providedHex).replace(/^sha256=|^hmac\s+/i, ''), 'hex');
+        return a.length === b.length && a.length > 0 && crypto.timingSafeEqual(a, b);
+    };
 
-    if (a.length !== b.length) return false;
-    return crypto.timingSafeEqual(a, b);
+    if (safeEqual(hmacHex(body), xSignature)) return true;
+    if (safeEqual(hmacHex(secret), chapaSignature)) return true;
+    return false;
 };

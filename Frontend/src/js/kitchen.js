@@ -126,7 +126,7 @@ export async function markServed(orderId) {
     try {
         const result = await updateOrderStatus(orderId, ORDER_STATUS.SERVED);
         if (result.success) {
-            showToast(Order ${orderId} served, 'info');
+            showToast(`Order ${orderId} served`, 'info');
         }
         return result;
     } catch (error) {

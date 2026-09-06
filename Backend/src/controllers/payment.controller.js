@@ -116,18 +116,23 @@ error: MESSAGES.SERVER_ERROR
 */
 exports.getPaymentByOrder = async (req, res) => {
 try {
-const { orderId } = req.params;
-
-const order = await Order.findOne({ orderId: orderId });
+const mongoose = require('mongoose');
+const isMongoId = mongoose.Types.ObjectId.isValid(orderId);
+const order = await Order.findOne({
+    $or: [
+        { orderId: orderId },
+        { orderNumber: orderId },
+        ...(isMongoId ? [{ _id: orderId }] : [])
+    ]
+});
 if (!order) {
 return res.status(HTTP_STATUS.NOT_FOUND).json({
 success: false,
-
 error: 'Order not found'
 });
 }
 
-const payment = await Payment.findOne({ orderId: order._id });
+const payment = await Payment.findOne({ orderId: order._id }).sort({ createdAt: -1 });
 
 if (!payment) {
 return res.status(HTTP_STATUS.NOT_FOUND).json({

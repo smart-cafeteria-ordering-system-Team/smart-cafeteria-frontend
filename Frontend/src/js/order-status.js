@@ -6,7 +6,12 @@
  */
 
 (function () {
-    const API_BASE_URL = "https://smart-cafeteria-frontend.onrender.com/api/v1";
+    const API_BASE_URL = (function() {
+        if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+            return window.API_BASE_URL || "http://localhost:5000/api/v1";
+        }
+        return window.API_BASE_URL || "https://smart-cafeteria-frontend.onrender.com/api/v1";
+    })();
 
     window.getApiToken = function () {
         return localStorage.getItem("auth_token") || localStorage.getItem("token") || "";
@@ -29,7 +34,7 @@
                 Accept: "application/json",
                 Authorization: "Bearer " + token
             },
-            body: JSON.stringify({ tx_ref: ref })
+            body: JSON.stringify({ tx_ref: ref, orderId: orderId })
         })
             .then(function (r) { return r.json(); })
             .then(function (d) { return !!(d && d.success); })
@@ -297,7 +302,16 @@ function renderPaymentStatus(orderData, currentId) {
 
 document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const requestedId = urlParams.get("orderId");
+    let requestedId = urlParams.get("orderId") || urlParams.get("id") || urlParams.get("order");
+    const trxRef = urlParams.get("trx_ref") || urlParams.get("tx_ref") || urlParams.get("reference");
+
+    // If Chapa return URL contains trx_ref (e.g. CAF-ET-1001-1788...), extract ET-1001 if requestedId is missing
+    if (!requestedId && trxRef) {
+        const match = trxRef.match(/CAF-([A-Z0-9-]+)-\d+/i) || trxRef.match(/CAF-([A-Z0-9-]+)/i);
+        if (match && match[1]) {
+            requestedId = match[1];
+        }
+    }
 
     function renderOrderStatus(orderData) {
         // Render empty state if no order is found
@@ -415,6 +429,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const historyData = JSON.parse(localStorage.getItem("orderHistory")) || [];
     const latestOrder = JSON.parse(localStorage.getItem("latestOrder"));
 
+    if (!requestedId && latestOrder) {
+        requestedId = latestOrder.orderId || latestOrder.id || "";
+    }
+
     if (requestedId) {
         orderData = historyData.find(o => (o.orderId || o.id) === requestedId);
     }
@@ -428,13 +446,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.getApiToken() && requestedId) {
         const refreshOrder = async function () {
             const apiOrder = await window.getOrderFromApi(requestedId);
-            if (apiOrder && (apiOrder.orderId === requestedId || apiOrder.id === requestedId)) {
-                // If the Chapa payment isn't confirmed yet, ask the backend to
-                // reconcile with Chapa's API (works even when the webhook is
-                // delayed or its signature secret isn't configured).
+            if (apiOrder) {
                 const payStatus = String(apiOrder.paymentStatus || (apiOrder.payment && apiOrder.payment.status) || "").toLowerCase();
                 if (payStatus !== "paid" && payStatus !== "completed") {
-                    window.verifyOrderPayment(requestedId).catch(function () {});
+                    await window.verifyOrderPayment(requestedId).catch(function () {});
+                    // Re-fetch to get updated payment status from backend DB
+                    const updatedOrder = await window.getOrderFromApi(requestedId);
+                    if (updatedOrder) {
+                        renderOrderStatus(updatedOrder);
+                        localStorage.setItem("latestOrder", JSON.stringify(updatedOrder));
+                        return;
+                    }
                 }
                 renderOrderStatus(apiOrder);
                 localStorage.setItem("latestOrder", JSON.stringify(apiOrder));
